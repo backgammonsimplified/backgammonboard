@@ -1,0 +1,16 @@
+Package: backgammonboard
+Title: Represent and Render Backgammon Positions
+Version: 0.0.0.9000
+Authors@R: person("Marty", "Gale", email = "marty.gale@users.noreply.github.com", role = c("aut", "cre"))
+Description: Provides validated factual backgammon position objects from complete
+    eXtreme Gammon identifiers (XGIDs), together with static board rendering
+    infrastructure. The package separates factual position state from display
+    context and does not evaluate strategy.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+Config/testthat/edition: 3
+Config/backgammonboard/contract-version: 1.0
+Suggests:
+    testthat (>= 3.0.0)
+Config/roxygen2/version: 8.0.0
