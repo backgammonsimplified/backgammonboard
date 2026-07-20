@@ -99,6 +99,8 @@ board_color_presets <- function() {
     cube_face = "#F8F4ED",
     cube_text = "#1B1F2A",
     cube_border = "#1B1F2A",
+    cube_offered_border = "#1B1F2A",
+    cube_crosshair = "#D9653B",
 
     # Arrows and overlays
     arrow_primary = "#D9653B",
@@ -128,15 +130,17 @@ board_color_presets <- function() {
     black_checker_ring = "#111B35",
     black_checker_outer_ring = "#081126",
     black_checker_text = "#F8EEDD",
-    die_white_fill = "#F8EEDD",
+    die_white_fill = "#FFFFFF",
     die_white_pips = "#111B35",
     die_white_border = "#111B35",
     die_black_fill = "#111B35",
-    die_black_pips = "#F8EEDD",
-    die_black_border = "#111B35",
-    cube_face = "#D8C5A5",
-    cube_text = "#0B1328",
-    cube_border = "#0B1328",
+    die_black_pips = "#FFFDF8",
+    die_black_border = "#081126",
+    cube_face = "#FFFFFF",
+    cube_text = "#111B35",
+    cube_border = "#111B35",
+    cube_offered_border = "#111B35",
+    cube_crosshair = "#D9653B",
     status_text = "#111B35"
   )
   bms[names(bms_overrides)] <- bms_overrides
