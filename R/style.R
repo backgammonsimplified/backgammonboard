@@ -93,7 +93,21 @@ board_style_presets <- function() {
     arrow_curvature = 0.15,
     move_label_size = 4.0,
     score_text_size = 4.0,
-    status_text_size = 3.5
+    status_text_size = 3.5,
+    information_player_name_size = 5.6,
+    information_secondary_text_size = 4.5,
+    information_pip_text_size = 5.0,
+    information_sentence_text_size = 4.7,
+    information_top_band_height = 1.10,
+    information_bottom_band_height = 1.62,
+    information_pip_offset = 0.42,
+    information_top_player_name_offset = 0.86,
+    information_top_secondary_offset = 0.42,
+    information_bottom_secondary_offset = 0.35,
+    information_bottom_player_name_offset = 0.82,
+    information_sentence_offset = 1.18,
+    information_player_x_nudge = -0.15,
+    information_sentence_x_nudge = 0.00
   )
 
   bms <- default
@@ -110,6 +124,20 @@ board_style_presets <- function() {
   bms$cube_crosshair_length <- 0.42
   bms$cube_crosshair_linewidth <- 0.45
   bms$cube_crosshair_alpha <- 0.80
+  bms$information_player_name_size <- 5.6
+  bms$information_secondary_text_size <- 4.5
+  bms$information_pip_text_size <- 5.0
+  bms$information_sentence_text_size <- 4.7
+  bms$information_top_band_height <- 1.10
+  bms$information_bottom_band_height <- 1.62
+  bms$information_pip_offset <- 0.42
+  bms$information_top_player_name_offset <- 0.86
+  bms$information_top_secondary_offset <- 0.42
+  bms$information_bottom_secondary_offset <- 0.35
+  bms$information_bottom_player_name_offset <- 0.82
+  bms$information_sentence_offset <- 1.18
+  bms$information_player_x_nudge <- -0.15
+  bms$information_sentence_x_nudge <- 0.00
 
   list(default = default, bms = bms)
 }
@@ -153,7 +181,19 @@ validate_board_style <- function(values) {
     "arrow_linewidth",
     "move_label_size",
     "score_text_size",
-    "status_text_size"
+    "status_text_size",
+    "information_player_name_size",
+    "information_secondary_text_size",
+    "information_pip_text_size",
+    "information_sentence_text_size",
+    "information_top_band_height",
+    "information_bottom_band_height",
+    "information_pip_offset",
+    "information_top_player_name_offset",
+    "information_top_secondary_offset",
+    "information_bottom_secondary_offset",
+    "information_bottom_player_name_offset",
+    "information_sentence_offset"
   )
 
   for (name in positive_scalars) {
@@ -161,6 +201,26 @@ validate_board_style <- function(values) {
     if (!is.numeric(value) || length(value) != 1L || is.na(value) || value <= 0) {
       stop(
         paste0("`", name, "` must be a positive numeric scalar."),
+        call. = FALSE
+      )
+    }
+  }
+
+  unrestricted_scalars <- c(
+    "information_player_x_nudge",
+    "information_sentence_x_nudge"
+  )
+
+  for (name in unrestricted_scalars) {
+    value <- values[[name]]
+    if (
+      !is.numeric(value) ||
+      length(value) != 1L ||
+      is.na(value) ||
+      !is.finite(value)
+    ) {
+      stop(
+        paste0("`", name, "` must be a finite numeric scalar."),
         call. = FALSE
       )
     }

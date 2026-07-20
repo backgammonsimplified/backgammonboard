@@ -108,6 +108,7 @@ board_color_presets <- function() {
 
     # Text
     score_text = "#1B1F2A",
+    secondary_text = "#59606A",
     status_text = "#1B1F2A"
   )
 
@@ -141,6 +142,8 @@ board_color_presets <- function() {
     cube_border = "#111B35",
     cube_offered_border = "#111B35",
     cube_crosshair = "#D9653B",
+    score_text = "#111B35",
+    secondary_text = "#566078",
     status_text = "#111B35"
   )
   bms[names(bms_overrides)] <- bms_overrides

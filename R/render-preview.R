@@ -228,6 +228,13 @@ render_board_preview <- function(
     cube_x_mode = c("outside", "inside"),
     cube_value = NULL,
     show_cube_crosshair = FALSE,
+    show_information = TRUE,
+    white_name = "White",
+    black_name = "Black",
+    white_wins = NULL,
+    black_wins = NULL,
+    status_text = NULL,
+    information_family = "sans",
     show_guides = FALSE,
     guide_color = "#D9653B",
     guide_width = 0.60,
@@ -344,6 +351,22 @@ render_board_preview <- function(
     y_nudge = brand_y_nudge
   )
 
+  if (isTRUE(show_information)) {
+    plot <- add_board_information(
+      plot = plot,
+      position = position,
+      geometry = geometry,
+      colors = colors,
+      style = style,
+      white_name = white_name,
+      black_name = black_name,
+      white_wins = white_wins,
+      black_wins = black_wins,
+      status_text = status_text,
+      family = information_family
+    )
+  }
+
   if (isTRUE(show_guides)) {
     plot <- add_board_guides(
       plot = plot,
@@ -354,11 +377,21 @@ render_board_preview <- function(
     )
   }
 
+  y_limits <- if (isTRUE(show_information)) {
+    c(
+      -style$information_bottom_band_height,
+      style$board_height + style$information_top_band_height
+    )
+  } else {
+    c(0, style$board_height)
+  }
+
   plot +
     ggplot2::coord_fixed(
       xlim = c(0, style$board_width),
-      ylim = c(0, style$board_height),
-      expand = FALSE
+      ylim = y_limits,
+      expand = FALSE,
+      clip = "off"
     ) +
     ggplot2::theme_void() +
     ggplot2::theme(
@@ -369,6 +402,13 @@ render_board_preview <- function(
       panel.background = ggplot2::element_rect(
         fill = colors$outside_fill,
         color = NA
+      ),
+      plot.margin = ggplot2::margin(
+        t = 8,
+        r = 8,
+        b = 8,
+        l = 8,
+        unit = "pt"
       )
     )
 }
