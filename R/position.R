@@ -106,7 +106,7 @@ print.backgammon_position <- function(x, ...) {
     away <- x$match_length - x$score
     cat(
       "  Score: White ", x$score[["white"]], " / Black ", x$score[["black"]],
-      "  - ", away[["white"]], "-away / ", away[["black"]], "-away\n",
+      " - ", away[["white"]], "-away / ", away[["black"]], "-away\n",
       sep = ""
     )
     cat("  Crawford: ", x$crawford_status, "\n", sep = "")

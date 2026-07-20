@@ -1,3 +1,6 @@
+^.*[.]Rproj$
+^[.]Rproj[.]user$
+^IMPLEMENTATION_STATUS[.]md$
+^dev$
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^IMPLEMENTATION_STATUS[.]md$
