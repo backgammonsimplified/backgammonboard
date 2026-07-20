@@ -79,10 +79,16 @@ board_style_presets <- function() {
     field_border_width = 0.45,
     point_border_width = 0.25,
     die_scale = 1.0,
+    die_gap = 0.20,
     die_border_width = 0.3,
-    cube_scale = 2.0,
-    cube_text_size = 4.5,
+    cube_scale = 1.0,
+    cube_inner_scale = 0.76,
+    cube_text_size = 4.0,
     cube_border_width = 0.3,
+    cube_outside_gap = 0.08,
+    cube_crosshair_length = 0.42,
+    cube_crosshair_linewidth = 0.45,
+    cube_crosshair_alpha = 0.80,
     arrow_linewidth = 1.0,
     arrow_curvature = 0.15,
     move_label_size = 4.0,
@@ -93,6 +99,17 @@ board_style_presets <- function() {
   bms <- default
   bms$checker_stack_step <- 0.78
   bms$checker_margin <- 0.025
+  bms$die_scale <- 1.00
+  bms$die_gap <- 0.30
+  bms$die_border_width <- 0.80
+  bms$cube_scale <- 1.05
+  bms$cube_inner_scale <- 0.76
+  bms$cube_text_size <- 3.8
+  bms$cube_border_width <- 0.3
+  bms$cube_outside_gap <- 0.08
+  bms$cube_crosshair_length <- 0.42
+  bms$cube_crosshair_linewidth <- 0.45
+  bms$cube_crosshair_alpha <- 0.80
 
   list(default = default, bms = bms)
 }
@@ -124,10 +141,15 @@ validate_board_style <- function(values) {
     "field_border_width",
     "point_border_width",
     "die_scale",
+    "die_gap",
     "die_border_width",
     "cube_scale",
+    "cube_inner_scale",
     "cube_text_size",
     "cube_border_width",
+    "cube_outside_gap",
+    "cube_crosshair_length",
+    "cube_crosshair_linewidth",
     "arrow_linewidth",
     "move_label_size",
     "score_text_size",
@@ -142,6 +164,26 @@ validate_board_style <- function(values) {
         call. = FALSE
       )
     }
+  }
+
+  if (
+    !is.numeric(values$cube_crosshair_alpha) ||
+    length(values$cube_crosshair_alpha) != 1L ||
+    is.na(values$cube_crosshair_alpha) ||
+    values$cube_crosshair_alpha < 0 ||
+    values$cube_crosshair_alpha > 1
+  ) {
+    stop("`cube_crosshair_alpha` must be between 0 and 1.", call. = FALSE)
+  }
+
+  if (
+    !is.numeric(values$cube_inner_scale) ||
+    length(values$cube_inner_scale) != 1L ||
+    is.na(values$cube_inner_scale) ||
+    values$cube_inner_scale <= 0 ||
+    values$cube_inner_scale >= 1
+  ) {
+    stop("`cube_inner_scale` must be greater than 0 and less than 1.", call. = FALSE)
   }
 
   if (!is.numeric(values$max_stack_visible) ||

@@ -223,6 +223,11 @@ render_board_preview <- function(
     brand_size = 6.0,
     brand_alpha = 0.90,
     brand_y_nudge = 0,
+    show_cube = TRUE,
+    cube_state = NULL,
+    cube_x_mode = c("outside", "inside"),
+    cube_value = NULL,
+    show_cube_crosshair = FALSE,
     show_guides = FALSE,
     guide_color = "#D9653B",
     guide_width = 0.60,
@@ -230,6 +235,7 @@ render_board_preview <- function(
 ) {
   point_1_side <- match.arg(point_1_side)
   brand_side <- match.arg(brand_side)
+  cube_x_mode <- match.arg(cube_x_mode)
 
   if (!inherits(colors, "backgammon_board_colors")) {
     stop("`colors` must be created by board_colors().", call. = FALSE)
@@ -305,6 +311,28 @@ render_board_preview <- function(
 
   plot <- add_board_checkers(plot, checkers, colors, style)
   plot <- add_off_checkers(plot, checkers$off, colors, style)
+  plot <- add_dice_layers(
+    plot = plot,
+    position = position,
+    geometry = geometry,
+    colors = colors,
+    style = style
+  )
+
+  if (isTRUE(show_cube)) {
+    plot <- add_cube_layers(
+      plot = plot,
+      position = position,
+      geometry = geometry,
+      colors = colors,
+      style = style,
+      cube_state = cube_state,
+      cube_x_mode = cube_x_mode,
+      cube_value = cube_value,
+      show_crosshair = show_cube_crosshair
+    )
+  }
+
   plot <- add_board_brand(
     plot = plot,
     geometry = geometry,
