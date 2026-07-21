@@ -1,44 +1,49 @@
 # Implementation status
 
 Contract version: 1.0
-Package version: 0.0.0.9000
+Package version: 0.1.0
 
-## Completed
+## Completed in the XGID render integration checkpoint
 
-1. `normalize_xgid()`
-2. `validate_xgid()`
-3. `backgammon_position()`
-4. opening and asymmetric coordinate fixtures
-5. `board_colors()` and `board_style()`
-6. canonical geometry and checker rendering preview
+1. strict complete-XGID normalization and structured validation;
+2. turn-relative payload decoding into stable White-relative facts;
+3. factual `backgammon_position()` with `is_crawford`, `action_marker`, and
+   separate XGID maximum-cube metadata;
+4. package-supported factual cube limit of 64;
+5. centered, owned, hidden, and receiver-aware offered cube states;
+6. explicit versus neutral status context;
+7. semantic White and Black perspective across points, checkers, bars, off
+   markers, dice, cubes, and information rows;
+8. public `ggboard(xgid)` returning an ordinary `ggplot`;
+9. static differential XGID fixtures and end-to-end tests;
+10. deterministic 17-image factual visual-review script.
 
-## Current visual checkpoint
+## Deferred
 
-The internal development helper below renders canonical White-relative geometry
-and checkers only:
-
-```r
-backgammonboard:::render_board_preview(
-  xgid,
-  point_1_side = "right"
-)
+```text
+board_moves()
+move parsing
+move application
+after_xgid validation
+move overlays
+Shiny migration
+website integration
 ```
 
-The layout includes:
+## Review gate
 
-- equal-width outer rails using the center-bar color;
-- cream side panels outside the playing fields;
-- a left panel reserved for cube placement;
-- a right panel for borne-off markers and later score information;
-- numbered checker markers for borne-off counts;
-- selectable point-1 placement on the right or left.
+Run:
 
-The preview intentionally does not yet include perspective, score, pip count,
-status, dice, cube, move overlays, or `after_xgid`.
+```r
+devtools::test()
+source("dev/xgid-render-fixtures.R")
+devtools::check()
+```
 
-## Next
+Review the generated images under:
 
-7. perspective
-8. scores, pips, and status
-9. dice
-10. centered and owned cubes
+```text
+dev/preview-output/xgid-render-fixtures/
+```
+
+Do not release while any factual render is false or misleading.

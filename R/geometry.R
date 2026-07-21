@@ -38,7 +38,11 @@ board_layout <- function(style) {
   )
 }
 
-point_layout_table <- function(style, point_1_side = c("right", "left")) {
+point_layout_table <- function(
+    style,
+    point_1_side = c("right", "left"),
+    perspective = NULL
+) {
   point_1_side <- match.arg(point_1_side)
   layout <- board_layout(style)
 
@@ -50,7 +54,21 @@ point_layout_table <- function(style, point_1_side = c("right", "left")) {
   right_centers <-
     layout$right_play_xmin + (seq_len(6) - 0.5) * right_step
 
-  if (identical(point_1_side, "right")) {
+  if (!is.null(perspective)) {
+    perspective <- normalize_board_perspective(perspective)
+
+    if (identical(perspective, "white")) {
+      bottom_left <- 12:7
+      bottom_right <- 6:1
+      top_left <- 13:18
+      top_right <- 19:24
+    } else {
+      bottom_left <- 24:19
+      bottom_right <- 18:13
+      top_left <- 1:6
+      top_right <- 7:12
+    }
+  } else if (identical(point_1_side, "right")) {
     bottom_left <- 12:7
     bottom_right <- 6:1
     top_left <- 13:18
@@ -142,10 +160,18 @@ point_number_data <- function(layout, style) {
   )
 }
 
-board_geometry <- function(style, point_1_side = c("right", "left")) {
+board_geometry <- function(
+    style,
+    point_1_side = c("right", "left"),
+    perspective = NULL
+) {
   point_1_side <- match.arg(point_1_side)
   layout <- board_layout(style)
-  point_layout <- point_layout_table(style, point_1_side)
+  point_layout <- point_layout_table(
+    style,
+    point_1_side = point_1_side,
+    perspective = perspective
+  )
 
   list(
     canvas = data.frame(

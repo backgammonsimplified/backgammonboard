@@ -15,14 +15,13 @@
 backgammon_position <- function(x) {
   xgid <- normalize_xgid(x)
   fields <- strsplit(substring(xgid, 6L), ":", fixed = TRUE)[[1L]]
-  names(fields) <- c(
-    "position", "cube_exponent", "cube_owner", "turn", "dice_action",
-    "score_white", "score_black", "crawford_jacoby", "match_length",
-    "max_cube_exponent"
-  )
+  names(fields) <- xgid_field_names()
 
   parsed <- parse_validated_xgid_fields(fields)
-  payload <- decode_xgid_payload(fields[["position"]])
+  payload <- decode_xgid_payload(
+    fields[["position"]],
+    parsed$turn_code
+  )
   play_context <- if (parsed$match_length == 0L) "unlimited" else "match"
 
   score <- c(
@@ -74,10 +73,12 @@ backgammon_position <- function(x) {
       is_crawford = identical(play_context, "match") &&
         identical(parsed$crawford_jacoby, 1L),
       position_payload = fields[["position"]],
+      action_marker = parsed$dice_action,
       dice_action = parsed$dice_action,
       cube_exponent = as.integer(parsed$cube_exponent),
-      encoded_max_cube = as.integer(2^parsed$max_cube_exponent),
-      max_cube = as.integer(2^parsed$max_cube_exponent),
+      xgid_max_cube = 2^parsed$max_cube_exponent,
+      encoded_max_cube = 2^parsed$max_cube_exponent,
+      max_cube = 2^parsed$max_cube_exponent,
       max_cube_exponent = as.integer(parsed$max_cube_exponent),
       max_supported_cube_value = supported_cube_max(),
       jacoby = unlimited_rules$jacoby,

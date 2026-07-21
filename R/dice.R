@@ -130,7 +130,12 @@ empty_dice_layout <- function() {
 }
 
 
-dice_layout <- function(position, geometry, style) {
+dice_layout <- function(
+    position,
+    geometry,
+    style,
+    perspective = "white"
+) {
   if (!inherits(position, "backgammon_position")) {
     stop("`position` must be a backgammon_position.", call. = FALSE)
   }
@@ -139,7 +144,9 @@ dice_layout <- function(position, geometry, style) {
     return(empty_dice_layout())
   }
 
-  field <- if (identical(position$on_roll, "white")) {
+  perspective <- normalize_board_perspective(perspective)
+
+  field <- if (identical(position$on_roll, perspective)) {
     geometry$right_field
   } else {
     geometry$left_field
@@ -208,12 +215,14 @@ add_dice_layers <- function(
     position,
     geometry,
     colors,
-    style
+    style,
+    perspective = "white"
 ) {
   dice <- dice_layout(
     position = position,
     geometry = geometry,
-    style = style
+    style = style,
+    perspective = perspective
   )
 
   if (nrow(dice$faces) == 0L) {

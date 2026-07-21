@@ -116,12 +116,16 @@ board_information_layout <- function(
     black_name = "Black",
     white_wins = NULL,
     black_wins = NULL,
-    context = NULL
+    context = NULL,
+    perspective = "white",
+    score_format = c("away", "raw", "both")
 ) {
   if (!inherits(position, "backgammon_position")) {
     stop("`position` must be a backgammon_position.", call. = FALSE)
   }
 
+  perspective <- normalize_board_perspective(perspective)
+  score_format <- match.arg(score_format)
   white_name <- validate_information_name(white_name, "white_name")
   black_name <- validate_information_name(black_name, "black_name")
   white_wins <- validate_optional_win_count(white_wins, "white_wins")
@@ -131,55 +135,66 @@ board_information_layout <- function(
   board_center_x <- mean(c(frame$xmin, frame$xmax))
   player_x <- frame$xmax + style$information_player_x_nudge
 
-  white_pips <- position_pip_count(position, "white")
-  black_pips <- position_pip_count(position, "black")
+  pips <- c(
+    white = position_pip_count(position, "white"),
+    black = position_pip_count(position, "black")
+  )
+  names_by_player <- c(white = white_name, black = black_name)
 
   if (identical(position$play_context, "match")) {
     away <- position$match_length - position$score
-    white_secondary <- paste0(away[["white"]], "-away")
-    black_secondary <- paste0(away[["black"]], "-away")
+    secondary <- vapply(c("white", "black"), function(player) {
+      raw_label <- paste0(position$score[[player]], " points")
+      away_label <- paste0(away[[player]], "-away")
+      switch(
+        score_format,
+        raw = raw_label,
+        away = away_label,
+        both = paste0(raw_label, " \u00b7 ", away_label)
+      )
+    }, character(1))
+    names(secondary) <- c("white", "black")
   } else {
-    resolved_white_wins <- if (is.null(white_wins)) {
-      as.integer(position$score[["white"]])
-    } else {
-      white_wins
-    }
-
-    resolved_black_wins <- if (is.null(black_wins)) {
-      as.integer(position$score[["black"]])
-    } else {
-      black_wins
-    }
-
-    white_secondary <- format_win_count(resolved_white_wins)
-    black_secondary <- format_win_count(resolved_black_wins)
+    resolved_wins <- c(
+      white = if (is.null(white_wins)) as.integer(position$score[["white"]]) else white_wins,
+      black = if (is.null(black_wins)) as.integer(position$score[["black"]]) else black_wins
+    )
+    secondary <- vapply(resolved_wins, format_win_count, character(1))
   }
 
-  top <- data.frame(
-    player = "black",
-    name = black_name,
-    secondary = black_secondary,
-    pip_label = paste0("Black pips: ", black_pips),
-    player_x = player_x,
-    player_name_y = frame$ymax + style$information_top_player_name_offset,
-    secondary_y = frame$ymax + style$information_top_secondary_offset,
-    pip_x = board_center_x,
-    pip_y = frame$ymax + style$information_pip_offset,
-    stringsAsFactors = FALSE
-  )
+  bottom_player <- perspective
+  top_player <- other_semantic_player(bottom_player)
 
-  bottom <- data.frame(
-    player = "white",
-    name = white_name,
-    secondary = white_secondary,
-    pip_label = paste0("White pips: ", white_pips),
-    player_x = player_x,
-    player_name_y = frame$ymin - style$information_bottom_player_name_offset,
-    secondary_y = frame$ymin - style$information_bottom_secondary_offset,
-    pip_x = board_center_x,
-    pip_y = frame$ymin - style$information_pip_offset,
-    stringsAsFactors = FALSE
-  )
+  make_row <- function(player, side) {
+    is_top <- identical(side, "top")
+    data.frame(
+      player = player,
+      name = unname(names_by_player[[player]]),
+      secondary = unname(secondary[[player]]),
+      pip_label = paste0(sentence_case_player(player), " pips: ", pips[[player]]),
+      player_x = player_x,
+      player_name_y = if (is_top) {
+        frame$ymax + style$information_top_player_name_offset
+      } else {
+        frame$ymin - style$information_bottom_player_name_offset
+      },
+      secondary_y = if (is_top) {
+        frame$ymax + style$information_top_secondary_offset
+      } else {
+        frame$ymin - style$information_bottom_secondary_offset
+      },
+      pip_x = board_center_x,
+      pip_y = if (is_top) {
+        frame$ymax + style$information_pip_offset
+      } else {
+        frame$ymin - style$information_pip_offset
+      },
+      stringsAsFactors = FALSE
+    )
+  }
+
+  top <- make_row(top_player, "top")
+  bottom <- make_row(bottom_player, "bottom")
 
   match_label <- match_context_label(position)
   status <- position_status_label(position, context = context)
@@ -212,9 +227,12 @@ add_board_information <- function(
     white_wins = NULL,
     black_wins = NULL,
     context = NULL,
-    family = "sans"
+    family = "sans",
+    perspective = "white",
+    score_format = c("away", "raw", "both")
 ) {
   family <- validate_information_name(family, "information_family")
+  score_format <- match.arg(score_format)
 
   information <- board_information_layout(
     position = position,
@@ -224,7 +242,9 @@ add_board_information <- function(
     black_name = black_name,
     white_wins = white_wins,
     black_wins = black_wins,
-    context = context
+    context = context,
+    perspective = perspective,
+    score_format = score_format
   )
 
   plot +

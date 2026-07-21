@@ -1,8 +1,10 @@
 AnkiGammon
 
-The backgammonboard move-parser architecture records AnkiGammon as a pinned
-behavioral reference. No AnkiGammon source code is included in the current
-architecture-seed branch.
+backgammonboard records AnkiGammon as a pinned behavioral reference for its
+XGID decoder and for the deferred move-parser architecture. The package contains
+an independently authored native R behavioral port of selected XGID behavior.
+No AnkiGammon source code is bundled, and no Python runtime dependency is
+introduced.
 
 MIT License
 

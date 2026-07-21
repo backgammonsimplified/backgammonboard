@@ -14,6 +14,8 @@ An object of class \code{backgammon_position}.
 }
 \description{
 \code{backgammon_position()} converts a supported complete XGID into a factual
-position object. White and Black are semantic identities; display perspective
-is deliberately absent from this object.
+position object. White and Black are stable semantic identities; display
+perspective is deliberately absent from this object. The object preserves the
+raw action marker and XGID maximum-cube metadata separately from the package's
+supported factual cube limit.
 }

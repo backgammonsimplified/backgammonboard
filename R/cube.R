@@ -15,14 +15,10 @@ cube_visual_state <- function(cube_display) {
     },
     offered = if (identical(cube_display$receiver, "white")) {
       "offered_white"
+    } else if (identical(cube_display$receiver, "black")) {
+      "offered_black"
     } else {
-      stop(
-        paste0(
-          "The frozen offered-cube renderer currently supports only ",
-          "offers to White."
-        ),
-        call. = FALSE
-      )
+      stop("An offered cube requires a semantic receiver.", call. = FALSE)
     },
     stop("Unsupported resolved cube-display state.", call. = FALSE)
   )
@@ -35,7 +31,8 @@ legacy_cube_display <- function(position, cube_state, cube_value = NULL) {
     "centered",
     "owned_white",
     "owned_black",
-    "offered_white"
+    "offered_white",
+    "offered_black"
   )
 
   if (
@@ -73,7 +70,16 @@ legacy_cube_display <- function(position, cube_state, cube_value = NULL) {
       owner = if (identical(position$cube_owner, "center")) NULL else position$cube_owner,
       offerer = "black",
       receiver = "white",
-      placement = "inside_left_field"
+      placement = "offered_to_white"
+    ),
+    offered_black = new_cube_display(
+      TRUE,
+      "offered",
+      value,
+      owner = if (identical(position$cube_owner, "center")) NULL else position$cube_owner,
+      offerer = "white",
+      receiver = "black",
+      placement = "offered_to_black"
     )
   )
 }
@@ -169,7 +175,8 @@ cube_center <- function(
     centered_y_nudge = 0,
     white_y_nudge = 0,
     black_y_nudge = 0,
-    offered_y_nudge = 0
+    offered_y_nudge = 0,
+    perspective = "white"
 ) {
   valid_x_modes <- c("outside", "inside")
 
@@ -185,9 +192,13 @@ cube_center <- function(
     )
   }
 
+  perspective <- normalize_board_perspective(perspective)
+
   frame_xmin <- geometry$frame$xmin[[1L]]
   left_field_xmin <- geometry$left_field$xmin[[1L]]
   left_field_xmax <- geometry$left_field$xmax[[1L]]
+  right_field_xmin <- geometry$right_field$xmin[[1L]]
+  right_field_xmax <- geometry$right_field$xmax[[1L]]
   field_ymin <- geometry$left_field$ymin[[1L]]
   field_ymax <- geometry$left_field$ymax[[1L]]
 
@@ -196,9 +207,13 @@ cube_center <- function(
     geometry$frame$ymax[[1L]]
   ))
 
-  inside_x <- mean(c(
+  inside_left_x <- mean(c(
     left_field_xmin,
     left_field_xmax
+  ))
+  inside_right_x <- mean(c(
+    right_field_xmin,
+    right_field_xmax
   ))
 
   outside_x <-
@@ -206,14 +221,21 @@ cube_center <- function(
     style$cube_scale / 2 -
     style$cube_outside_gap
 
-  resolved_x_mode <- if (identical(state, "offered_white")) {
-    "inside"
+  is_offered <- state %in% c("offered_white", "offered_black")
+  resolved_x_mode <- if (is_offered) "inside" else x_mode
+
+  receiver <- if (identical(state, "offered_white")) {
+    "white"
+  } else if (identical(state, "offered_black")) {
+    "black"
   } else {
-    x_mode
+    NULL
   }
 
-  x <- if (identical(resolved_x_mode, "inside")) {
-    inside_x
+  x <- if (is_offered) {
+    if (identical(receiver, perspective)) inside_left_x else inside_right_x
+  } else if (identical(resolved_x_mode, "inside")) {
+    inside_left_x
   } else {
     outside_x
   }
@@ -228,12 +250,23 @@ cube_center <- function(
     style$checker_margin -
     style$checker_outer_radius
 
+  white_is_bottom <- identical(perspective, "white")
+
   y <- switch(
     state,
     centered = board_y_center + centered_y_nudge,
-    owned_white = white_first_checker_y + white_y_nudge,
-    owned_black = black_first_checker_y + black_y_nudge,
-    offered_white = board_y_center + offered_y_nudge
+    owned_white = if (white_is_bottom) {
+      white_first_checker_y + white_y_nudge
+    } else {
+      black_first_checker_y + white_y_nudge
+    },
+    owned_black = if (white_is_bottom) {
+      black_first_checker_y + black_y_nudge
+    } else {
+      white_first_checker_y + black_y_nudge
+    },
+    offered_white = board_y_center + offered_y_nudge,
+    offered_black = board_y_center + offered_y_nudge
   )
 
   data.frame(
@@ -259,7 +292,8 @@ cube_layout <- function(
     centered_y_nudge = 0,
     white_y_nudge = 0,
     black_y_nudge = 0,
-    offered_y_nudge = 0
+    offered_y_nudge = 0,
+    perspective = "white"
 ) {
   assert_backgammon_position(position)
   cube_x_mode <- match.arg(cube_x_mode)
@@ -311,7 +345,8 @@ cube_layout <- function(
     centered_y_nudge = centered_y_nudge,
     white_y_nudge = white_y_nudge,
     black_y_nudge = black_y_nudge,
-    offered_y_nudge = offered_y_nudge
+    offered_y_nudge = offered_y_nudge,
+    perspective = perspective
   )
 
   outer <- cube_face_polygon(
@@ -386,7 +421,8 @@ add_cube_layers <- function(
     centered_y_nudge = 0,
     white_y_nudge = 0,
     black_y_nudge = 0,
-    offered_y_nudge = 0
+    offered_y_nudge = 0,
+    perspective = "white"
 ) {
   cube_x_mode <- match.arg(cube_x_mode)
 
@@ -404,7 +440,8 @@ add_cube_layers <- function(
     centered_y_nudge = centered_y_nudge,
     white_y_nudge = white_y_nudge,
     black_y_nudge = black_y_nudge,
-    offered_y_nudge = offered_y_nudge
+    offered_y_nudge = offered_y_nudge,
+    perspective = perspective
   )
 
   if (!isTRUE(cube$visible)) {

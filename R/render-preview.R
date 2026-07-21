@@ -218,6 +218,7 @@ render_board_preview <- function(
     colors = board_colors("bms"),
     style = board_style("bms"),
     point_1_side = c("right", "left"),
+    perspective = NULL,
     brand_text = "Backgammon\nMade Simple",
     brand_side = c("left", "right"),
     brand_size = 6.0,
@@ -233,6 +234,7 @@ render_board_preview <- function(
     white_wins = NULL,
     black_wins = NULL,
     context = NULL,
+    score_format = c("away", "raw", "both"),
     information_family = "sans",
     show_guides = FALSE,
     guide_color = "#D9653B",
@@ -240,6 +242,12 @@ render_board_preview <- function(
     guide_alpha = 0.80
 ) {
   point_1_side <- match.arg(point_1_side)
+  score_format <- match.arg(score_format)
+  resolved_perspective <- if (is.null(perspective)) {
+    "white"
+  } else {
+    normalize_board_perspective(perspective)
+  }
   brand_side <- match.arg(brand_side)
   cube_x_mode <- match.arg(cube_x_mode)
 
@@ -284,8 +292,17 @@ render_board_preview <- function(
     offer = resolved_offer
   )
 
-  geometry <- board_geometry(style, point_1_side)
-  checkers <- checker_layout(position, style, point_1_side)
+  geometry <- board_geometry(
+    style,
+    point_1_side = point_1_side,
+    perspective = if (is.null(perspective)) NULL else resolved_perspective
+  )
+  checkers <- checker_layout(
+    position,
+    style,
+    point_1_side = point_1_side,
+    perspective = if (is.null(perspective)) NULL else resolved_perspective
+  )
 
   plot <- ggplot2::ggplot() +
     ggplot2::geom_rect(
@@ -349,7 +366,8 @@ render_board_preview <- function(
     position = position,
     geometry = geometry,
     colors = colors,
-    style = style
+    style = style,
+    perspective = resolved_perspective
   )
 
   if (isTRUE(show_cube) && isTRUE(cube_display$visible)) {
@@ -361,7 +379,8 @@ render_board_preview <- function(
       style = style,
       cube_display = cube_display,
       cube_x_mode = cube_x_mode,
-      show_crosshair = show_cube_crosshair
+      show_crosshair = show_cube_crosshair,
+      perspective = resolved_perspective
     )
   }
 
@@ -388,7 +407,9 @@ render_board_preview <- function(
       white_wins = white_wins,
       black_wins = black_wins,
       context = context,
-      family = information_family
+      family = information_family,
+      perspective = resolved_perspective,
+      score_format = score_format
     )
   }
 

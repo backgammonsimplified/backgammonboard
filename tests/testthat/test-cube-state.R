@@ -44,7 +44,9 @@ test_that("factual position exposes one Crawford fact and cube facts", {
   expect_identical(position$score_black, 2L)
   expect_false(position$is_crawford)
   expect_null(position$crawford_status)
-  expect_null(position$action)
+  expect_false("action" %in% names(position))
+  expect_null(position[["action"]])
+  expect_identical(position$action_marker, "00")
 })
 
 
@@ -483,7 +485,7 @@ test_that("a pending offer must come from the player on roll", {
   expect_identical(result$reason, "offerer_not_on_roll")
 })
 
-test_that("frozen offered-cube rendering supports offers to White only", {
+test_that("offered-cube rendering supports both semantic receivers", {
   offered_to_white_position <- backgammon_position(
     fixture_xgid(
       cube_exponent = 1L,
@@ -528,8 +530,5 @@ test_that("frozen offered-cube rendering supports offers to White only", {
   )
 
   expect_identical(black_display$placement, "offered_to_black")
-  expect_error(
-    cube_visual_state(black_display),
-    "supports only offers to White"
-  )
+  expect_identical(cube_visual_state(black_display), "offered_black")
 })

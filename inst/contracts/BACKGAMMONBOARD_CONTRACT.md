@@ -6,6 +6,11 @@
 **Primary output:** static `ggplot`  
 **Canonical identifier:** complete XGID
 
+> **Implementation amendment:** `XGID_CUBE_RENDER_AMENDMENT_v1.md` supersedes
+> conflicting older wording for current-game Crawford state, the package cube
+> limit, receiver-aware offered-cube placement, and completing `ggboard(xgid)`
+> before optional move support.
+
 ## 1. Scope
 
 `backgammonboard` represents and renders factual backgammon positions for R scripts, Quarto, notebooks, tests, and Shiny.

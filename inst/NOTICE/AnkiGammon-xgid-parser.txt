@@ -1,0 +1,25 @@
+AnkiGammon XGID behavioral reference
+
+Project: AnkiGammon
+Copyright: Copyright (c) 2025 AnkiGammon
+License: MIT
+Pinned source commit: eb39c8875691c0bfe1d096157254e6c4245eb5af
+Pinned release: v1.7.0
+Reference file: ankigammon/utils/xgid.py
+Date inspected: 2026-07-20
+Source archive SHA256: 3c82ef42e0a603431d5839b7fa115bc416ca92d8c0df903dd3f99aa1be88e13c
+
+backgammonboard contains an independently authored native R behavioral port of
+selected XGID decoding behavior. The pinned implementation was used to verify
+field meaning, turn-relative checker decoding, bar ordering, checker-case
+interpretation, cube metadata, action markers, raw scores, match metadata, and
+maximum-cube metadata.
+
+The R package deliberately applies stricter validation than the reference where
+required by the backgammonboard contract. It accepts only complete supported
+XGIDs, rejects unsupported B and R action markers, rejects impossible checker
+totals, and enforces the package-supported factual cube limit of 64.
+
+No AnkiGammon Python source code is bundled, no Python runtime or package is
+required, and package tests consume only static fixture data. The full upstream
+MIT license is retained in inst/COPYRIGHTS.

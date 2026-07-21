@@ -1,0 +1,42 @@
+manual_render_review:
+  reviewer: Marty Gale
+  date: 2026-07-20
+  package_commit: null
+  contract_version: 1.0
+  bms_preset:
+    id: bms
+    version: 1.0
+  status: pass
+  required_fixtures:
+    - 01-opening-white-on-roll
+    - 02-opening-black-on-roll
+    - 03-asymmetric-white-on-roll
+    - 04-asymmetric-black-on-roll
+    - 05-white-bar
+    - 06-black-bar
+    - 07-borne-off
+    - 08-centered-cube
+    - 09-white-owned-cube
+    - 10-black-owned-cube
+    - 11-offered-to-white
+    - 12-offered-to-black
+    - 13-ordinary-match
+    - 14-crawford
+    - 15-cube-64
+    - 16-white-perspective
+    - 17-black-perspective
+  review_checks:
+    - checker ownership
+    - point numbering
+    - bar mapping
+    - off counts
+    - player on roll
+    - dice side
+    - cube owner
+    - offered-cube receiver and placement
+    - scores
+    - Crawford hiding
+    - perspective behavior
+  failed_fixtures: []
+  approved_exceptions: []
+  notes: []

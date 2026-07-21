@@ -1,55 +1,67 @@
 # backgammonboard
 
-`backgammonboard` is a focused R package for factual backgammon positions and
-static board rendering.
+`backgammonboard` is a focused R package for validated factual backgammon
+positions and static `ggplot` board rendering.
 
-## Implementation checkpoint
+## Public path
 
-Completed in this checkpoint:
+```r
+library(backgammonboard)
 
-1. `normalize_xgid()`
-2. `validate_xgid()`
-3. `backgammon_position()`
-4. opening and asymmetric coordinate fixtures
-5. `board_colors()` and `board_style()`
-6. canonical geometry and checker rendering preview
+xgid <- "XGID=-b----E-C---eE---c-e----B-:0:0:1:52:0:0:0:0:10"
+plot <- ggboard(xgid)
 
-The current preview is intentionally internal. It exists so geometry and
-checker placement can be visually tested before the public `ggboard()`
-orchestration layer is implemented.
+inherits(plot, "ggplot")
+```
+
+The package accepts a complete XGID with or without the `XGID=` prefix. It
+constructs stable White/Black factual state before applying perspective.
+Changing perspective does not change checker ownership, bars, borne-off counts,
+cube ownership, scores, or point occupancies.
+
+```r
+ggboard(xgid, perspective = "white")
+ggboard(xgid, perspective = "black")
+```
+
+## Presets
+
+Package defaults are neutral. Backgammon Made Simple styling is explicit:
+
+```r
+ggboard(
+  xgid,
+  colors = board_colors("bms"),
+  style = board_style("bms")
+)
+```
+
+## Cube and decision context
+
+Ordinary rendering remains factual. A valid XGID `D` marker displays the
+pending offered cube without changing the factual current cube value or owner
+and without inventing a quiz question.
+
+Instructional questions are explicit:
+
+```r
+ggboard(xgid_without_dice, decision = "roll_double")
+ggboard(xgid_with_D_marker, decision = "take_pass")
+```
+
+The package supports factual cube values through 64. XGID maximum-cube metadata
+is preserved separately and does not expand that package limit.
 
 ## Current public API
 
 ```r
-normalize_xgid(x)
-validate_xgid(x)
-backgammon_position(x)
-board_colors(name = "default", overrides = NULL)
-board_style(name = "default", overrides = NULL)
+ggboard()
+normalize_xgid()
+validate_xgid()
+backgammon_position()
+board_colors()
+board_style()
 ```
 
-## Visual development preview
-
-```r
-devtools::load_all()
-
-plot <- backgammonboard:::render_board_preview(
-  "XGID=-b----E-C---eE---c-e----B-:0:0:1:52:0:0:3:0:10",
-  colors = board_colors("bms"),
-  style = board_style("bms"),
-  point_1_side = "right"
-)
-
-print(plot)
-```
-
-The geometry now includes equal-width outer rails, cream side panels, a left
-panel reserved for the cube, and a right panel for borne-off markers and later
-score information. Use `point_1_side = "left"` to test the alternate numbering
-convention without changing factual position state.
-
-For a named list of XGIDs, interactive previews, and PNG output, source
-`dev/visual-smoke-test.R`.
-
-Perspective, scores, pips, status, dice, cubes, moves, and `after_xgid` remain
-for later contract steps.
+Move parsing, move application, `after_xgid`, overlays, and Shiny migration are
+deferred to later milestones.

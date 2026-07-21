@@ -23,6 +23,7 @@ validate_xgid <- function(x) {
 
   errors <- list()
   warnings <- list()
+  action_marker <- NA_character_
 
   add_error <- function(code, category, field, message) {
     errors[[length(errors) + 1L]] <<- xgid_diagnostic(
@@ -42,12 +43,20 @@ validate_xgid <- function(x) {
     )
   }
 
+  invalid_result <- function() {
+    new_xgid_validation(
+      errors = errors,
+      warnings = warnings,
+      action_marker = action_marker
+    )
+  }
+
   if (is.na(x)) {
     add_error(
       "xgid_missing_value", "text", "xgid",
       "XGID text is missing"
     )
-    return(new_xgid_validation(errors = errors, warnings = warnings))
+    return(invalid_result())
   }
 
   text <- trimws(x)
@@ -56,7 +65,7 @@ validate_xgid <- function(x) {
       "xgid_missing_value", "text", "xgid",
       "XGID text is empty"
     )
-    return(new_xgid_validation(errors = errors, warnings = warnings))
+    return(invalid_result())
   }
 
   if (grepl("[\r\n]", text)) {
@@ -64,7 +73,7 @@ validate_xgid <- function(x) {
       "xgid_multiple_lines", "text", "xgid",
       "A complete XGID must be supplied on one line"
     )
-    return(new_xgid_validation(errors = errors, warnings = warnings))
+    return(invalid_result())
   }
 
   if (grepl("^[A-Za-z][A-Za-z0-9_]*=", text) &&
@@ -73,7 +82,7 @@ validate_xgid <- function(x) {
       "xgid_invalid_prefix", "text", "prefix",
       "The only supported identifier prefix is `XGID=`"
     )
-    return(new_xgid_validation(errors = errors, warnings = warnings))
+    return(invalid_result())
   }
 
   body <- if (startsWith(text, "XGID=")) {
@@ -83,12 +92,19 @@ validate_xgid <- function(x) {
   }
 
   colon_count <- nchar(gsub("[^:]", "", body))
-  if (colon_count != 9L) {
+  if (colon_count < 9L) {
     add_error(
       "xgid_missing_fields", "text", "fields",
       "A complete XGID must contain one position field and nine metadata fields"
     )
-    return(new_xgid_validation(errors = errors, warnings = warnings))
+    return(invalid_result())
+  }
+  if (colon_count > 9L) {
+    add_error(
+      "xgid_extra_fields", "text", "fields",
+      "A complete XGID must contain exactly ten fields"
+    )
+    return(invalid_result())
   }
 
   fields <- strsplit(body, ":", fixed = TRUE)[[1L]]
@@ -97,14 +113,11 @@ validate_xgid <- function(x) {
       "xgid_missing_fields", "text", "fields",
       "A complete XGID must contain ten non-empty fields"
     )
-    return(new_xgid_validation(errors = errors, warnings = warnings))
+    return(invalid_result())
   }
 
-  names(fields) <- c(
-    "position", "cube_exponent", "cube_owner", "turn", "dice_action",
-    "score_white", "score_black", "crawford_jacoby", "match_length",
-    "max_cube_exponent"
-  )
+  names(fields) <- xgid_field_names()
+  action_marker <- fields[["dice_action"]]
 
   payload <- fields[["position"]]
   if (nchar(payload, type = "chars") != 26L) {
@@ -151,6 +164,14 @@ validate_xgid <- function(x) {
       "xgid_invalid_dice", "metadata", "dice_action",
       "Dice/action must be `00`, `D`, `B`, `R`, or two dice from 1 through 6"
     )
+  } else if (fields[["dice_action"]] %in% c("B", "R")) {
+    add_error(
+      "unsupported_action_marker", "unsupported_input", "dice_action",
+      paste0(
+        "Action marker `", fields[["dice_action"]],
+        "` is preserved for diagnostics but is not supported in v1"
+      )
+    )
   }
 
   if (length(errors) == 0L) {
@@ -179,6 +200,13 @@ validate_xgid <- function(x) {
       }
     }
 
+    if (!is.finite(2^parsed$max_cube_exponent)) {
+      add_error(
+        "xgid_invalid_max_cube_exponent", "metadata", "max_cube_exponent",
+        "The encoded maximum-cube exponent is too large to represent"
+      )
+    }
+
     if (parsed$cube_exponent > parsed$max_cube_exponent) {
       add_error(
         "xgid_cube_above_maximum", "factual_state", "cube_exponent",
@@ -186,7 +214,8 @@ validate_xgid <- function(x) {
       )
     }
 
-    if (2^parsed$cube_exponent > supported_cube_max()) {
+    factual_cube <- 2^parsed$cube_exponent
+    if (!is.finite(factual_cube) || factual_cube > supported_cube_max()) {
       add_error(
         "xgid_unsupported_cube_value", "unsupported_input", "cube_exponent",
         paste0(
@@ -197,17 +226,18 @@ validate_xgid <- function(x) {
       )
     }
 
-    payload_state <- decode_xgid_payload(payload)
+    payload_state <- decode_xgid_payload(payload, parsed$turn_code)
     if (!payload_state$bar_valid) {
       add_error(
         "xgid_invalid_bar_owner", "factual_state", "position",
-        "The first bar slot may contain only Black and the last bar slot only White"
+        "The XGID bar slots contain checkers for the wrong semantic player"
       )
     }
-    if (payload_state$white_total > 15L || payload_state$black_total > 15L) {
+    if (payload_state$white_total > 15L || payload_state$black_total > 15L ||
+        any(payload_state$off < 0L)) {
       add_error(
         "xgid_impossible_checker_total", "factual_state", "position",
-        "Neither player may have more than 15 checkers"
+        "Neither player may have more than 15 checkers on points plus bar"
       )
     }
 
@@ -228,13 +258,13 @@ validate_xgid <- function(x) {
         (parsed$score_white != 0L || parsed$score_black != 0L)) {
       add_warning(
         "xgid_unlimited_score_ignored", "metadata", "score",
-        "Unlimited-play score fields are preserved factually but are not displayed in v1"
+        "Unlimited-play score fields are preserved factually but are not displayed as a match score"
       )
     }
   }
 
   if (length(errors) > 0L) {
-    return(new_xgid_validation(errors = errors, warnings = warnings))
+    return(invalid_result())
   }
 
   canonical <- canonicalize_xgid_fields(fields)
@@ -242,7 +272,8 @@ validate_xgid <- function(x) {
     valid = TRUE,
     canonical_xgid = canonical,
     errors = errors,
-    warnings = warnings
+    warnings = warnings,
+    action_marker = action_marker
   )
 }
 
@@ -277,6 +308,9 @@ print.backgammon_xgid_validation <- function(x, ...) {
     }
   } else {
     cat("<backgammon_xgid_validation> invalid\n", sep = "")
+    if (!is.na(x$action_marker)) {
+      cat("  Action marker: ", x$action_marker, "\n", sep = "")
+    }
     if (nrow(x$errors) > 0L) {
       for (i in seq_len(nrow(x$errors))) {
         cat("  - ", x$errors$code[[i]], ": ", x$errors$message[[i]], "\n", sep = "")
@@ -290,13 +324,15 @@ new_xgid_validation <- function(
     valid = FALSE,
     canonical_xgid = NA_character_,
     errors = list(),
-    warnings = list()) {
+    warnings = list(),
+    action_marker = NA_character_) {
   structure(
     list(
       valid = isTRUE(valid),
       canonical_xgid = canonical_xgid,
       errors = bind_xgid_diagnostics(errors),
-      warnings = bind_xgid_diagnostics(warnings)
+      warnings = bind_xgid_diagnostics(warnings),
+      action_marker = action_marker
     ),
     class = "backgammon_xgid_validation"
   )
@@ -325,8 +361,19 @@ bind_xgid_diagnostics <- function(x) {
   do.call(rbind, x)
 }
 
+xgid_field_names <- function() {
+  c(
+    "position", "cube_exponent", "cube_owner", "turn", "dice_action",
+    "score_white", "score_black", "crawford_jacoby", "match_length",
+    "max_cube_exponent"
+  )
+}
+
 is_unsigned_integer_text <- function(x) {
-  is.character(x) && length(x) == 1L && grepl("^[0-9]+$", x)
+  is.character(x) &&
+    length(x) == 1L &&
+    grepl("^[0-9]+$", x) &&
+    !is.na(suppressWarnings(as.integer(x)))
 }
 
 parse_validated_xgid_fields <- function(fields) {
@@ -356,23 +403,50 @@ canonicalize_xgid_fields <- function(fields) {
   paste0("XGID=", paste(fields, collapse = ":"))
 }
 
-decode_xgid_payload <- function(payload) {
-  entries <- strsplit(payload, "", fixed = TRUE)[[1L]]
-  values <- integer(26L)
-
-  for (i in seq_along(entries)) {
-    entry <- entries[[i]]
-    if (entry == "-") {
-      next
-    }
-    if (entry %in% LETTERS[1:16]) {
-      values[[i]] <- match(entry, LETTERS)
-    } else if (entry %in% letters[1:16]) {
-      values[[i]] <- -match(entry, letters)
-    }
+decode_xgid_character <- function(entry, turn_code) {
+  if (identical(entry, "-")) {
+    return(0L)
   }
 
-  points <- values[2:25]
+  if (entry %in% LETTERS[1:16]) {
+    count <- match(entry, LETTERS)
+    return(if (turn_code == 1L) as.integer(count) else -as.integer(count))
+  }
+
+  if (entry %in% letters[1:16]) {
+    count <- match(entry, letters)
+    return(if (turn_code == 1L) -as.integer(count) else as.integer(count))
+  }
+
+  stop("Unsupported XGID checker character.", call. = FALSE)
+}
+
+# Decode the turn-relative XGID payload into stable White-relative facts.
+#
+# The returned slots are always:
+#   values[1]  = Black bar
+#   values[2:25] = White-relative points 1:24
+#   values[26] = White bar
+# Positive counts are White and negative counts are Black.
+decode_xgid_payload <- function(payload, turn_code = 1L) {
+  if (!turn_code %in% c(-1L, 1L)) {
+    stop("`turn_code` must be -1 or 1.", call. = FALSE)
+  }
+
+  entries <- strsplit(payload, "", fixed = TRUE)[[1L]]
+  if (length(entries) != 26L) {
+    stop("The XGID position field must contain 26 characters.", call. = FALSE)
+  }
+
+  canonical_entries <- if (turn_code == 1L) entries else rev(entries)
+  values <- vapply(
+    canonical_entries,
+    decode_xgid_character,
+    integer(1),
+    turn_code = turn_code
+  )
+
+  points <- as.integer(values[2:25])
   bar <- c(
     white = max(values[[26L]], 0L),
     black = max(-values[[1L]], 0L)
@@ -382,15 +456,15 @@ decode_xgid_payload <- function(payload) {
   black_total <- sum(pmax(-points, 0L)) + bar[["black"]]
 
   list(
-    values = values,
+    values = as.integer(values),
     points = points,
-    bar = bar,
+    bar = stats::setNames(as.integer(bar), names(bar)),
     off = c(
       white = 15L - white_total,
       black = 15L - black_total
     ),
-    white_total = white_total,
-    black_total = black_total,
+    white_total = as.integer(white_total),
+    black_total = as.integer(black_total),
     bar_valid = values[[1L]] <= 0L && values[[26L]] >= 0L
   )
 }

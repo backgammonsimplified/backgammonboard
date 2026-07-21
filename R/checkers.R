@@ -23,16 +23,28 @@ empty_off_rows <- function() {
   )
 }
 
-checker_layout <- function(position,
-                           style,
-                           point_1_side = c("right", "left")) {
+checker_layout <- function(
+    position,
+    style,
+    point_1_side = c("right", "left"),
+    perspective = NULL
+) {
   point_1_side <- match.arg(point_1_side)
 
   if (!inherits(position, "backgammon_position")) {
     stop("`position` must be a backgammon_position.", call. = FALSE)
   }
 
-  geometry <- board_geometry(style, point_1_side)
+  geometry <- board_geometry(
+    style,
+    point_1_side = point_1_side,
+    perspective = perspective
+  )
+  bottom_player <- if (is.null(perspective)) {
+    "white"
+  } else {
+    normalize_board_perspective(perspective)
+  }
   point_layout <- geometry$point_layout
   max_visible <- as.integer(style$max_stack_visible)
 
@@ -105,7 +117,7 @@ checker_layout <- function(position,
 
     visible <- min(total, max_visible)
 
-    if (identical(player, "white")) {
+    if (identical(player, bottom_player)) {
       y <-
         geometry$layout$field_ymin +
         style$checker_margin +
@@ -151,30 +163,32 @@ checker_layout <- function(position,
     geometry$layout$right_margin_xmax
   ))
 
+  top_player <- other_semantic_player(bottom_player)
+
   off_rows <- list()
   row_index <- 1L
 
-  black_off <- unname(position$off[["black"]])
-  if (black_off > 0L) {
+  top_off <- unname(position$off[[top_player]])
+  if (top_off > 0L) {
     off_rows[[row_index]] <- data.frame(
-      player = "black",
+      player = top_player,
       x = off_x,
       y = style$off_marker_top_y,
-      total = as.integer(black_off),
-      label = as.character(black_off),
+      total = as.integer(top_off),
+      label = as.character(top_off),
       stringsAsFactors = FALSE
     )
     row_index <- row_index + 1L
   }
 
-  white_off <- unname(position$off[["white"]])
-  if (white_off > 0L) {
+  bottom_off <- unname(position$off[[bottom_player]])
+  if (bottom_off > 0L) {
     off_rows[[row_index]] <- data.frame(
-      player = "white",
+      player = bottom_player,
       x = off_x,
       y = style$off_marker_bottom_y,
-      total = as.integer(white_off),
-      label = as.character(white_off),
+      total = as.integer(bottom_off),
+      label = as.character(bottom_off),
       stringsAsFactors = FALSE
     )
   }
