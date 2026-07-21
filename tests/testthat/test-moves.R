@@ -178,8 +178,12 @@ test_that("parser reports token-specific syntax errors", {
 })
 
 
-test_that("parsing remains separate from move application and rendering", {
-  expect_false(exists("apply_board_moves", mode = "function"))
+test_that("parsing remains separate from application and rendering", {
+  moves <- board_moves("13/8")
+
+  expect_s3_class(moves, "backgammon_board_moves")
+  expect_false("hit_confirmed" %in% names(moves))
+  expect_true(exists("apply_board_moves", mode = "function"))
   expect_false(exists("draw_move_overlay", mode = "function"))
   expect_false(exists("compare_after_xgid", mode = "function"))
 })
