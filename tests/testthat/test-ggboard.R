@@ -270,3 +270,105 @@ test_that("a D marker rejects a second cube-offer decision", {
     fixed = TRUE
   )
 })
+
+test_that("automatic branding moves opposite an offered cube", {
+  cases <- list(
+    take_or_pass_black = list(
+      xgid = paste0(
+        "XGID=-b----E-C---eE---c-e----B-",
+        ":0:0:1:00:0:0:0:0:10"
+      ),
+      decision = "take_pass",
+      perspective = "decision_maker",
+      expected_perspective = "black"
+    ),
+    take_or_pass_white = list(
+      xgid = paste0(
+        "XGID=-b----E-C---eE---c-e----B-",
+        ":0:0:-1:00:0:0:0:0:10"
+      ),
+      decision = "take_pass",
+      perspective = "decision_maker",
+      expected_perspective = "white"
+    ),
+    offer_to_white_white_perspective = list(
+      xgid = ggboard_fixture("offer_to_white"),
+      decision = "none",
+      perspective = "white",
+      expected_perspective = "white"
+    ),
+    offer_to_black_black_perspective = list(
+      xgid = ggboard_fixture("offer_to_black"),
+      decision = "none",
+      perspective = "black",
+      expected_perspective = "black"
+    )
+  )
+
+  for (case in cases) {
+    plot <- ggboard(
+      case$xgid,
+      decision = case$decision,
+      perspective = case$perspective,
+      brand_text = "Backgammon\nMade Simple"
+    )
+
+    expect_identical(
+      attr(plot, "backgammon_perspective"),
+      case$expected_perspective
+    )
+    expect_identical(
+      offered_cube_field_side(
+        plot_cube_display(plot)$receiver,
+        attr(plot, "backgammon_perspective")
+      ),
+      "left"
+    )
+    expect_identical(
+      attr(plot, "backgammon_brand_side"),
+      "right"
+    )
+  }
+})
+
+
+test_that("automatic branding remains opposite offers shown on the right", {
+  offer_to_white_black_perspective <- ggboard(
+    ggboard_fixture("offer_to_white"),
+    decision = "none",
+    perspective = "black",
+    brand_text = "Backgammon\nMade Simple"
+  )
+  offer_to_black_white_perspective <- ggboard(
+    ggboard_fixture("offer_to_black"),
+    decision = "none",
+    perspective = "white",
+    brand_text = "Backgammon\nMade Simple"
+  )
+
+  expect_identical(
+    attr(offer_to_white_black_perspective, "backgammon_brand_side"),
+    "left"
+  )
+  expect_identical(
+    attr(offer_to_black_white_perspective, "backgammon_brand_side"),
+    "left"
+  )
+})
+
+
+test_that("explicit brand side overrides automatic placement", {
+  position <- backgammon_position(ggboard_fixture("offer_to_white"))
+  offer <- pending_offer_from_position(position)
+
+  plot <- render_board_preview(
+    x = position,
+    perspective = "white",
+    brand_text = "Backgammon\nMade Simple",
+    brand_side = "left",
+    cube_offer = offer,
+    show_information = FALSE
+  )
+
+  expect_identical(attr(plot, "backgammon_brand_side"), "left")
+})

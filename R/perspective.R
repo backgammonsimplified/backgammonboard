@@ -14,3 +14,15 @@ visual_side_for_player <- function(player, perspective = "white") {
   }
   if (identical(player, perspective)) "bottom" else "top"
 }
+
+
+offered_cube_field_side <- function(receiver, perspective = "white") {
+  receiver <- normalize_semantic_player(receiver)
+  perspective <- normalize_board_perspective(perspective)
+
+  if (is.null(receiver) || is.na(receiver)) {
+    stop("An offered cube requires a semantic receiver.", call. = FALSE)
+  }
+
+  if (identical(receiver, perspective)) "left" else "right"
+}

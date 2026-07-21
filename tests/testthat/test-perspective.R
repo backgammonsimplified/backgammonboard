@@ -64,3 +64,10 @@ test_that("bar, off, dice, and information rows follow the selected perspective"
   expect_identical(black_information$bottom$player, "black")
   expect_identical(black_information$top$player, "white")
 })
+
+test_that("offered cube field side follows receiver and perspective", {
+  expect_identical(offered_cube_field_side("white", "white"), "left")
+  expect_identical(offered_cube_field_side("black", "black"), "left")
+  expect_identical(offered_cube_field_side("white", "black"), "right")
+  expect_identical(offered_cube_field_side("black", "white"), "right")
+})

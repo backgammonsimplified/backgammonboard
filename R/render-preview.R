@@ -123,6 +123,34 @@ add_off_checkers <- function(plot, off, colors, style) {
   plot
 }
 
+resolve_board_brand_side <- function(
+    side = c("auto", "left", "right"),
+    cube_display = NULL,
+    perspective = "white"
+) {
+  side <- match.arg(side)
+
+  if (!identical(side, "auto")) {
+    return(side)
+  }
+
+  if (
+    is.null(cube_display) ||
+    !inherits(cube_display, "backgammon_cube_display") ||
+    !identical(cube_display$state, "offered")
+  ) {
+    return("left")
+  }
+
+  offered_side <- offered_cube_field_side(
+    receiver = cube_display$receiver,
+    perspective = perspective
+  )
+
+  if (identical(offered_side, "left")) "right" else "left"
+}
+
+
 add_board_brand <- function(plot,
                             geometry,
                             text,
@@ -220,7 +248,7 @@ render_board_preview <- function(
     point_1_side = c("right", "left"),
     perspective = NULL,
     brand_text = "Backgammon\nMade Simple",
-    brand_side = c("left", "right"),
+    brand_side = c("auto", "left", "right"),
     brand_size = 6.0,
     brand_alpha = 0.90,
     brand_y_nudge = 0,
@@ -290,6 +318,11 @@ render_board_preview <- function(
   cube_display <- resolve_cube_display(
     position = position,
     offer = resolved_offer
+  )
+  resolved_brand_side <- resolve_board_brand_side(
+    side = brand_side,
+    cube_display = cube_display,
+    perspective = resolved_perspective
   )
 
   geometry <- board_geometry(
@@ -388,7 +421,7 @@ render_board_preview <- function(
     plot = plot,
     geometry = geometry,
     text = brand_text,
-    side = brand_side,
+    side = resolved_brand_side,
     color = colors$bar_fill,
     size = brand_size,
     alpha = brand_alpha,
@@ -432,7 +465,7 @@ render_board_preview <- function(
     c(0, style$board_height)
   }
 
-  plot +
+  plot <- plot +
     ggplot2::coord_fixed(
       xlim = c(0, style$board_width),
       ylim = y_limits,
@@ -457,4 +490,7 @@ render_board_preview <- function(
         unit = "pt"
       )
     )
+
+  attr(plot, "backgammon_brand_side") <- resolved_brand_side
+  plot
 }
