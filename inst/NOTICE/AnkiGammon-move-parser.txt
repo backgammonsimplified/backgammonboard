@@ -9,14 +9,18 @@ Reference file: ankigammon/utils/move_parser.py
 Reference tests: tests/test_basic.py, TestMoveParser
 Source archive SHA256: 3c82ef42e0a603431d5839b7fa115bc416ca92d8c0df903dd3f99aa1be88e13c
 
-backgammonboard plans a native R behavioral port using this project as the
-pinned behavioral reference. The parser and direct tests were inspected to
-establish the local architecture and fixture seed.
+backgammonboard contains an independently authored native R behavioral port of
+selected move-notation behavior. The pinned implementation and direct tests were
+used as a behavioral reference and fixture oracle.
 
-No AnkiGammon Python source code is included in this branch, no line-by-line
-translation has been performed, and no Python runtime or package dependency is
-introduced.
+The R implementation deliberately preserves local contract fields that the
+reference does not expose, including ordered step identifiers, checker-chain
+identifiers, original normalized source tokens, explicit hit-marker claims, and
+repetition-group identifiers. It also returns structured token-specific errors
+rather than silently skipping malformed components.
 
-The full upstream MIT license is retained in inst/COPYRIGHTS. Any future
-source-derived fixture must be identified separately from independently
-authored fixtures.
+No AnkiGammon Python source code is bundled, no line-by-line translation was
+performed, and no Python runtime or package dependency is introduced.
+
+The full upstream MIT license is retained in inst/COPYRIGHTS. Any source-derived
+fixture must be identified separately from independently authored fixtures.

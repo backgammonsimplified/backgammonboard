@@ -45,8 +45,44 @@ test_that("move-notation seed fixture has the frozen normalized schema", {
 })
 
 
-test_that("move parser and overlay are intentionally absent from this seed", {
-  expect_false(exists("parse_board_moves", mode = "function"))
-  expect_false(exists("apply_board_moves", mode = "function"))
-  expect_false(exists("draw_move_overlay", mode = "function"))
+test_that("board_moves reproduces every normalized seed fixture", {
+  fixture_path <- testthat::test_path("fixtures", "move-notation-seed.csv")
+  fixture <- utils::read.csv(
+    fixture_path,
+    stringsAsFactors = FALSE,
+    na.strings = c("")
+  )
+
+  schema <- backgammonboard:::move_step_columns()
+
+  for (case_id in unique(fixture$case_id)) {
+    expected <- fixture[fixture$case_id == case_id, schema, drop = FALSE]
+    notation <- unique(fixture$notation[fixture$case_id == case_id])
+
+    expect_length(notation, 1L)
+
+    expected$step_id <- as.integer(expected$step_id)
+    expected$chain_id <- as.integer(expected$chain_id)
+    expected$from_point <- as.integer(expected$from_point)
+    expected$to_point <- as.integer(expected$to_point)
+    expected$hit_marked <-
+      tolower(trimws(as.character(expected$hit_marked))) == "true"
+    rownames(expected) <- NULL
+
+    actual_moves <- board_moves(notation)
+    actual <- data.frame(
+      step_id = actual_moves$step_id,
+      chain_id = actual_moves$chain_id,
+      source_token = actual_moves$source_token,
+      from_type = actual_moves$from_type,
+      from_point = actual_moves$from_point,
+      to_type = actual_moves$to_type,
+      to_point = actual_moves$to_point,
+      hit_marked = actual_moves$hit_marked,
+      repeat_group = actual_moves$repeat_group,
+      stringsAsFactors = FALSE
+    )
+
+    expect_identical(actual, expected)
+  }
 })
