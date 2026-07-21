@@ -186,6 +186,17 @@ validate_xgid <- function(x) {
       )
     }
 
+    if (2^parsed$cube_exponent > supported_cube_max()) {
+      add_error(
+        "xgid_unsupported_cube_value", "unsupported_input", "cube_exponent",
+        paste0(
+          "The factual cube value exceeds the package-supported limit of ",
+          supported_cube_max(),
+          " [package_cube_limit]"
+        )
+      )
+    }
+
     payload_state <- decode_xgid_payload(payload)
     if (!payload_state$bar_valid) {
       add_error(

@@ -12,10 +12,10 @@ test_that("opening position decodes into White-relative canonical points", {
   expect_identical(position$off, c(white = 0L, black = 0L))
   expect_identical(position$on_roll, "white")
   expect_identical(position$dice, c(5L, 2L))
-  expect_identical(position$cube_value, 1)
+  expect_identical(position$cube_value, 1L)
   expect_identical(position$cube_owner, "center")
   expect_identical(position$play_context, "unlimited")
-  expect_identical(position$crawford_status, "not_applicable")
+  expect_false(position$is_crawford)
 })
 
 test_that("asymmetric fixture decodes bar and borne-off checkers", {
@@ -29,21 +29,21 @@ test_that("asymmetric fixture decodes bar and borne-off checkers", {
   expect_identical(position$points, expected)
   expect_identical(position$bar, c(white = 0L, black = 1L))
   expect_identical(position$off, c(white = 3L, black = 5L))
-  expect_identical(position$cube_value, 2)
+  expect_identical(position$cube_value, 2L)
   expect_identical(position$cube_owner, "black")
   expect_identical(position$score, c(white = 3L, black = 0L))
   expect_identical(position$match_length, 7L)
-  expect_identical(position$crawford_status, "none")
+  expect_false(position$is_crawford)
 })
 
-test_that("Crawford and post-Crawford status are factual", {
+test_that("Crawford flag describes the current game only", {
   crawford <- backgammon_position(
     "XGID=-b----E-C---eE---c-e----B-:0:0:1:21:9:10:1:11:10"
   )
-  expect_identical(crawford$crawford_status, "crawford")
+  expect_true(crawford$is_crawford)
 
   post <- backgammon_position(
     "XGID=-b----E-C---eE---c-e----B-:0:0:1:21:10:8:0:11:10"
   )
-  expect_identical(post$crawford_status, "post_crawford")
+  expect_false(post$is_crawford)
 })

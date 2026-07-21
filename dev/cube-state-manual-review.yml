@@ -1,0 +1,10 @@
+manual_cube_state_review:
+  reviewer: Marty Gale
+  date: null
+  package_commit: null
+  branch: marty-gales-spare-brain/20260720-cube-state-model
+  status: pending
+  reviewed_fixtures: []
+  failed_fixtures: []
+  approved_exceptions: []
+  notes: []

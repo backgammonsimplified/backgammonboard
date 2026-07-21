@@ -1,0 +1,19 @@
+case_id,notation,step_id,chain_id,source_token,from_type,from_point,to_type,to_point,hit_marked,repeat_group,notes
+single,13/8,1,1,13/8,point,13,point,8,false,,single atomic move
+two_moves,13/8 6/5,1,1,13/8,point,13,point,8,false,,first token
+two_moves,13/8 6/5,2,2,6/5,point,6,point,5,false,,second token
+compound_chain,24/18/13,1,1,24/18/13,point,24,point,18,false,,first leg of one checker chain
+compound_chain,24/18/13,2,1,24/18/13,point,18,point,13,false,,second leg of one checker chain
+repeat,13/8(2),1,1,13/8(2),point,13,point,8,false,r1,first repeated checker
+repeat,13/8(2),2,2,13/8(2),point,13,point,8,false,r1,second repeated checker
+bar_entry,bar/24,1,1,bar/24,bar,,point,24,false,,bar source
+bearoff,6/off,1,1,6/off,point,6,off,,false,,borne-off destination
+marked_hit,13/8*,1,1,13/8*,point,13,point,8,true,,notation claims a hit
+compound_marked_hit,6/5*/3,1,1,6/5*/3,point,6,point,5,true,,hit marker applies to the first destination
+compound_marked_hit,6/5*/3,2,1,6/5*/3,point,5,point,3,false,,continuation after marked hit
+four_part_double,13/10(2) 8/5(2),1,1,13/10(2),point,13,point,10,false,r1,first repeated 13 to 10
+four_part_double,13/10(2) 8/5(2),2,2,13/10(2),point,13,point,10,false,r1,second repeated 13 to 10
+four_part_double,13/10(2) 8/5(2),3,3,8/5(2),point,8,point,5,false,r2,first repeated 8 to 5
+four_part_double,13/10(2) 8/5(2),4,4,8/5(2),point,8,point,5,false,r2,second repeated 8 to 5
+reused_checker,24/18/13,1,1,24/18/13,point,24,point,18,false,,ordered first step
+reused_checker,24/18/13,2,1,24/18/13,point,18,point,13,false,,same chain reuses resulting checker

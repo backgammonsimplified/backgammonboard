@@ -224,16 +224,15 @@ render_board_preview <- function(
     brand_alpha = 0.90,
     brand_y_nudge = 0,
     show_cube = TRUE,
-    cube_state = NULL,
+    cube_offer = NULL,
     cube_x_mode = c("outside", "inside"),
-    cube_value = NULL,
     show_cube_crosshair = FALSE,
     show_information = TRUE,
     white_name = "White",
     black_name = "Black",
     white_wins = NULL,
     black_wins = NULL,
-    status_text = NULL,
+    context = NULL,
     information_family = "sans",
     show_guides = FALSE,
     guide_color = "#D9653B",
@@ -257,6 +256,33 @@ render_board_preview <- function(
   } else {
     backgammon_position(x)
   }
+
+  context <- normalize_board_context(context)
+
+  if (!is.null(cube_offer) && !inherits(cube_offer, "backgammon_cube_offer_context")) {
+    stop("`cube_offer` must be NULL or created by cube_offer_context().", call. = FALSE)
+  }
+
+  if (!is.null(cube_offer) && !is.null(context$offer)) {
+    stop("Supply a cube offer through `cube_offer` or `context`, not both.", call. = FALSE)
+  }
+
+  if (!identical(context$decision, "none")) {
+    context_validation <- validate_board_context(
+      position = position,
+      context = context
+    )
+
+    if (!isTRUE(context_validation$valid)) {
+      stop_for_board_context_validation(context_validation)
+    }
+  }
+
+  resolved_offer <- if (!is.null(cube_offer)) cube_offer else context$offer
+  cube_display <- resolve_cube_display(
+    position = position,
+    offer = resolved_offer
+  )
 
   geometry <- board_geometry(style, point_1_side)
   checkers <- checker_layout(position, style, point_1_side)
@@ -326,16 +352,15 @@ render_board_preview <- function(
     style = style
   )
 
-  if (isTRUE(show_cube)) {
+  if (isTRUE(show_cube) && isTRUE(cube_display$visible)) {
     plot <- add_cube_layers(
       plot = plot,
       position = position,
       geometry = geometry,
       colors = colors,
       style = style,
-      cube_state = cube_state,
+      cube_display = cube_display,
       cube_x_mode = cube_x_mode,
-      cube_value = cube_value,
       show_crosshair = show_cube_crosshair
     )
   }
@@ -362,7 +387,7 @@ render_board_preview <- function(
       black_name = black_name,
       white_wins = white_wins,
       black_wins = black_wins,
-      status_text = status_text,
+      context = context,
       family = information_family
     )
   }

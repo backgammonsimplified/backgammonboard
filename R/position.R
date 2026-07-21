@@ -2,7 +2,11 @@
 #'
 #' `backgammon_position()` converts a supported complete XGID into a factual
 #' position object. White and Black are semantic identities; display perspective
-#' is deliberately absent from this object.
+#' and instructional wording are deliberately absent from this object.
+#'
+#' The package supports factual cube values through 64. The XGID maximum-cube
+#' metadata is preserved separately and does not expand the package rendering
+#' limit.
 #'
 #' @param x A complete XGID string, with or without the `XGID=` prefix.
 #'
@@ -26,13 +30,6 @@ backgammon_position <- function(x) {
     black = parsed$score_black
   )
 
-  crawford_status <- resolve_crawford_status(
-    play_context = play_context,
-    crawford_code = parsed$crawford_jacoby,
-    score = score,
-    match_length = parsed$match_length
-  )
-
   dice <- if (grepl("^[1-6][1-6]$", parsed$dice_action)) {
     as.integer(strsplit(parsed$dice_action, "", fixed = TRUE)[[1L]])
   } else {
@@ -44,15 +41,6 @@ backgammon_position <- function(x) {
     `-1` = "black",
     `0` = "center",
     `1` = "white"
-  )
-
-  action <- switch(
-    parsed$dice_action,
-    `00` = "roll_double",
-    D = "double",
-    B = "beaver",
-    R = "raccoon",
-    "checker_play"
   )
 
   unlimited_rules <- if (play_context == "unlimited") {
@@ -73,17 +61,25 @@ backgammon_position <- function(x) {
       off = stats::setNames(as.integer(payload$off), names(payload$off)),
       on_roll = if (parsed$turn_code == 1L) "white" else "black",
       dice = dice,
-      cube_value = 2^parsed$cube_exponent,
+      cube_value = as.integer(2^parsed$cube_exponent),
       cube_owner = cube_owner,
+      score_white = as.integer(parsed$score_white),
+      score_black = as.integer(parsed$score_black),
       score = stats::setNames(as.integer(score), names(score)),
-      match_length = if (play_context == "match") parsed$match_length else NA_integer_,
-      crawford_status = crawford_status,
-      max_cube = 2^parsed$max_cube_exponent,
+      match_length = if (play_context == "match") {
+        as.integer(parsed$match_length)
+      } else {
+        NA_integer_
+      },
+      is_crawford = identical(play_context, "match") &&
+        identical(parsed$crawford_jacoby, 1L),
       position_payload = fields[["position"]],
       dice_action = parsed$dice_action,
-      action = action,
-      cube_exponent = parsed$cube_exponent,
-      max_cube_exponent = parsed$max_cube_exponent,
+      cube_exponent = as.integer(parsed$cube_exponent),
+      encoded_max_cube = as.integer(2^parsed$max_cube_exponent),
+      max_cube = as.integer(2^parsed$max_cube_exponent),
+      max_cube_exponent = as.integer(parsed$max_cube_exponent),
+      max_supported_cube_value = supported_cube_max(),
       jacoby = unlimited_rules$jacoby,
       beavers = unlimited_rules$beavers
     ),
@@ -96,39 +92,31 @@ print.backgammon_position <- function(x, ...) {
   cat("<backgammon_position>\n")
   cat("  Context: ", x$play_context, "\n", sep = "")
   cat("  On roll: ", x$on_roll, "\n", sep = "")
+
   if (length(x$dice) == 2L) {
     cat("  Dice: ", paste(x$dice, collapse = "-"), "\n", sep = "")
   } else {
-    cat("  Action: ", x$dice_action, "\n", sep = "")
+    cat("  Dice: not rolled\n")
   }
+
   cat("  Cube: ", x$cube_value, " (", x$cube_owner, ")\n", sep = "")
-  if (x$play_context == "match") {
-    away <- x$match_length - x$score
+
+  if (identical(x$play_context, "match")) {
+    away <- x$match_length - c(
+      white = x$score_white,
+      black = x$score_black
+    )
+
     cat(
-      "  Score: White ", x$score[["white"]], " / Black ", x$score[["black"]],
+      "  Score: White ", x$score_white,
+      " / Black ", x$score_black,
       " - ", away[["white"]], "-away / ", away[["black"]], "-away\n",
       sep = ""
     )
-    cat("  Crawford: ", x$crawford_status, "\n", sep = "")
+    cat("  Crawford game: ", if (isTRUE(x$is_crawford)) "yes" else "no", "\n", sep = "")
   } else {
     cat("  Unlimited play\n")
   }
-  invisible(x)
-}
 
-resolve_crawford_status <- function(
-    play_context,
-    crawford_code,
-    score,
-    match_length) {
-  if (play_context == "unlimited") {
-    return("not_applicable")
-  }
-  if (crawford_code == 1L) {
-    return("crawford")
-  }
-  if (match_length > 1L && any(match_length - score == 1L)) {
-    return("post_crawford")
-  }
-  "none"
+  invisible(x)
 }

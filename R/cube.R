@@ -1,8 +1,36 @@
-resolve_cube_state <- function(position, cube_state = NULL) {
-  if (!inherits(position, "backgammon_position")) {
-    stop("`position` must be a backgammon_position.", call. = FALSE)
+# Map semantic resolved display state to the frozen visual-placement states.
+cube_visual_state <- function(cube_display) {
+  if (!inherits(cube_display, "backgammon_cube_display")) {
+    stop("`cube_display` must be created by resolve_cube_display().", call. = FALSE)
   }
 
+  switch(
+    cube_display$state,
+    hidden = "hidden",
+    centered = "centered",
+    owned = if (identical(cube_display$owner, "white")) {
+      "owned_white"
+    } else {
+      "owned_black"
+    },
+    offered = if (identical(cube_display$receiver, "white")) {
+      "offered_white"
+    } else {
+      stop(
+        paste0(
+          "The frozen offered-cube renderer currently supports only ",
+          "offers to White."
+        ),
+        call. = FALSE
+      )
+    },
+    stop("Unsupported resolved cube-display state.", call. = FALSE)
+  )
+}
+
+
+# Legacy visual override used only by development preview scripts.
+legacy_cube_display <- function(position, cube_state, cube_value = NULL) {
   valid_states <- c(
     "centered",
     "owned_white",
@@ -10,38 +38,69 @@ resolve_cube_state <- function(position, cube_state = NULL) {
     "offered_white"
   )
 
-  if (!is.null(cube_state)) {
-    if (
-      !is.character(cube_state) ||
-      length(cube_state) != 1L ||
-      is.na(cube_state) ||
-      !cube_state %in% valid_states
-    ) {
-      stop(
-        paste0(
-          "`cube_state` must be one of: ",
-          paste(valid_states, collapse = ", ")
-        ),
-        call. = FALSE
-      )
-    }
-
-    return(cube_state)
+  if (
+    !is.character(cube_state) ||
+    length(cube_state) != 1L ||
+    is.na(cube_state) ||
+    !cube_state %in% valid_states
+  ) {
+    stop(
+      paste0(
+        "`cube_state` must be one of: ",
+        paste(valid_states, collapse = ", ")
+      ),
+      call. = FALSE
+    )
   }
 
+  value <- resolve_cube_value(position, cube_state, cube_value)
+
   switch(
-    position$cube_owner,
-    center = "centered",
-    white = "owned_white",
-    black = "owned_black",
-    stop("Unsupported cube owner in `position`.", call. = FALSE)
+    cube_state,
+    centered = new_cube_display(
+      TRUE, "centered", 1L, placement = "outside_center"
+    ),
+    owned_white = new_cube_display(
+      TRUE, "owned", value, owner = "white", placement = "white_side"
+    ),
+    owned_black = new_cube_display(
+      TRUE, "owned", value, owner = "black", placement = "black_side"
+    ),
+    offered_white = new_cube_display(
+      TRUE,
+      "offered",
+      value,
+      owner = if (identical(position$cube_owner, "center")) NULL else position$cube_owner,
+      offerer = "black",
+      receiver = "white",
+      placement = "inside_left_field"
+    )
   )
 }
 
 
+resolve_cube_state <- function(position, cube_state = NULL) {
+  assert_backgammon_position(position)
+
+  if (!is.null(cube_state)) {
+    return(cube_visual_state(
+      legacy_cube_display(position, cube_state, cube_value = NULL)
+    ))
+  }
+
+  cube_visual_state(resolve_cube_display(position))
+}
+
+
 resolve_cube_value <- function(position, cube_state, cube_value = NULL) {
+  assert_backgammon_position(position)
+
   if (identical(cube_state, "centered")) {
     return(1L)
+  }
+
+  if (identical(cube_state, "hidden")) {
+    return(NA_integer_)
   }
 
   value <- if (is.null(cube_value)) {
@@ -190,6 +249,7 @@ cube_layout <- function(
     position,
     geometry,
     style,
+    cube_display = NULL,
     cube_state = NULL,
     cube_x_mode = c("outside", "inside"),
     cube_value = NULL,
@@ -201,13 +261,46 @@ cube_layout <- function(
     black_y_nudge = 0,
     offered_y_nudge = 0
 ) {
-  if (!inherits(position, "backgammon_position")) {
-    stop("`position` must be a backgammon_position.", call. = FALSE)
+  assert_backgammon_position(position)
+  cube_x_mode <- match.arg(cube_x_mode)
+
+  if (!is.null(cube_display) && !is.null(cube_state)) {
+    stop("Supply `cube_display` or the development `cube_state`, not both.", call. = FALSE)
   }
 
-  cube_x_mode <- match.arg(cube_x_mode)
-  state <- resolve_cube_state(position, cube_state)
-  value <- resolve_cube_value(position, state, cube_value)
+  display <- if (!is.null(cube_display)) {
+    if (!inherits(cube_display, "backgammon_cube_display")) {
+      stop("`cube_display` must be created by resolve_cube_display().", call. = FALSE)
+    }
+    cube_display
+  } else if (!is.null(cube_state)) {
+    legacy_cube_display(position, cube_state, cube_value)
+  } else {
+    resolve_cube_display(position)
+  }
+
+  state <- cube_visual_state(display)
+
+  if (!isTRUE(display$visible) || identical(state, "hidden")) {
+    return(list(
+      visible = FALSE,
+      display = display,
+      display_state = "hidden",
+      state = "hidden",
+      value = display$value,
+      center = data.frame(),
+      outer = data.frame(),
+      inner = data.frame(),
+      number = data.frame(),
+      crosshair = data.frame()
+    ))
+  }
+
+  value <- if (!is.null(cube_state)) {
+    resolve_cube_value(position, state, cube_value)
+  } else {
+    as.integer(display$value)
+  }
 
   center <- cube_center(
     state = state,
@@ -262,6 +355,9 @@ cube_layout <- function(
   )
 
   list(
+    visible = TRUE,
+    display = display,
+    display_state = display$state,
     state = state,
     value = value,
     center = center,
@@ -279,6 +375,7 @@ add_cube_layers <- function(
     geometry,
     colors,
     style,
+    cube_display = NULL,
     cube_state = NULL,
     cube_x_mode = c("outside", "inside"),
     cube_value = NULL,
@@ -297,6 +394,7 @@ add_cube_layers <- function(
     position = position,
     geometry = geometry,
     style = style,
+    cube_display = cube_display,
     cube_state = cube_state,
     cube_x_mode = cube_x_mode,
     cube_value = cube_value,
@@ -309,7 +407,11 @@ add_cube_layers <- function(
     offered_y_nudge = offered_y_nudge
   )
 
-  outer_color <- if (identical(cube$state, "offered_white")) {
+  if (!isTRUE(cube$visible)) {
+    return(plot)
+  }
+
+  outer_color <- if (identical(cube$display_state, "offered")) {
     colors$cube_offered_border
   } else {
     colors$cube_border

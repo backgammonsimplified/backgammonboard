@@ -1,25 +1,39 @@
 devtools::load_all(reset = TRUE)
 
-CUBE_STATE <- "offered_white"
-CUBE_X_MODE <- "outside"
-CUBE_VALUE <- 2L
+# centered, white_owned, black_owned, offered, or crawford
+DISPLAY_STATE <- "offered"
 SHOW_CUBE_CROSSHAIR <- TRUE
 SHOW_BOARD_GUIDES <- TRUE
 
-xgid <- paste0(
-  "XGID=-b----E-C---eE---c-e----B-",
-  ":0:0:1:52:0:0:3:0:10"
+payload <- "-b----E-C---eE---c-e----B-"
+
+xgid <- switch(
+  DISPLAY_STATE,
+  centered = paste0("XGID=", payload, ":0:0:1:00:0:0:0:0:10"),
+  white_owned = paste0("XGID=", payload, ":2:1:1:00:0:0:0:0:10"),
+  black_owned = paste0("XGID=", payload, ":3:-1:1:00:0:0:0:0:10"),
+  offered = paste0("XGID=", payload, ":1:-1:-1:00:0:0:0:0:10"),
+  crawford = paste0("XGID=", payload, ":2:1:1:00:6:2:1:7:10"),
+  stop("Unsupported DISPLAY_STATE", call. = FALSE)
 )
 
 position <- backgammon_position(xgid)
-position$dice <- integer()
+
+offer <- if (identical(DISPLAY_STATE, "offered")) {
+  cube_offer_context(
+    offerer = "black",
+    receiver = "white",
+    current_value = 2L,
+    offered_value = 4L
+  )
+} else {
+  NULL
+}
 
 plot <- render_board_preview(
   x = position,
   brand_text = NULL,
-  cube_state = CUBE_STATE,
-  cube_x_mode = CUBE_X_MODE,
-  cube_value = CUBE_VALUE,
+  cube_offer = offer,
   show_cube_crosshair = SHOW_CUBE_CROSSHAIR,
   show_guides = SHOW_BOARD_GUIDES
 )
@@ -29,23 +43,9 @@ print(plot)
 output_directory <- file.path("dev", "preview-output")
 dir.create(output_directory, recursive = TRUE, showWarnings = FALSE)
 
-resolved_x_mode <- if (identical(CUBE_STATE, "offered_white")) {
-  "inside-left-playing-field"
-} else {
-  CUBE_X_MODE
-}
-
 output_file <- file.path(
   output_directory,
-  paste0(
-    "cube-",
-    CUBE_STATE,
-    "-",
-    resolved_x_mode,
-    "-",
-    if (identical(CUBE_STATE, "centered")) 1L else CUBE_VALUE,
-    ".png"
-  )
+  paste0("cube-state-", DISPLAY_STATE, ".png")
 )
 
 ggplot2::ggsave(

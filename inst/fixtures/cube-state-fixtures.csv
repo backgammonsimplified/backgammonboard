@@ -1,0 +1,25 @@
+fixture_id,play_context,cube_value,cube_owner,on_roll,dice,is_crawford,decision,offerer,receiver,offered_value,expected_display,expected_visible,expected_reason,expected_status
+unlimited_centered,unlimited,1,center,white,,false,none,,,,centered,true,valid,White on roll
+unlimited_white_owned,unlimited,2,white,white,,false,none,,,,owned,true,valid,White on roll
+unlimited_black_owned,unlimited,2,black,white,,false,none,,,,owned,true,valid,White on roll
+ordinary_match_centered,match,1,center,white,,false,none,,,,centered,true,valid,White on roll
+ordinary_match_owned,match,4,white,white,,false,none,,,,owned,true,valid,White on roll
+crawford_hidden,match,1,center,white,,true,none,,,,hidden,false,valid,White on roll
+non_crawford_active,match,4,white,white,,false,none,,,,owned,true,valid,White on roll
+legal_initial_double,unlimited,1,center,white,,false,cube_offer,,,,centered,true,valid,White to decide: Roll or Double?
+legal_redouble,unlimited,2,white,white,,false,cube_offer,,,,owned,true,valid,White to decide: Roll or Redouble?
+opponent_owned,unlimited,2,black,white,,false,cube_offer,,,,owned,true,opponent_owns_cube,
+dice_already_rolled,unlimited,1,center,white,5-1,false,cube_offer,,,,centered,true,dice_already_rolled,
+offer_already_pending,unlimited,2,white,white,,false,cube_offer,white,black,4,offered,true,offer_already_pending,
+offer_32_to_64,unlimited,32,black,black,,false,cube_response,black,white,64,offered,true,valid,White to decide: Take or Pass?
+offer_64_to_128,unlimited,64,white,white,,false,cube_offer,white,black,128,owned,true,package_cube_limit,
+unsupported_factual_above_64,unlimited,128,white,white,,false,none,,,,unsupported,false,package_cube_limit,
+five_away_owns_4,match,4,white,white,,false,cube_offer,white,black,8,owned,true,valid,White to decide: Roll or Redouble?
+five_away_owns_8,match,8,white,white,,false,cube_offer,white,black,16,owned,true,match_cube_limit,
+missing_offerer,unlimited,1,center,white,,false,cube_response,,black,2,centered,true,missing_offerer,
+missing_receiver,unlimited,1,center,white,,false,cube_response,white,,2,centered,true,missing_receiver,
+same_offer_parties,unlimited,1,center,white,,false,cube_response,white,white,2,centered,true,same_offer_parties,
+neutral_status_with_dice,unlimited,1,center,white,5-1,false,none,,,,centered,true,valid,"White on roll, to play: 5-1"
+explicit_roll_double,unlimited,1,center,white,,false,cube_offer,,,,centered,true,valid,White to decide: Roll or Double?
+explicit_roll_redouble,unlimited,2,white,white,,false,cube_offer,,,,owned,true,valid,White to decide: Roll or Redouble?
+explicit_take_pass,unlimited,2,black,black,,false,cube_response,black,white,4,offered,true,valid,White to decide: Take or Pass?

@@ -160,7 +160,7 @@ test_that("pip labels have matching distances and plain text", {
 })
 
 
-test_that("status labels cover roll, double, redouble, and offer states", {
+test_that("status labels are factual unless decision context is explicit", {
   money <- backgammon_position(
     paste0(
       "XGID=-b----E-C---eE---c-e----B-",
@@ -170,34 +170,44 @@ test_that("status labels cover roll, double, redouble, and offer states", {
 
   expect_identical(
     position_status_label(money),
-    "White on roll, cube action: Roll or Double?"
+    "White on roll"
+  )
+
+  expect_identical(
+    position_status_label(
+      money,
+      board_context(decision = "cube_offer")
+    ),
+    "White to decide: Roll or Double?"
   )
 
   money$cube_owner <- "white"
   money$cube_value <- 2L
 
   expect_identical(
-    position_status_label(money),
-    "White on roll, cube action: Roll or Redouble?"
+    position_status_label(
+      money,
+      board_context(decision = "cube_offer")
+    ),
+    "White to decide: Roll or Redouble?"
   )
 
+  money$on_roll <- "black"
   money$cube_owner <- "black"
 
-  expect_identical(
-    position_status_label(money),
-    "White on roll"
-  )
-
-  offered <- backgammon_position(
-    paste0(
-      "XGID=-b----E-C---eE---c-e----B-",
-      ":1:1:-1:D:0:0:0:0:10"
-    )
+  offer <- cube_offer_context(
+    offerer = "black",
+    receiver = "white",
+    current_value = 2L,
+    offered_value = 4L
   )
 
   expect_identical(
-    position_status_label(offered),
-    "Black on roll, cube offered: Take or Pass?"
+    position_status_label(
+      money,
+      board_context(decision = "cube_response", offer = offer)
+    ),
+    "White to decide: Take or Pass?"
   )
 })
 

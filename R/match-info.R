@@ -21,10 +21,6 @@ position_pip_count <- function(position, player = c("white", "black")) {
 }
 
 
-sentence_case_player <- function(player) {
-  if (identical(player, "white")) "White" else "Black"
-}
-
 
 validate_information_name <- function(value, argument) {
   if (
@@ -82,80 +78,18 @@ match_context_label <- function(position) {
   label <- paste0(
     position$match_length,
     "-pt Match, White ",
-    position$score[["white"]],
+    position_raw_score(position, "white"),
     " - Black ",
-    position$score[["black"]]
+    position_raw_score(position, "black")
   )
 
-  if (identical(position$crawford_status, "crawford")) {
+  if (isTRUE(position$is_crawford)) {
     label <- paste0(label, ", Crawford")
-  } else if (identical(position$crawford_status, "post_crawford")) {
-    label <- paste0(label, ", Post-Crawford")
   }
 
   paste0(label, ",")
 }
 
-
-position_status_label <- function(position, status_text = NULL) {
-  if (!inherits(position, "backgammon_position")) {
-    stop("`position` must be a backgammon_position.", call. = FALSE)
-  }
-
-  if (!is.null(status_text)) {
-    return(validate_information_name(status_text, "status_text"))
-  }
-
-  roller <- sentence_case_player(position$on_roll)
-
-  if (length(position$dice) == 2L) {
-    return(paste0(
-      roller,
-      " on roll, to play: ",
-      position$dice[[1L]],
-      "-",
-      position$dice[[2L]]
-    ))
-  }
-
-  if (identical(position$action, "double")) {
-    return(paste0(
-      roller,
-      " on roll, cube offered: Take or Pass?"
-    ))
-  }
-
-  roller_owns_cube <- identical(position$cube_owner, position$on_roll)
-
-  if (roller_owns_cube) {
-    return(paste0(
-      roller,
-      " on roll, cube action: Roll or Redouble?"
-    ))
-  }
-
-  if (!identical(position$cube_owner, "center")) {
-    return(paste0(roller, " on roll"))
-  }
-
-  double_prompt_suppressed <- FALSE
-
-  if (identical(position$play_context, "match")) {
-    away <- position$match_length - position$score
-    double_prompt_suppressed <-
-      identical(position$crawford_status, "crawford") ||
-      any(away == 1L)
-  }
-
-  if (!double_prompt_suppressed) {
-    return(paste0(
-      roller,
-      " on roll, cube action: Roll or Double?"
-    ))
-  }
-
-  paste0(roller, " on roll")
-}
 
 
 plotmath_quote <- function(value) {
@@ -182,7 +116,7 @@ board_information_layout <- function(
     black_name = "Black",
     white_wins = NULL,
     black_wins = NULL,
-    status_text = NULL
+    context = NULL
 ) {
   if (!inherits(position, "backgammon_position")) {
     stop("`position` must be a backgammon_position.", call. = FALSE)
@@ -247,14 +181,14 @@ board_information_layout <- function(
     stringsAsFactors = FALSE
   )
 
-  context <- match_context_label(position)
-  status <- position_status_label(position, status_text)
+  match_label <- match_context_label(position)
+  status <- position_status_label(position, context = context)
 
   sentence <- data.frame(
     x = board_center_x + style$information_sentence_x_nudge,
     y = frame$ymin - style$information_sentence_offset,
-    label = information_sentence_label(context, status),
-    context = context,
+    label = information_sentence_label(match_label, status),
+    context = match_label,
     status = status,
     stringsAsFactors = FALSE
   )
@@ -277,7 +211,7 @@ add_board_information <- function(
     black_name = "Black",
     white_wins = NULL,
     black_wins = NULL,
-    status_text = NULL,
+    context = NULL,
     family = "sans"
 ) {
   family <- validate_information_name(family, "information_family")
@@ -290,7 +224,7 @@ add_board_information <- function(
     black_name = black_name,
     white_wins = white_wins,
     black_wins = black_wins,
-    status_text = status_text
+    context = context
   )
 
   plot +
