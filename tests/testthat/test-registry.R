@@ -241,3 +241,28 @@ test_that("BMS preset uses the approved checker and board values", {
   expect_identical(colors$bar_fill, "#D8C5A5")
   expect_identical(colors$frame_fill, "#D8C5A5")
 })
+
+test_that("BMS move-overlay tokens match the accepted guide", {
+  colors <- board_colors("bms")
+  style <- board_style("bms")
+
+  expect_identical(colors$arrow_primary, "#D9653B")
+  expect_identical(colors$arrow_secondary, "#6E557A")
+  expect_identical(colors$arrow_hit, "#923B45")
+  expect_identical(colors$arrow_order_label, "#111B35")
+  expect_identical(colors$arrow_marker_fill, "#FFFFFF")
+  expect_identical(colors$arrow_marker_border, "#111B35")
+  expect_identical(colors$arrow_halo_light, "#FFFDF8")
+  expect_identical(colors$arrow_halo_dark, "#081126")
+
+  expect_identical(style$arrow_halo_dark_ratio, 2.2)
+  expect_identical(style$arrow_halo_light_ratio, 1.6)
+  expect_gt(style$arrow_halo_dark_ratio, style$arrow_halo_light_ratio)
+  expect_gt(style$arrow_halo_light_ratio, 1)
+})
+
+test_that("BMS point outlines retain a direct-render minimum", {
+  style <- board_style("bms")
+
+  expect_true(style$point_border_width >= 0.38)
+})

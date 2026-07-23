@@ -267,7 +267,9 @@ render_board_preview <- function(
     show_guides = FALSE,
     guide_color = "#D9653B",
     guide_width = 0.60,
-    guide_alpha = 0.80
+    guide_alpha = 0.80,
+    moves = NULL,
+    alternative_moves = NULL
 ) {
   point_1_side <- match.arg(point_1_side)
   score_format <- match.arg(score_format)
@@ -292,6 +294,12 @@ render_board_preview <- function(
   } else {
     backgammon_position(x)
   }
+
+  selected_moves <- normalize_move_overlay_input(moves, "moves")
+  alternative_moves <- normalize_move_overlay_input(
+    alternative_moves,
+    "alternative_moves"
+  )
 
   context <- normalize_board_context(context)
 
@@ -336,6 +344,30 @@ render_board_preview <- function(
     point_1_side = point_1_side,
     perspective = if (is.null(perspective)) NULL else resolved_perspective
   )
+
+  selected_overlay <- if (is.null(selected_moves)) {
+    NULL
+  } else {
+    move_overlay_geometry(
+      position = position,
+      moves = selected_moves,
+      style = style,
+      perspective = resolved_perspective,
+      role = "selected"
+    )
+  }
+
+  alternative_overlay <- if (is.null(alternative_moves)) {
+    NULL
+  } else {
+    move_overlay_geometry(
+      position = position,
+      moves = alternative_moves,
+      style = style,
+      perspective = resolved_perspective,
+      role = "alternative"
+    )
+  }
 
   plot <- ggplot2::ggplot() +
     ggplot2::geom_rect(
@@ -428,6 +460,19 @@ render_board_preview <- function(
     y_nudge = brand_y_nudge
   )
 
+  plot <- add_move_overlay_layers(
+    plot = plot,
+    overlay = alternative_overlay,
+    colors = colors,
+    style = style
+  )
+  plot <- add_move_overlay_layers(
+    plot = plot,
+    overlay = selected_overlay,
+    colors = colors,
+    style = style
+  )
+
   if (isTRUE(show_information)) {
     plot <- add_board_information(
       plot = plot,
@@ -492,5 +537,9 @@ render_board_preview <- function(
     )
 
   attr(plot, "backgammon_brand_side") <- resolved_brand_side
+  attr(plot, "backgammon_move_overlays") <- list(
+    selected = selected_overlay,
+    alternative = alternative_overlay
+  )
   plot
 }

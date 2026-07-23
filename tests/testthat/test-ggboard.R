@@ -372,3 +372,68 @@ test_that("explicit brand side overrides automatic placement", {
 
   expect_identical(attr(plot, "backgammon_brand_side"), "left")
 })
+
+
+test_that("ggboard renders selected and alternative checker plays", {
+  position <- backgammon_position(
+    "XGID=-b----E-C---eE---c-e----B-:0:0:1:00:0:0:0:0:10"
+  )
+  points <- integer(24)
+  points[[13L]] <- 1L
+  points[[6L]] <- 1L
+  position$points <- points
+  position$bar <- c(white = 0L, black = 0L)
+  position$off <- c(white = 13L, black = 15L)
+  position$on_roll <- "white"
+  position$dice <- integer()
+  position$action_marker <- "00"
+  position$dice_action <- "00"
+
+  plot <- ggboard(
+    position,
+    colors = board_colors("bms"),
+    style = board_style("bms"),
+    decision = "none",
+    perspective = "white",
+    show_information = FALSE,
+    moves = "13/8",
+    alternative_moves = "6/5"
+  )
+
+  overlays <- attr(plot, "backgammon_move_overlays")
+
+  expect_s3_class(plot, "ggplot")
+  expect_s3_class(overlays$selected, "backgammon_move_overlay")
+  expect_s3_class(overlays$alternative, "backgammon_move_overlay")
+  expect_identical(overlays$selected$segments$linetype, "solid")
+  expect_identical(overlays$alternative$segments$linetype, "dashed")
+})
+
+
+test_that("ggboard rejects checker plays that fail deterministic application", {
+  position <- backgammon_position(
+    "XGID=-b----E-C---eE---c-e----B-:0:0:1:00:0:0:0:0:10"
+  )
+  points <- integer(24)
+  points[[13L]] <- 1L
+  points[[8L]] <- -2L
+  position$points <- points
+  position$bar <- c(white = 0L, black = 0L)
+  position$off <- c(white = 14L, black = 13L)
+  position$on_roll <- "white"
+  position$dice <- integer()
+  position$action_marker <- "00"
+  position$dice_action <- "00"
+
+  expect_error(
+    ggboard(
+      position,
+      decision = "none",
+      perspective = "white",
+      show_information = FALSE,
+      moves = "13/8"
+    ),
+    "blocked by 2 black checkers",
+    fixed = TRUE
+  )
+})

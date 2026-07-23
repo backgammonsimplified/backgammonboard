@@ -16,6 +16,11 @@
 #'   `"both"`.
 #' @param show_information Whether to draw score, pip, and status information.
 #' @param brand_text Optional static brand text. The neutral default is `NULL`.
+#' @param moves Optional selected checker-play notation or an object created by
+#'   [board_moves()].
+#' @param alternative_moves Optional alternative checker-play notation or an
+#'   object created by [board_moves()]. Alternatives use dashed structural
+#'   styling.
 #'
 #' @return An ordinary object inheriting from `ggplot`.
 #' @export
@@ -27,7 +32,9 @@ ggboard <- function(
     perspective = c("decision_maker", "on_roll", "white", "black"),
     score_format = c("away", "raw", "both"),
     show_information = TRUE,
-    brand_text = NULL
+    brand_text = NULL,
+    moves = NULL,
+    alternative_moves = NULL
 ) {
   decision <- match.arg(decision)
   perspective <- match.arg(perspective)
@@ -96,7 +103,9 @@ ggboard <- function(
     cube_offer = cube_offer,
     show_information = show_information,
     context = context,
-    score_format = score_format
+    score_format = score_format,
+    moves = moves,
+    alternative_moves = alternative_moves
   )
 
   displayed_offer <- if (!is.null(cube_offer)) cube_offer else context$offer
