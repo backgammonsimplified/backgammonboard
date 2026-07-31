@@ -18,6 +18,22 @@ Package version: 0.1.0
 9. static differential XGID fixtures and end-to-end tests;
 10. deterministic 17-image factual visual-review script.
 
+## RendererPosition integration
+
+The additive `renderer_position()` adapter accepts the Engine Kit
+`RendererPosition` JSON envelope as a parsed object, JSON text, or JSON file.
+It maps Universal Position facts into the existing `backgammon_position`
+model, preserves Engine Kit semantic/view hashes for diagnostics, and applies
+Backgammon View v1 only during rendering.
+
+The exact field and orientation mapping is recorded in
+`inst/contracts/RENDERER_POSITION_MAPPING_v1.md`.
+
+RendererPosition rendering enforces the initial learner-view policy: learner
+bottom, opponent top, learner-relative point labels, independent home-side
+mirroring, canonical on-roll dice and cube ownership, an orange on-roll arrow,
+and explicit visible/accessible on-roll text. Themes remain appearance-only.
+
 ## Deferred
 
 ```text
@@ -28,6 +44,9 @@ after_xgid validation
 move overlays
 Shiny migration
 website integration
+familiar board-style gallery
+user-created and saved themes
+hex colour selectors
 ```
 
 ## Review gate

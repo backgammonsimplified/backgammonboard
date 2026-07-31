@@ -144,6 +144,29 @@ sentence_case_player <- function(player) {
 }
 
 
+position_player_label <- function(position, player) {
+  assert_backgammon_position(position)
+  player <- normalize_semantic_player(player)
+  if (is.null(player) || is.na(player)) {
+    stop("Unsupported semantic player.", call. = FALSE)
+  }
+
+  labels <- position$player_labels
+  if (
+    !is.null(labels) &&
+    !is.null(names(labels)) &&
+    player %in% names(labels) &&
+    is.character(labels[[player]]) &&
+    length(labels[[player]]) == 1L &&
+    !is.na(labels[[player]]) &&
+    nzchar(labels[[player]])
+  ) {
+    return(labels[[player]])
+  }
+  sentence_case_player(player)
+}
+
+
 # Derive factual or explicitly instructional board status text.
 position_status_label <- function(
     position,
@@ -152,7 +175,7 @@ position_status_label <- function(
 ) {
   assert_backgammon_position(position)
   context <- normalize_board_context(context)
-  roller <- sentence_case_player(position$on_roll)
+  roller <- position_player_label(position, position$on_roll)
 
   if (identical(context$decision, "none")) {
     if (length(position$dice) == 2L) {
@@ -186,14 +209,14 @@ position_status_label <- function(
     }
 
     return(paste0(
-      sentence_case_player(validation$cube$offerer),
+      position_player_label(position, validation$cube$offerer),
       " to decide: ",
       question
     ))
   }
 
   paste0(
-    sentence_case_player(validation$cube$receiver),
+    position_player_label(position, validation$cube$receiver),
     " to decide: Take or Pass?"
   )
 }

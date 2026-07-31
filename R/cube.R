@@ -176,7 +176,8 @@ cube_center <- function(
     white_y_nudge = 0,
     black_y_nudge = 0,
     offered_y_nudge = 0,
-    perspective = "white"
+    perspective = "white",
+    cube_display_side = c("left", "right")
 ) {
   valid_x_modes <- c("outside", "inside")
 
@@ -193,8 +194,10 @@ cube_center <- function(
   }
 
   perspective <- normalize_board_perspective(perspective)
+  cube_display_side <- match.arg(cube_display_side)
 
   frame_xmin <- geometry$frame$xmin[[1L]]
+  frame_xmax <- geometry$frame$xmax[[1L]]
   left_field_xmin <- geometry$left_field$xmin[[1L]]
   left_field_xmax <- geometry$left_field$xmax[[1L]]
   right_field_xmin <- geometry$right_field$xmin[[1L]]
@@ -216,9 +219,13 @@ cube_center <- function(
     right_field_xmax
   ))
 
-  outside_x <-
+  outside_left_x <-
     frame_xmin -
     style$cube_scale / 2 -
+    style$cube_outside_gap
+  outside_right_x <-
+    frame_xmax +
+    style$cube_scale / 2 +
     style$cube_outside_gap
 
   is_offered <- state %in% c("offered_white", "offered_black")
@@ -235,9 +242,9 @@ cube_center <- function(
   x <- if (is_offered) {
     if (identical(receiver, perspective)) inside_left_x else inside_right_x
   } else if (identical(resolved_x_mode, "inside")) {
-    inside_left_x
+    if (identical(cube_display_side, "left")) inside_left_x else inside_right_x
   } else {
-    outside_x
+    if (identical(cube_display_side, "left")) outside_left_x else outside_right_x
   }
 
   white_first_checker_y <-
@@ -293,10 +300,12 @@ cube_layout <- function(
     white_y_nudge = 0,
     black_y_nudge = 0,
     offered_y_nudge = 0,
-    perspective = "white"
+    perspective = "white",
+    cube_display_side = c("left", "right")
 ) {
   assert_backgammon_position(position)
   cube_x_mode <- match.arg(cube_x_mode)
+  cube_display_side <- match.arg(cube_display_side)
 
   if (!is.null(cube_display) && !is.null(cube_state)) {
     stop("Supply `cube_display` or the development `cube_state`, not both.", call. = FALSE)
@@ -346,7 +355,8 @@ cube_layout <- function(
     white_y_nudge = white_y_nudge,
     black_y_nudge = black_y_nudge,
     offered_y_nudge = offered_y_nudge,
-    perspective = perspective
+    perspective = perspective,
+    cube_display_side = cube_display_side
   )
 
   outer <- cube_face_polygon(
@@ -422,9 +432,11 @@ add_cube_layers <- function(
     white_y_nudge = 0,
     black_y_nudge = 0,
     offered_y_nudge = 0,
-    perspective = "white"
+    perspective = "white",
+    cube_display_side = c("left", "right")
 ) {
   cube_x_mode <- match.arg(cube_x_mode)
+  cube_display_side <- match.arg(cube_display_side)
 
   cube <- cube_layout(
     position = position,
@@ -441,7 +453,8 @@ add_cube_layers <- function(
     white_y_nudge = white_y_nudge,
     black_y_nudge = black_y_nudge,
     offered_y_nudge = offered_y_nudge,
-    perspective = perspective
+    perspective = perspective,
+    cube_display_side = cube_display_side
   )
 
   if (!isTRUE(cube$visible)) {

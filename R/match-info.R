@@ -77,9 +77,13 @@ match_context_label <- function(position) {
 
   label <- paste0(
     position$match_length,
-    "-pt Match, White ",
+    "-pt Match, ",
+    position_player_label(position, "white"),
+    " ",
     position_raw_score(position, "white"),
-    " - Black ",
+    " - ",
+    position_player_label(position, "black"),
+    " ",
     position_raw_score(position, "black")
   )
 
@@ -167,17 +171,27 @@ board_information_layout <- function(
 
   make_row <- function(player, side) {
     is_top <- identical(side, "top")
+    player_name_y <- if (is_top) {
+      frame$ymax + style$information_top_player_name_offset
+    } else {
+      frame$ymin - style$information_bottom_player_name_offset
+    }
     data.frame(
       player = player,
       name = unname(names_by_player[[player]]),
+      on_roll = identical(player, position$on_roll),
+      on_roll_arrow = if (identical(player, position$on_roll)) "\u2192" else "",
+      on_roll_arrow_x =
+        player_x - style$information_on_roll_arrow_x_offset,
+      on_roll_arrow_y = player_name_y,
       secondary = unname(secondary[[player]]),
-      pip_label = paste0(sentence_case_player(player), " pips: ", pips[[player]]),
+      pip_label = paste0(
+        position_player_label(position, player),
+        " pips: ",
+        pips[[player]]
+      ),
       player_x = player_x,
-      player_name_y = if (is_top) {
-        frame$ymax + style$information_top_player_name_offset
-      } else {
-        frame$ymin - style$information_bottom_player_name_offset
-      },
+      player_name_y = player_name_y,
       secondary_y = if (is_top) {
         frame$ymax + style$information_top_secondary_offset
       } else {
@@ -261,6 +275,21 @@ add_board_information <- function(
     ) +
     ggplot2::geom_text(
       data = information$top,
+      ggplot2::aes(
+        x = on_roll_arrow_x,
+        y = on_roll_arrow_y,
+        label = on_roll_arrow
+      ),
+      inherit.aes = FALSE,
+      color = colors$on_roll_arrow,
+      size = style$information_on_roll_arrow_size,
+      family = family,
+      fontface = "bold",
+      hjust = 1,
+      vjust = 0.5
+    ) +
+    ggplot2::geom_text(
+      data = information$top,
       ggplot2::aes(x = player_x, y = player_name_y, label = name),
       inherit.aes = FALSE,
       color = colors$score_text,
@@ -300,6 +329,21 @@ add_board_information <- function(
       size = style$information_secondary_text_size,
       family = family,
       fontface = "plain",
+      hjust = 1,
+      vjust = 0.5
+    ) +
+    ggplot2::geom_text(
+      data = information$bottom,
+      ggplot2::aes(
+        x = on_roll_arrow_x,
+        y = on_roll_arrow_y,
+        label = on_roll_arrow
+      ),
+      inherit.aes = FALSE,
+      color = colors$on_roll_arrow,
+      size = style$information_on_roll_arrow_size,
+      family = family,
+      fontface = "bold",
       hjust = 1,
       vjust = 0.5
     ) +

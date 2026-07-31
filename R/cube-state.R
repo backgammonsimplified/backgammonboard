@@ -425,6 +425,27 @@ resolve_cube_display <- function(
   assert_backgammon_position(position)
   max_cube_value <- validate_max_cube_value_argument(max_cube_value)
 
+  if (isFALSE(position$cube_enabled)) {
+    if (!is.null(offer)) {
+      stop(
+        "A cube offer cannot be displayed when the accepted cube is disabled.",
+        call. = FALSE
+      )
+    }
+    return(new_cube_display(
+      visible = FALSE,
+      state = "hidden",
+      value = position$cube_value,
+      owner = if (identical(position$cube_owner, "center") ||
+                  is.na(position$cube_owner)) {
+        NULL
+      } else {
+        position$cube_owner
+      },
+      placement = "hidden"
+    ))
+  }
+
   factual_cube <- position$cube_value
   if (
     !is_single_whole_number(factual_cube) ||

@@ -247,6 +247,8 @@ render_board_preview <- function(
     style = board_style("bms"),
     point_1_side = c("right", "left"),
     perspective = NULL,
+    bottom_home_board_side = NULL,
+    point_labels_for = NULL,
     brand_text = "Backgammon\nMade Simple",
     brand_side = c("auto", "left", "right"),
     brand_size = 6.0,
@@ -255,6 +257,7 @@ render_board_preview <- function(
     show_cube = TRUE,
     cube_offer = NULL,
     cube_x_mode = c("outside", "inside"),
+    cube_display_side = c("left", "right"),
     show_cube_crosshair = FALSE,
     show_information = TRUE,
     white_name = "White",
@@ -278,6 +281,7 @@ render_board_preview <- function(
   }
   brand_side <- match.arg(brand_side)
   cube_x_mode <- match.arg(cube_x_mode)
+  cube_display_side <- match.arg(cube_display_side)
 
   if (!inherits(colors, "backgammon_board_colors")) {
     stop("`colors` must be created by board_colors().", call. = FALSE)
@@ -328,13 +332,17 @@ render_board_preview <- function(
   geometry <- board_geometry(
     style,
     point_1_side = point_1_side,
-    perspective = if (is.null(perspective)) NULL else resolved_perspective
+    perspective = if (is.null(perspective)) NULL else resolved_perspective,
+    bottom_home_board_side = bottom_home_board_side,
+    point_labels_for = point_labels_for
   )
   checkers <- checker_layout(
     position,
     style,
     point_1_side = point_1_side,
-    perspective = if (is.null(perspective)) NULL else resolved_perspective
+    perspective = if (is.null(perspective)) NULL else resolved_perspective,
+    bottom_home_board_side = bottom_home_board_side,
+    point_labels_for = point_labels_for
   )
 
   plot <- ggplot2::ggplot() +
@@ -413,7 +421,8 @@ render_board_preview <- function(
       cube_display = cube_display,
       cube_x_mode = cube_x_mode,
       show_crosshair = show_cube_crosshair,
-      perspective = resolved_perspective
+      perspective = resolved_perspective,
+      cube_display_side = cube_display_side
     )
   }
 

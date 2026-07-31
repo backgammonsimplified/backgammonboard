@@ -22,7 +22,9 @@ ggboard(
 \code{"roll_double"}, \code{"take_pass"}, or \code{"none"}. Auto never
 infers a cube question.}
 \item{perspective}{One of \code{"decision_maker"}, \code{"on_roll"},
-\code{"white"}, or \code{"black"}.}
+\code{"white"}, or \code{"black"}. RendererPosition input is fixed to its
+learner perspective; an explicit value that would rotate the opponent to the
+bottom is rejected.}
 \item{score_format}{Match score display format: \code{"away"},
 \code{"raw"}, or \code{"both"}.}
 \item{show_information}{Whether score, pip, and status information is drawn.}
@@ -36,4 +38,6 @@ An ordinary object inheriting from \code{ggplot}.
 Validates and constructs a factual position, resolves any factual pending cube
 offer and optional instructional context, applies one semantic perspective,
 and renders a static board. Perspective never mutates factual position state.
+RendererPosition input additionally fixes the learner at the bottom, the
+opponent at the top, and point labels in the learner's perspective.
 }

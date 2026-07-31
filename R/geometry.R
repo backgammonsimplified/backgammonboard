@@ -41,7 +41,8 @@ board_layout <- function(style) {
 point_layout_table <- function(
     style,
     point_1_side = c("right", "left"),
-    perspective = NULL
+    perspective = NULL,
+    bottom_home_board_side = NULL
 ) {
   point_1_side <- match.arg(point_1_side)
   layout <- board_layout(style)
@@ -54,7 +55,44 @@ point_layout_table <- function(
   right_centers <-
     layout$right_play_xmin + (seq_len(6) - 0.5) * right_step
 
-  if (!is.null(perspective)) {
+  if (!is.null(bottom_home_board_side)) {
+    bottom_home_board_side <- match.arg(
+      bottom_home_board_side,
+      c("left", "right")
+    )
+  }
+
+  if (!is.null(perspective) && !is.null(bottom_home_board_side)) {
+    perspective <- normalize_board_perspective(perspective)
+
+    if (
+      identical(perspective, "white") &&
+      identical(bottom_home_board_side, "right")
+    ) {
+      bottom_left <- 12:7
+      bottom_right <- 6:1
+      top_left <- 13:18
+      top_right <- 19:24
+    } else if (
+      identical(perspective, "white") &&
+      identical(bottom_home_board_side, "left")
+    ) {
+      bottom_left <- 1:6
+      bottom_right <- 7:12
+      top_left <- 24:19
+      top_right <- 18:13
+    } else if (identical(bottom_home_board_side, "left")) {
+      bottom_left <- 24:19
+      bottom_right <- 18:13
+      top_left <- 1:6
+      top_right <- 7:12
+    } else {
+      bottom_left <- 13:18
+      bottom_right <- 19:24
+      top_left <- 12:7
+      top_right <- 6:1
+    }
+  } else if (!is.null(perspective)) {
     perspective <- normalize_board_perspective(perspective)
 
     if (identical(perspective, "white")) {
@@ -145,7 +183,15 @@ point_polygon_data <- function(layout, style) {
   do.call(rbind, polygons)
 }
 
-point_number_data <- function(layout, style) {
+point_number_data <- function(layout, style, point_labels_for = NULL) {
+  labels <- layout$point
+  if (!is.null(point_labels_for)) {
+    point_labels_for <- normalize_board_perspective(point_labels_for)
+    if (identical(point_labels_for, "black")) {
+      labels <- 25L - labels
+    }
+  }
+
   data.frame(
     point = layout$point,
     x = layout$x,
@@ -154,7 +200,7 @@ point_number_data <- function(layout, style) {
       style$point_number_inset,
       style$board_height - style$point_number_inset
     ),
-    label = as.character(layout$point),
+    label = as.character(labels),
     side = layout$side,
     stringsAsFactors = FALSE
   )
@@ -163,14 +209,17 @@ point_number_data <- function(layout, style) {
 board_geometry <- function(
     style,
     point_1_side = c("right", "left"),
-    perspective = NULL
+    perspective = NULL,
+    bottom_home_board_side = NULL,
+    point_labels_for = NULL
 ) {
   point_1_side <- match.arg(point_1_side)
   layout <- board_layout(style)
   point_layout <- point_layout_table(
     style,
     point_1_side = point_1_side,
-    perspective = perspective
+    perspective = perspective,
+    bottom_home_board_side = bottom_home_board_side
   )
 
   list(
@@ -205,7 +254,11 @@ board_geometry <- function(
       ymax = layout$field_ymax
     ),
     points = point_polygon_data(point_layout, style),
-    point_labels = point_number_data(point_layout, style),
+    point_labels = point_number_data(
+      point_layout,
+      style,
+      point_labels_for = point_labels_for
+    ),
     point_layout = point_layout,
     layout = layout
   )

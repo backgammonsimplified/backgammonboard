@@ -14,6 +14,28 @@ plot <- ggboard(xgid)
 inherits(plot, "ggplot")
 ```
 
+Accepted Engine Kit renderer envelopes are additive input:
+
+```r
+position <- renderer_position("renderer-position.json")
+plot <- ggboard(position)
+```
+
+`renderer_position()` also accepts the JSON text itself or an already parsed
+named list. It requires no Python or Engine Kit runtime dependency.
+
+RendererPosition rendering uses the initial learner-view policy: the accepted
+learner remains at the bottom, the opponent remains at the top, and point
+labels remain learner-relative. Home-board left/right is an independent
+horizontal mirror. Changing the canonical on-roll player moves the orange
+arrow and dice and updates visible/accessible on-roll text; it never changes
+the board orientation. Cube ownership follows the canonical player slot.
+
+Checker colours and themes are appearance only. They never define learner,
+opponent, on-roll player, dice ownership, cube ownership, or analysis
+perspective. Any website-provided engine percentage or cube analysis must
+identify its canonical player perspective explicitly.
+
 The package accepts a complete XGID with or without the `XGID=` prefix. It
 constructs stable White/Black factual state before applying perspective.
 Changing perspective does not change checker ownership, bars, borne-off counts,
@@ -59,6 +81,7 @@ ggboard()
 normalize_xgid()
 validate_xgid()
 backgammon_position()
+renderer_position()
 board_colors()
 board_style()
 ```

@@ -11,7 +11,8 @@
 #' @param decision One of `"auto"`, `"checker_play"`, `"roll_double"`,
 #'   `"take_pass"`, or `"none"`. `"auto"` never infers a cube question.
 #' @param perspective One of `"decision_maker"`, `"on_roll"`, `"white"`, or
-#'   `"black"`.
+#'   `"black"`. RendererPosition input is fixed to its learner perspective;
+#'   an explicit value that would rotate the opponent to the bottom is rejected.
 #' @param score_format Match score display format: `"away"`, `"raw"`, or
 #'   `"both"`.
 #' @param show_information Whether to draw score, pip, and status information.
@@ -29,6 +30,7 @@ ggboard <- function(
     show_information = TRUE,
     brand_text = NULL
 ) {
+  perspective_was_missing <- missing(perspective)
   decision <- match.arg(decision)
   perspective <- match.arg(perspective)
   score_format <- match.arg(score_format)
@@ -37,6 +39,11 @@ ggboard <- function(
     x
   } else {
     backgammon_position(x)
+  }
+  renderer_view <- if (inherits(position, "backgammon_renderer_position")) {
+    position$renderer_view
+  } else {
+    NULL
   }
 
   resolved_decision <- if (identical(decision, "auto")) {
@@ -73,31 +80,100 @@ ggboard <- function(
     cube_offer <- pending_offer
   }
 
-  resolved_perspective <- switch(
-    perspective,
-    white = "white",
-    black = "black",
-    on_roll = position$on_roll,
-    decision_maker = if (identical(resolved_decision, "take_pass")) {
-      context$offer$receiver
-    } else {
-      position$on_roll
-    }
-  )
+  resolved_perspective <- if (
+    !is.null(renderer_view) &&
+    isTRUE(perspective_was_missing)
+  ) {
+    renderer_slot_to_player(renderer_view$bottom_player)
+  } else {
+    switch(
+      perspective,
+      white = "white",
+      black = "black",
+      on_roll = position$on_roll,
+      decision_maker = if (identical(resolved_decision, "take_pass")) {
+        context$offer$receiver
+      } else {
+        position$on_roll
+      }
+    )
+  }
   resolved_perspective <- normalize_board_perspective(resolved_perspective)
+  if (
+    !is.null(renderer_view) &&
+    !identical(resolved_perspective, position$learner_player)
+  ) {
+    stop(
+      paste0(
+        "Initial learner-view policy requires `",
+        position$learner_slot,
+        "` to remain at the bottom; `perspective` must not rotate the board."
+      ),
+      call. = FALSE
+    )
+  }
+
+  bottom_home_board_side <- if (is.null(renderer_view)) {
+    NULL
+  } else {
+    renderer_view$bottom_home_board_side
+  }
+  point_labels_for <- if (is.null(renderer_view)) {
+    NULL
+  } else {
+    renderer_slot_to_player(renderer_view$point_labels_for)
+  }
+  cube_display_side <- if (is.null(renderer_view)) {
+    "left"
+  } else if (renderer_view$cube_display_side %in% c("left", "right")) {
+    renderer_view$cube_display_side
+  } else {
+    stop(
+      paste0(
+        "Accepted view cube_display_side `",
+        renderer_view$cube_display_side,
+        "` has no current W7 placement; supported values are `left` and `right`."
+      ),
+      call. = FALSE
+    )
+  }
+  player_labels <- if (
+    !is.null(position$player_labels) &&
+    length(position$player_labels) == 2L
+  ) {
+    position$player_labels
+  } else {
+    c(white = "White", black = "Black")
+  }
 
   plot <- render_board_preview(
     x = position,
     colors = colors,
     style = style,
     perspective = resolved_perspective,
+    bottom_home_board_side = bottom_home_board_side,
+    point_labels_for = point_labels_for,
     brand_text = brand_text,
     show_cube = TRUE,
+    cube_display_side = cube_display_side,
     cube_offer = cube_offer,
     show_information = show_information,
+    white_name = unname(player_labels[["white"]]),
+    black_name = unname(player_labels[["black"]]),
     context = context,
     score_format = score_format
   )
+  status_text <- position_status_label(position, context = context)
+  accessible_text <- if (grepl("on roll", status_text, fixed = TRUE)) {
+    status_text
+  } else {
+    paste0(
+      position_player_label(position, position$on_roll),
+      " on roll. ",
+      status_text
+    )
+  }
+  plot <- plot + ggplot2::labs(alt = accessible_text)
 
   displayed_offer <- if (!is.null(cube_offer)) cube_offer else context$offer
   cube_display <- resolve_cube_display(position, offer = displayed_offer)
@@ -107,6 +183,13 @@ ggboard <- function(
   attr(plot, "backgammon_decision") <- resolved_decision
   attr(plot, "backgammon_perspective") <- resolved_perspective
   attr(plot, "backgammon_cube_display") <- cube_display
+  attr(plot, "backgammon_accessible_text") <- accessible_text
+  if (!is.null(renderer_view)) {
+    attr(plot, "backgammon_renderer_view") <- renderer_view
+    attr(plot, "backgammon_semantic_state_hash") <-
+      position$renderer_semantic_state_hash
+    attr(plot, "backgammon_view_hash") <- position$renderer_view_hash
+  }
   plot
 }
 

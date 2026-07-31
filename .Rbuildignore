@@ -4,3 +4,4 @@
 ^dev$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^task-work$

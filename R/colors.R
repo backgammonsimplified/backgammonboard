@@ -105,6 +105,7 @@ board_color_presets <- function() {
     # Arrows and overlays
     arrow_primary = "#D9653B",
     arrow_secondary = "#6E557A",
+    on_roll_arrow = "#D9653B",
 
     # Text
     score_text = "#1B1F2A",

@@ -27,7 +27,9 @@ checker_layout <- function(
     position,
     style,
     point_1_side = c("right", "left"),
-    perspective = NULL
+    perspective = NULL,
+    bottom_home_board_side = NULL,
+    point_labels_for = NULL
 ) {
   point_1_side <- match.arg(point_1_side)
 
@@ -38,7 +40,9 @@ checker_layout <- function(
   geometry <- board_geometry(
     style,
     point_1_side = point_1_side,
-    perspective = perspective
+    perspective = perspective,
+    bottom_home_board_side = bottom_home_board_side,
+    point_labels_for = point_labels_for
   )
   bottom_player <- if (is.null(perspective)) {
     "white"
