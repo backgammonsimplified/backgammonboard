@@ -270,7 +270,9 @@ render_board_preview <- function(
     show_guides = FALSE,
     guide_color = "#D9653B",
     guide_width = 0.60,
-    guide_alpha = 0.80
+    guide_alpha = 0.80,
+    moves = NULL,
+    alternative_moves = NULL
 ) {
   point_1_side <- match.arg(point_1_side)
   score_format <- match.arg(score_format)
@@ -296,6 +298,12 @@ render_board_preview <- function(
   } else {
     backgammon_position(x)
   }
+
+  selected_moves <- normalize_move_overlay_input(moves, "moves")
+  alternative_moves <- normalize_move_overlay_input(
+    alternative_moves,
+    "alternative_moves"
+  )
 
   context <- normalize_board_context(context)
 
@@ -336,8 +344,43 @@ render_board_preview <- function(
     bottom_home_board_side = bottom_home_board_side,
     point_labels_for = point_labels_for
   )
+  selected_overlay <- if (is.null(selected_moves)) {
+    NULL
+  } else {
+    move_overlay_geometry(
+      position = position,
+      moves = selected_moves,
+      style = style,
+      perspective = resolved_perspective,
+      point_1_side = point_1_side,
+      bottom_home_board_side = bottom_home_board_side,
+      point_labels_for = point_labels_for,
+      role = "selected"
+    )
+  }
+
+  alternative_overlay <- if (is.null(alternative_moves)) {
+    NULL
+  } else {
+    move_overlay_geometry(
+      position = position,
+      moves = alternative_moves,
+      style = style,
+      perspective = resolved_perspective,
+      point_1_side = point_1_side,
+      bottom_home_board_side = bottom_home_board_side,
+      point_labels_for = point_labels_for,
+      role = "alternative"
+    )
+  }
+
+  display_position <- if (is.null(selected_overlay)) {
+    position
+  } else {
+    move_overlay_position_after(position, selected_overlay$applied_moves)
+  }
   checkers <- checker_layout(
-    position,
+    display_position,
     style,
     point_1_side = point_1_side,
     perspective = if (is.null(perspective)) NULL else resolved_perspective,
@@ -404,7 +447,7 @@ render_board_preview <- function(
   plot <- add_off_checkers(plot, checkers$off, colors, style)
   plot <- add_dice_layers(
     plot = plot,
-    position = position,
+    position = display_position,
     geometry = geometry,
     colors = colors,
     style = style,
@@ -414,7 +457,7 @@ render_board_preview <- function(
   if (isTRUE(show_cube) && isTRUE(cube_display$visible)) {
     plot <- add_cube_layers(
       plot = plot,
-      position = position,
+      position = display_position,
       geometry = geometry,
       colors = colors,
       style = style,
@@ -437,10 +480,23 @@ render_board_preview <- function(
     y_nudge = brand_y_nudge
   )
 
+  plot <- add_move_overlay_layers(
+    plot = plot,
+    overlay = alternative_overlay,
+    colors = colors,
+    style = style
+  )
+  plot <- add_move_overlay_layers(
+    plot = plot,
+    overlay = selected_overlay,
+    colors = colors,
+    style = style
+  )
+
   if (isTRUE(show_information)) {
     plot <- add_board_information(
       plot = plot,
-      position = position,
+      position = display_position,
       geometry = geometry,
       colors = colors,
       style = style,
@@ -501,5 +557,10 @@ render_board_preview <- function(
     )
 
   attr(plot, "backgammon_brand_side") <- resolved_brand_side
+  attr(plot, "backgammon_move_overlays") <- list(
+    selected = selected_overlay,
+    alternative = alternative_overlay
+  )
+  attr(plot, "backgammon_display_position") <- display_position
   plot
 }

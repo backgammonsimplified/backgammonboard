@@ -11,7 +11,9 @@ ggboard(
   perspective = c("decision_maker", "on_roll", "white", "black"),
   score_format = c("away", "raw", "both"),
   show_information = TRUE,
-  brand_text = NULL
+  brand_text = NULL,
+  moves = NULL,
+  alternative_moves = NULL
 )
 }
 \arguments{
@@ -30,6 +32,11 @@ bottom is rejected.}
 \item{show_information}{Whether score, pip, and status information is drawn.}
 \item{brand_text}{Optional static brand text. The neutral default is
 \code{NULL}.}
+\item{moves}{Optional selected checker-play notation or an object created by
+\code{board_moves()}.}
+\item{alternative_moves}{Optional alternative checker-play notation or an
+object created by \code{board_moves()}. Alternatives use dashed structural
+styling.}
 }
 \value{
 An ordinary object inheriting from \code{ggplot}.
@@ -37,7 +44,9 @@ An ordinary object inheriting from \code{ggplot}.
 \description{
 Validates and constructs a factual position, resolves any factual pending cube
 offer and optional instructional context, applies one semantic perspective,
-and renders a static board. Perspective never mutates factual position state.
-RendererPosition input additionally fixes the learner at the bottom, the
-opponent at the top, and point labels in the learner's perspective.
+and renders a static board. Optional checker plays are rendered with layered
+move arrows, structural order markers, and explicit hit treatment. Perspective
+never mutates factual position state. RendererPosition input additionally fixes
+the learner at the bottom, the opponent at the top, and point labels in the
+learner's perspective.
 }

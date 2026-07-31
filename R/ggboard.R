@@ -17,6 +17,11 @@
 #'   `"both"`.
 #' @param show_information Whether to draw score, pip, and status information.
 #' @param brand_text Optional static brand text. The neutral default is `NULL`.
+#' @param moves Optional selected checker-play notation or an object created by
+#'   [board_moves()].
+#' @param alternative_moves Optional alternative checker-play notation or an
+#'   object created by [board_moves()]. Alternatives use dashed structural
+#'   styling.
 #'
 #' @return An ordinary object inheriting from `ggplot`.
 #' @export
@@ -28,7 +33,9 @@ ggboard <- function(
     perspective = c("decision_maker", "on_roll", "white", "black"),
     score_format = c("away", "raw", "both"),
     show_information = TRUE,
-    brand_text = NULL
+    brand_text = NULL,
+    moves = NULL,
+    alternative_moves = NULL
 ) {
   perspective_was_missing <- missing(perspective)
   decision <- match.arg(decision)
@@ -161,7 +168,9 @@ ggboard <- function(
     white_name = unname(player_labels[["white"]]),
     black_name = unname(player_labels[["black"]]),
     context = context,
-    score_format = score_format
+    score_format = score_format,
+    moves = moves,
+    alternative_moves = alternative_moves
   )
   status_text <- position_status_label(position, context = context)
   accessible_text <- if (grepl("on roll", status_text, fixed = TRUE)) {

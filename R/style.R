@@ -90,7 +90,16 @@ board_style_presets <- function() {
     cube_crosshair_linewidth = 0.45,
     cube_crosshair_alpha = 0.80,
     arrow_linewidth = 1.0,
+    arrow_halo_dark_ratio = 2.2,
+    arrow_halo_light_ratio = 1.6,
+    arrow_head_length_mm = 3.0,
+    arrow_endpoint_clearance = 0.18,
     arrow_curvature = 0.15,
+    arrow_parallel_curvature_step = 0.12,
+    move_marker_size = 4.6,
+    move_marker_text_size = 3.2,
+    move_marker_border_width = 0.7,
+    hit_marker_size = 5.2,
     move_label_size = 4.0,
     score_text_size = 4.0,
     status_text_size = 3.5,
@@ -115,6 +124,7 @@ board_style_presets <- function() {
   bms <- default
   bms$checker_stack_step <- 0.78
   bms$checker_margin <- 0.025
+  bms$point_border_width <- 0.38
   bms$die_scale <- 1.00
   bms$die_gap <- 0.30
   bms$die_border_width <- 0.80
@@ -183,6 +193,15 @@ validate_board_style <- function(values) {
     "cube_crosshair_length",
     "cube_crosshair_linewidth",
     "arrow_linewidth",
+    "arrow_halo_dark_ratio",
+    "arrow_halo_light_ratio",
+    "arrow_head_length_mm",
+    "arrow_endpoint_clearance",
+    "arrow_parallel_curvature_step",
+    "move_marker_size",
+    "move_marker_text_size",
+    "move_marker_border_width",
+    "hit_marker_size",
     "move_label_size",
     "score_text_size",
     "status_text_size",
@@ -258,6 +277,14 @@ validate_board_style <- function(values) {
       values$max_stack_visible < 1 ||
       values$max_stack_visible != as.integer(values$max_stack_visible)) {
     stop("`max_stack_visible` must be a positive integer scalar.", call. = FALSE)
+  }
+
+  if (values$arrow_halo_dark_ratio <= values$arrow_halo_light_ratio ||
+      values$arrow_halo_light_ratio <= 1) {
+    stop(
+      "Arrow halo ratios must satisfy dark > light > 1.",
+      call. = FALSE
+    )
   }
 
   if (!is.numeric(values$arrow_curvature) ||

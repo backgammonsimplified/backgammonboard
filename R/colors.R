@@ -106,6 +106,12 @@ board_color_presets <- function() {
     arrow_primary = "#D9653B",
     arrow_secondary = "#6E557A",
     on_roll_arrow = "#D9653B",
+    arrow_hit = "#923B45",
+    arrow_order_label = "#1B1F2A",
+    arrow_marker_fill = "#FFFFFF",
+    arrow_marker_border = "#1B1F2A",
+    arrow_halo_light = "#F8F4ED",
+    arrow_halo_dark = "#11182F",
 
     # Text
     score_text = "#1B1F2A",
@@ -143,6 +149,14 @@ board_color_presets <- function() {
     cube_border = "#111B35",
     cube_offered_border = "#111B35",
     cube_crosshair = "#D9653B",
+    arrow_primary = "#D9653B",
+    arrow_secondary = "#6E557A",
+    arrow_hit = "#923B45",
+    arrow_order_label = "#111B35",
+    arrow_marker_fill = "#FFFFFF",
+    arrow_marker_border = "#111B35",
+    arrow_halo_light = "#FFFDF8",
+    arrow_halo_dark = "#081126",
     score_text = "#111B35",
     secondary_text = "#566078",
     status_text = "#111B35"
