@@ -110,7 +110,7 @@ for (index in seq_len(nrow(cases))) {
   brand_side <- if (identical(case$case_id[[1L]], "22")) "right" else "left"
   plot <- backgammonboard:::add_board_brand(
     plot, backgammonboard:::board_geometry(style, perspective = "white"),
-    brand_text, side = brand_side, color = colors$point_border
+    brand_text, side = brand_side, color = colors$brand_text
   )
   filename <- paste0(case$case_id[[1L]], "-", case$slug[[1L]], ".svg")
   render_svg(plot, file.path(staging, filename), colors$outside_fill)

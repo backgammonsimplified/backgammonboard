@@ -117,11 +117,11 @@ test_that("caller decoration reuses the dice and cube fields while ggboard stays
   two_line_text <- "Backgammon\nSimplified"
   single <- backgammonboard:::add_board_brand(
     neutral, geometry, single_text, side = "left",
-    color = colors$point_border
+    color = colors$brand_text
   )
   two_line <- backgammonboard:::add_board_brand(
     neutral, geometry, two_line_text, side = "right",
-    color = colors$point_border
+    color = colors$brand_text
   )
   layer_labels <- function(plot) {
     unlist(lapply(plot$layers, function(layer) {
@@ -143,6 +143,9 @@ test_that("caller decoration reuses the dice and cube fields while ggboard stays
     geometry$right_field$xmin, geometry$right_field$xmax
   )))
   expect_equal(tail(single$layers, 1L)[[1L]]$data$y, style$board_height / 2)
+  expect_identical(tail(single$layers, 1L)[[1L]]$aes_params$family, "Source Sans 3")
+  expect_identical(tail(single$layers, 1L)[[1L]]$aes_params$colour, colors$brand_text)
+  expect_identical(colors$brand_text, "#E7D8C1")
   expect_identical(backgammonboard:::resolve_board_brand_side(
     "auto", attr(neutral, "backgammon_cube_display"), "white"
   ), "left")

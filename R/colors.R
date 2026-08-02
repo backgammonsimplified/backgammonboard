@@ -116,7 +116,8 @@ board_color_presets <- function() {
     # Text
     score_text = "#1B1F2A",
     secondary_text = "#59606A",
-    status_text = "#1B1F2A"
+    status_text = "#1B1F2A",
+    brand_text = "#E3DBCF"
   )
 
   bms <- default
@@ -138,6 +139,7 @@ board_color_presets <- function() {
     black_checker_ring = "#111B35",
     black_checker_outer_ring = "#081126",
     black_checker_text = "#F8EEDD",
+    brand_text = "#E7D8C1",
     die_white_fill = "#FFFFFF",
     die_white_pips = "#111B35",
     die_white_border = "#111B35",
