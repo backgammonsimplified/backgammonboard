@@ -59,7 +59,7 @@ for (case_name in names(cases)) {
   print(plot)
   grDevices::dev.off()
   stopifnot(file.exists(output), file.info(output)$size > 0)
-  items <- c(items, paste0("<li><a href=\"", case_name, ".svg\">", html_escape(item$title), "</a><br><span>", html_escape(item$explanation), "</span></li>"))
+  items <- c(items, paste0("<figure id=\"", case_name, "\"><figcaption><strong>", html_escape(item$title), "</strong><br><span>", html_escape(item$explanation), "</span></figcaption><img src=\"", case_name, ".svg\" alt=\"", html_escape(item$title), ": ", html_escape(item$explanation), "\"></figure>"))
 }
-writeLines(c("<!doctype html><html><head><meta charset=\"utf-8\"><title>Backgammon board review gallery</title><style>body{font:16px system-ui;max-width:900px;margin:2rem auto}li{margin:1rem 0}span{color:#444}</style></head><body><h1>Backgammon board review gallery</h1><p>Open each SVG to review one visual behavior at a time.</p><ol>", items, "</ol></body></html>"), file.path(output_dir, "index.html"), useBytes = TRUE)
+writeLines(c("<!doctype html><html><head><meta charset=\"utf-8\"><title>Backgammon board review gallery</title><style>body{font:16px system-ui;max-width:1100px;margin:2rem auto;padding:0 1rem}figure{margin:2.5rem 0;border-bottom:1px solid #ddd;padding-bottom:2rem}figcaption{margin-bottom:.75rem}span{color:#444}img{display:block;width:100%;height:auto;border:1px solid #ddd}</style></head><body><h1>Backgammon board review gallery</h1><p>All rendered positions appear below in review order.</p>", items, "</body></html>"), file.path(output_dir, "index.html"), useBytes = TRUE)
 message("PASS: expanded move-illustration gallery rendered.")
