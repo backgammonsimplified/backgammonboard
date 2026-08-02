@@ -138,7 +138,7 @@ manifest <- render_xgid_batch(
   output_dir = output_dir,
   colors = board_colors("bms"),
   style = board_style("bms"),
-  brand_text = "Backgammon\nMade Simple"
+  brand_text = "Backgammon\nSimplified"
 )
 
 details <- merge(

@@ -1,11 +1,11 @@
 # Run from the package root after installing development dependencies.
 
 # Change these two values while developing the board.
-BRAND_TEXT <- "Backgammon\nMade Simple"
+BRAND_TEXT <- "Backgammon\nSimplified"
 SHOW_GUIDES <- TRUE
 
 # Other useful text choices:
-# BRAND_TEXT <- "Backgammon Made Simple"
+# BRAND_TEXT <- "Backgammon Simplified"
 # BRAND_TEXT <- NULL
 
 devtools::load_all(reset = TRUE)

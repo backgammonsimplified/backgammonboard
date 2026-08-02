@@ -115,6 +115,10 @@ test_that("caller decoration reuses the dice and cube fields while ggboard stays
   )
   single_text <- "Backgammon Simplified"
   two_line_text <- "Backgammon\nSimplified"
+  expect_identical(
+    eval(formals(backgammonboard:::render_board_preview)$brand_text),
+    two_line_text
+  )
   single <- backgammonboard:::add_board_brand(
     neutral, geometry, single_text, side = "left",
     color = colors$brand_text

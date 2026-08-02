@@ -55,7 +55,7 @@ plot <- backgammonboard:::render_board_preview(
   style = backgammonboard::board_style("bms"),
   point_1_side = "right",
   brand_text = if (isTRUE(SHOW_BRANDING)) {
-    "Backgammon\nMade Simple"
+    "Backgammon\nSimplified"
   } else {
     NULL
   },

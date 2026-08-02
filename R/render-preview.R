@@ -241,7 +241,7 @@ render_board_preview <- function(
     perspective = NULL,
     bottom_home_board_side = NULL,
     point_labels_for = NULL,
-    brand_text = "Backgammon\nMade Simple",
+    brand_text = "Backgammon\nSimplified",
     brand_side = c("auto", "left", "right"),
     brand_size = 6.0,
     brand_alpha = 0.90,

@@ -117,7 +117,7 @@ for (index in seq_len(nrow(cases))) {
   )
   brand_text <- switch(
     case$case_id[[1L]],
-    "01" = "Backgammon Simplified",
+    "01" = "Backgammon\nSimplified",
     "02" = "Backgammon\nSimplified",
     "22" = "Backgammon\nSimplified",
     "23" = "Backgammon Simplified",
