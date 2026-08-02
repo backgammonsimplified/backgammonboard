@@ -84,7 +84,7 @@ board_style_presets <- function() {
     die_border_width = 0.3,
     cube_scale = 1.0,
     cube_inner_scale = 0.76,
-    cube_text_size = 4.0,
+    cube_text_size = 8.0,
     cube_border_width = 0.3,
     cube_outside_gap = 0.08,
     cube_crosshair_length = 0.42,
@@ -133,7 +133,7 @@ board_style_presets <- function() {
   bms$die_border_width <- 0.80
   bms$cube_scale <- 1.05
   bms$cube_inner_scale <- 0.76
-  bms$cube_text_size <- 3.8
+  bms$cube_text_size <- 7.6
   bms$cube_border_width <- 0.3
   bms$cube_outside_gap <- 0.08
   bms$cube_crosshair_length <- 0.42

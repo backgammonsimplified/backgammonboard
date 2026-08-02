@@ -102,17 +102,26 @@ test_that("Homey dice are screen-right and clear of information text", {
 })
 
 
-test_that("caller decoration is two lines and neutral package output stays unbranded", {
+test_that("caller decoration reuses the dice and cube fields while ggboard stays neutral", {
+  style <- board_style("bms")
+  colors <- board_colors("bms")
+  geometry <- backgammonboard:::board_geometry(style, perspective = "white")
   neutral <- ggboard(
     review_xgids[["opening"]],
-    colors = board_colors("bms"),
-    style = board_style("bms"),
+    colors = colors,
+    style = style,
     decision = "checker_play",
     perspective = "player_0"
   )
-  caller_text <- "Backgammon\nSimplified"
-  decorated <- neutral + ggplot2::annotate(
-    "text", x = 8.5, y = 0.45, label = caller_text
+  single_text <- "Backgammon Simplified"
+  two_line_text <- "Backgammon\nSimplified"
+  single <- backgammonboard:::add_board_brand(
+    neutral, geometry, single_text, side = "left",
+    color = colors$point_border
+  )
+  two_line <- backgammonboard:::add_board_brand(
+    neutral, geometry, two_line_text, side = "right",
+    color = colors$point_border
   )
   layer_labels <- function(plot) {
     unlist(lapply(plot$layers, function(layer) {
@@ -123,9 +132,27 @@ test_that("caller decoration is two lines and neutral package output stays unbra
     }), use.names = FALSE)
   }
 
-  expect_identical(strsplit(caller_text, "\n", fixed = TRUE)[[1L]], c("Backgammon", "Simplified"))
-  expect_false(caller_text %in% layer_labels(neutral))
-  expect_true(caller_text %in% layer_labels(decorated))
+  expect_identical(strsplit(two_line_text, "\n", fixed = TRUE)[[1L]], c("Backgammon", "Simplified"))
+  expect_false(any(c(single_text, two_line_text) %in% layer_labels(neutral)))
+  expect_true(single_text %in% layer_labels(single))
+  expect_true(two_line_text %in% layer_labels(two_line))
+  expect_equal(tail(single$layers, 1L)[[1L]]$data$x, mean(c(
+    geometry$left_field$xmin, geometry$left_field$xmax
+  )))
+  expect_equal(tail(two_line$layers, 1L)[[1L]]$data$x, mean(c(
+    geometry$right_field$xmin, geometry$right_field$xmax
+  )))
+  expect_equal(tail(single$layers, 1L)[[1L]]$data$y, style$board_height / 2)
+  expect_identical(backgammonboard:::resolve_board_brand_side(
+    "auto", attr(neutral, "backgammon_cube_display"), "white"
+  ), "left")
+  offered <- ggboard(
+    review_xgids[["offer_player_1"]], decision = "take_pass",
+    perspective = "player_0"
+  )
+  expect_identical(backgammonboard:::resolve_board_brand_side(
+    "auto", attr(offered, "backgammon_cube_display"), "white"
+  ), "right")
 })
 
 

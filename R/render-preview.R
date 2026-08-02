@@ -135,19 +135,10 @@ resolve_board_brand_side <- function(
   }
 
   if (
-    is.null(cube_display) ||
-    !inherits(cube_display, "backgammon_cube_display") ||
-    !identical(cube_display$state, "offered")
-  ) {
-    return("left")
-  }
-
-  offered_side <- offered_cube_field_side(
-    receiver = cube_display$receiver,
-    perspective = perspective
-  )
-
-  if (identical(offered_side, "left")) "right" else "left"
+    !is.null(cube_display) &&
+    inherits(cube_display, "backgammon_cube_display") &&
+    identical(cube_display$state, "offered")
+  ) "right" else "left"
 }
 
 
@@ -165,9 +156,12 @@ add_board_brand <- function(plot,
 
   side <- match.arg(side)
   label <- data.frame(
-    # Branding belongs in the lower rail, never over playable points or bars.
-    x = mean(c(geometry$frame$xmin, geometry$frame$xmax)),
-    y = geometry$frame$ymin + (geometry$layout$field_ymin / 2) + y_nudge,
+    x = if (identical(side, "left")) {
+      mean(c(geometry$left_field$xmin, geometry$left_field$xmax))
+    } else {
+      mean(c(geometry$right_field$xmin, geometry$right_field$xmax))
+    },
+    y = mean(c(geometry$frame$ymin, geometry$frame$ymax)) + y_nudge,
     label = text,
     stringsAsFactors = FALSE
   )

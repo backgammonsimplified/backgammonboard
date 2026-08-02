@@ -31,7 +31,7 @@ cases <- data.frame(
     "Neutral position without dice",
     "One player on the bar", "Both players on the bar",
     "One player borne off", "Both players borne off", "Tall stacks",
-    "Centered cube", "Cube owned by player_1 (historical case 12)",
+    "Centered cube", "64-cube owned by player_1",
     "Cube owned by player_0 (historical case 13)",
     "Unlimited game", "Match score", "Crawford",
     "Same factual view as case 03", "Late bearoff", "Asymmetric borne-off",
@@ -50,7 +50,7 @@ cases <- data.frame(
     "XGID=--------------------------:0:0:1:00:0:0:0:0:10",
     "XGID=-O----------------------o-:0:0:1:00:0:0:0:0:10",
     "XGID=-b----E-C---eE---c-e----B-:0:0:1:00:0:0:0:0:10",
-    "XGID=-b----E-C---eE---c-e----B-:1:-1:1:00:0:0:0:0:10",
+    "XGID=-b----E-C---eE---c-e----B-:6:-1:1:00:0:0:0:0:10",
     "XGID=-b----E-C---eE---c-e----B-:1:1:1:00:0:0:0:0:10",
     "XGID=-b----E-C---eE---c-e----B-:0:0:1:00:3:2:3:0:10",
     "XGID=-b----E-C---eE---c-e----B-:0:0:1:00:4:2:0:7:10",
@@ -100,6 +100,18 @@ for (index in seq_len(nrow(cases))) {
     score_format = "both", point_1_side = case$point_1_side[[1L]],
     player_name_style = "checker"
   )
+  brand_text <- switch(
+    case$case_id[[1L]],
+    "01" = "Backgammon Simplified",
+    "02" = "Backgammon\nSimplified",
+    "22" = "Backgammon\nSimplified",
+    NULL
+  )
+  brand_side <- if (identical(case$case_id[[1L]], "22")) "right" else "left"
+  plot <- backgammonboard:::add_board_brand(
+    plot, backgammonboard:::board_geometry(style, perspective = "white"),
+    brand_text, side = brand_side, color = colors$point_border
+  )
   filename <- paste0(case$case_id[[1L]], "-", case$slug[[1L]], ".svg")
   render_svg(plot, file.path(staging, filename), colors$outside_fill)
   position <- attr(plot, "backgammon_position")
@@ -112,6 +124,8 @@ for (index in seq_len(nrow(cases))) {
     on_roll = position$on_roll,
     dice = if (length(position$dice)) paste(position$dice, collapse = "-") else "absent",
     cube_state = cube$state, cube_value = if (is.na(cube$value)) "" else cube$value,
+    caller_text = if (is.null(brand_text)) "" else brand_text,
+    caller_side = if (is.null(brand_text)) "" else brand_side,
     output_path = filename, stringsAsFactors = FALSE
   )
 }
@@ -129,7 +143,13 @@ cards <- vapply(seq_len(nrow(manifest)), function(index) {
     " / 1-point ", escape_html(row$point_1_side),
     '</dd><dt>Facts</dt><dd>on roll: ', escape_html(row$on_roll),
     '; dice: ', escape_html(row$dice), '; cube: ', escape_html(row$cube_state),
-    " ", escape_html(row$cube_value), '</dd></dl></article>'
+    " ", escape_html(row$cube_value),
+    if (nzchar(row$caller_text)) paste0(
+      '</dd><dt>Caller text</dt><dd>',
+      escape_html(gsub("\n", " / ", row$caller_text)),
+      " / ", escape_html(row$caller_side)
+    ) else "",
+    '</dd></dl></article>'
   )
 }, character(1))
 

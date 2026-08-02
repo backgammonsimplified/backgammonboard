@@ -121,19 +121,23 @@ checker_layout <- function(
 
     visible <- min(total, as.integer(style$bar_max_stack_visible))
 
-    # Begin beside the fifth checker in a point stack, then extend toward the
-    # player's rail. This keeps the checker nearest the middle available for a
-    # count badge once more than four checkers occupy the bar.
+    # Begin just inside the point tips, then extend toward the player's rail.
+    # This keeps the checker nearest the middle available for a count badge
+    # once more than four checkers occupy the bar.
     stack_offsets <- (seq_len(visible) - 1L) * style$checker_stack_step
+    board_midpoint <- mean(c(
+      geometry$layout$field_ymin,
+      geometry$layout$field_ymax
+    ))
+    point_tip_clearance <- style$point_tip_gap / 2 +
+      style$checker_margin + style$checker_outer_radius
 
     if (identical(player, bottom_player)) {
-      stack_start <- geometry$layout$field_ymin + style$checker_margin +
-        style$checker_outer_radius + 4 * style$checker_stack_step
+      stack_start <- board_midpoint - point_tip_clearance
       y <- stack_start - stack_offsets
       side <- "bottom"
     } else {
-      stack_start <- geometry$layout$field_ymax - style$checker_margin -
-        style$checker_outer_radius - 4 * style$checker_stack_step
+      stack_start <- board_midpoint + point_tip_clearance
       y <- stack_start + stack_offsets
       side <- "top"
     }

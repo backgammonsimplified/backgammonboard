@@ -1,4 +1,4 @@
-test_that("bar stacks begin beside the fifth checker and count after four", {
+test_that("bar stacks begin beside the point tips and count after four", {
   style <- board_style("bms")
   position <- custom_position(
     player_0 = c(`6` = 5L),
@@ -10,11 +10,16 @@ test_that("bar stacks begin beside the fifth checker and count after four", {
     style,
     perspective = "white"
   )
-  point_stack <- layout$points[layout$points$point == 6L, , drop = FALSE]
   bar_stack <- layout$bar[layout$bar$player == "white", , drop = FALSE]
+  geometry <- backgammonboard:::board_geometry(style, perspective = "white")
+  expected_y <- mean(c(
+    geometry$layout$field_ymin,
+    geometry$layout$field_ymax
+  )) - style$point_tip_gap / 2 - style$checker_margin -
+    style$checker_outer_radius
 
   expect_equal(nrow(bar_stack), 4L)
-  expect_equal(bar_stack$y[[1L]], point_stack$y[[5L]])
+  expect_equal(bar_stack$y[[1L]], expected_y)
   expect_true(all(diff(bar_stack$y) < 0))
   expect_identical(bar_stack$count_label, c("5", "", "", ""))
 })
@@ -143,6 +148,7 @@ test_that("centered cubes sit higher and Crawford occupies the middle outside la
   }), use.names = FALSE)
 
   expect_gt(cube$center$y, style$board_height / 2)
+  expect_equal(style$cube_text_size, 7.6)
   expect_true("Crawford" %in% layer_labels)
   expect_equal(crawford_y, style$board_height / 2)
   expect_identical(attr(crawford, "backgammon_cube_display")$state, "hidden")
