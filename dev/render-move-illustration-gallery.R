@@ -1,3 +1,31 @@
+arguments <- commandArgs(trailingOnly = TRUE)
+if (length(arguments) > 1L) {
+  stop(
+    "Supply zero or one output directory path.",
+    call. = FALSE
+  )
+}
+
+output_dir <- if (length(arguments) == 1L) {
+  arguments[[1L]]
+} else {
+  file.path("inst", "gallery", "move-illustration")
+}
+
+if (file.exists(output_dir) && !dir.exists(output_dir)) {
+  stop(
+    paste0("Output path exists but is not a directory: ", output_dir),
+    call. = FALSE
+  )
+}
+dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+if (!dir.exists(output_dir)) {
+  stop(
+    paste0("Unable to create output directory: ", output_dir),
+    call. = FALSE
+  )
+}
+
 devtools::load_all(".", quiet = TRUE)
 
 gallery_position <- function(
@@ -63,9 +91,6 @@ cases <- list(
     brand_text = NULL
   )
 )
-
-output_dir <- file.path("inst", "gallery", "move-illustration")
-dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 
 for (case_name in names(cases)) {
   case <- cases[[case_name]]
