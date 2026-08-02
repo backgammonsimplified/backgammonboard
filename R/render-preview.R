@@ -262,6 +262,7 @@ render_board_preview <- function(
     context = NULL,
     score_format = c("away", "raw", "both"),
     information_family = "sans",
+    player_name_style = c("neutral", "checker"),
     show_guides = FALSE,
     guide_color = "#D9653B",
     guide_width = 0.60,
@@ -271,6 +272,7 @@ render_board_preview <- function(
 ) {
   point_1_side <- match.arg(point_1_side)
   score_format <- match.arg(score_format)
+  player_name_style <- match.arg(player_name_style)
   resolved_perspective <- if (is.null(perspective)) {
     "white"
   } else {
@@ -448,10 +450,21 @@ render_board_preview <- function(
       cube_display = cube_display,
       cube_x_mode = cube_x_mode,
       show_crosshair = show_cube_crosshair,
+      centered_y_nudge = style$cube_centered_y_nudge,
       perspective = resolved_perspective,
       cube_display_side = cube_display_side
     )
   }
+
+  plot <- add_crawford_marker(
+    plot = plot,
+    position = display_position,
+    geometry = geometry,
+    colors = colors,
+    style = style,
+    perspective = resolved_perspective,
+    cube_display_side = cube_display_side
+  )
 
   plot <- add_board_brand(
     plot = plot,
@@ -491,6 +504,8 @@ render_board_preview <- function(
       context = context,
       family = information_family,
       perspective = resolved_perspective,
+      information_side = point_1_side,
+      player_name_style = player_name_style,
       score_format = score_format
     )
   }

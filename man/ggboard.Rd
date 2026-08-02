@@ -13,7 +13,9 @@ ggboard(
   decision = "auto",
   perspective = "decision_maker",
   player_labels = c(player_0 = "Homey", player_1 = "Foey"),
-  score_format = "away"
+  score_format = "away",
+  point_1_side = c("right", "left"),
+  player_name_style = c("neutral", "checker")
 )
 }
 \arguments{
@@ -38,6 +40,11 @@ or \code{"player_1"}.}
 
 \item{score_format}{Match score display format: \code{"away"}, \code{"raw"}, or
 \code{"both"}.}
+
+\item{point_1_side}{Screen side for the near player's 1-point.}
+
+\item{player_name_style}{Name-badge treatment: neutral package text or
+checker-associated BMS colors.}
 }
 \value{
 An ordinary object inheriting from \code{ggplot}.

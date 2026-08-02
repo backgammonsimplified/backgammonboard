@@ -24,8 +24,8 @@ cases <- data.frame(
     "bms-homey-on-roll", "pending-offer-player0", "pending-offer-player1"
   ),
   title = c(
-    "Opening — player_1 perspective (historical case 01)",
-    "Opening — player_1 perspective (historical mirror deferred)",
+    "Opening - Homey near, 1-point right",
+    "Opening - Homey near, 1-point left",
     "Opening — player_1 on roll, dice 3-1",
     "Opening — player_0 on roll, dice 4-2",
     "Neutral position without dice",
@@ -53,7 +53,7 @@ cases <- data.frame(
     "XGID=-b----E-C---eE---c-e----B-:1:-1:1:00:0:0:0:0:10",
     "XGID=-b----E-C---eE---c-e----B-:1:1:1:00:0:0:0:0:10",
     "XGID=-b----E-C---eE---c-e----B-:0:0:1:00:3:2:3:0:10",
-    "XGID=-b----E-C---eE---c-e----B-:0:0:1:00:2:4:0:7:10",
+    "XGID=-b----E-C---eE---c-e----B-:0:0:1:00:4:2:0:7:10",
     "XGID=-b----E-C---eE---c-e----B-:0:0:1:00:2:6:1:7:10",
     "XGID=-b----E-C---eE---c-e----B-:0:0:-1:31:0:0:0:0:10",
     "XGID=---D---------------a--b-a-:0:0:-1:00:0:0:0:0:8",
@@ -68,7 +68,8 @@ cases <- data.frame(
     "none", "none", "checker_play", "none", "none", "checker_play",
     "take_pass", "take_pass"
   ),
-  perspective = c(rep("player_1", 19L), rep("player_0", 3L)),
+  perspective = rep("player_0", 22L),
+  point_1_side = c("right", "left", rep("right", 20L)),
   stringsAsFactors = FALSE
 )
 
@@ -96,7 +97,8 @@ for (index in seq_len(nrow(cases))) {
   plot <- ggboard(
     case$xgid[[1L]], colors = colors, style = style,
     decision = case$decision[[1L]], perspective = case$perspective[[1L]],
-    score_format = "both"
+    score_format = "both", point_1_side = case$point_1_side[[1L]],
+    player_name_style = "checker"
   )
   filename <- paste0(case$case_id[[1L]], "-", case$slug[[1L]], ".svg")
   render_svg(plot, file.path(staging, filename), colors$outside_fill)
@@ -106,6 +108,7 @@ for (index in seq_len(nrow(cases))) {
     case_id = case$case_id[[1L]], title = case$title[[1L]],
     xgid = position$xgid, decision = attr(plot, "backgammon_decision"),
     perspective = attr(plot, "backgammon_perspective"),
+    point_1_side = attr(plot, "backgammon_point_1_side"),
     on_roll = position$on_roll,
     dice = if (length(position$dice)) paste(position$dice, collapse = "-") else "absent",
     cube_state = cube$state, cube_value = if (is.na(cube$value)) "" else cube$value,
@@ -123,6 +126,7 @@ cards <- vapply(seq_len(nrow(manifest)), function(index) {
     escape_html(row$title), '"><dl><dt>XGID</dt><dd><code>',
     escape_html(row$xgid), '</code></dd><dt>Context</dt><dd>',
     escape_html(row$decision), " / ", escape_html(row$perspective),
+    " / 1-point ", escape_html(row$point_1_side),
     '</dd><dt>Facts</dt><dd>on roll: ', escape_html(row$on_roll),
     '; dice: ', escape_html(row$dice), '; cube: ', escape_html(row$cube_state),
     " ", escape_html(row$cube_value), '</dd></dl></article>'

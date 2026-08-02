@@ -26,20 +26,3 @@ offered_cube_field_side <- function(receiver, perspective = "white") {
 
   if (identical(receiver, perspective)) "left" else "right"
 }
-
-
-player_half_center_y <- function(player, perspective, geometry) {
-  side <- visual_side_for_player(player, perspective)
-  field_ymin <- geometry$left_field$ymin[[1L]]
-  field_ymax <- geometry$left_field$ymax[[1L]]
-  board_y_center <- mean(c(
-    geometry$frame$ymin[[1L]],
-    geometry$frame$ymax[[1L]]
-  ))
-
-  if (identical(side, "bottom")) {
-    mean(c(field_ymin, board_y_center))
-  } else {
-    mean(c(board_y_center, field_ymax))
-  }
-}

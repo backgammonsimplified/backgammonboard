@@ -119,27 +119,28 @@ checker_layout <- function(
       next
     }
 
-    visible <- min(total, max_visible)
+    visible <- min(total, as.integer(style$bar_max_stack_visible))
 
-    # The bar is its own lane: centre each player's visible stack within that
-    # player's half rather than borrowing the point-edge placement.  This
-    # keeps bar checkers unmistakably in the middle lane in either view.
-    field_midpoint <- mean(c(geometry$layout$field_ymin, geometry$layout$field_ymax))
-    stack_offsets <- (seq_len(visible) - (visible + 1) / 2) * style$checker_stack_step
+    # Begin beside the fifth checker in a point stack, then extend toward the
+    # player's rail. This keeps the checker nearest the middle available for a
+    # count badge once more than four checkers occupy the bar.
+    stack_offsets <- (seq_len(visible) - 1L) * style$checker_stack_step
 
     if (identical(player, bottom_player)) {
-      lane_center <- mean(c(geometry$layout$field_ymin, field_midpoint))
-      y <- lane_center + stack_offsets
+      stack_start <- geometry$layout$field_ymin + style$checker_margin +
+        style$checker_outer_radius + 4 * style$checker_stack_step
+      y <- stack_start - stack_offsets
       side <- "bottom"
     } else {
-      lane_center <- mean(c(field_midpoint, geometry$layout$field_ymax))
-      y <- lane_center - stack_offsets
+      stack_start <- geometry$layout$field_ymax - style$checker_margin -
+        style$checker_outer_radius - 4 * style$checker_stack_step
+      y <- stack_start + stack_offsets
       side <- "top"
     }
 
     count_label <- rep("", visible)
     if (total > visible) {
-      count_label[[visible]] <- as.character(total)
+      count_label[[1L]] <- as.character(total)
     }
 
     bar_rows[[row_index]] <- data.frame(
@@ -162,10 +163,11 @@ checker_layout <- function(
     do.call(rbind, bar_rows)
   }
 
-  off_x <- mean(c(
-    geometry$layout$right_margin_xmin,
-    geometry$layout$right_margin_xmax
-  ))
+  off_x <- if (identical(point_1_side, "left")) {
+    mean(c(geometry$layout$left_margin_xmin, geometry$layout$left_margin_xmax))
+  } else {
+    mean(c(geometry$layout$right_margin_xmin, geometry$layout$right_margin_xmax))
+  }
 
   top_player <- other_semantic_player(bottom_player)
 

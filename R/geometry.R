@@ -62,6 +62,10 @@ point_layout_table <- function(
     )
   }
 
+  if (!is.null(perspective) && is.null(bottom_home_board_side)) {
+    bottom_home_board_side <- point_1_side
+  }
+
   if (!is.null(perspective) && !is.null(bottom_home_board_side)) {
     perspective <- normalize_board_perspective(perspective)
 

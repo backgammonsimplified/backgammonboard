@@ -68,6 +68,7 @@ board_style_presets <- function() {
     checker_stack_step = 0.69,
     checker_margin = 0.12,
     max_stack_visible = 5L,
+    bar_max_stack_visible = 4L,
     point_number_inset = 0.45,
     point_number_size = 3.8,
     count_badge_size = 3.0,
@@ -89,6 +90,8 @@ board_style_presets <- function() {
     cube_crosshair_length = 0.42,
     cube_crosshair_linewidth = 0.45,
     cube_crosshair_alpha = 0.80,
+    cube_centered_y_nudge = 0.65,
+    crawford_text_size = 4.2,
     arrow_linewidth = 1.35,
     arrow_halo_dark_ratio = 2.2,
     arrow_halo_light_ratio = 1.6,
@@ -149,7 +152,7 @@ board_style_presets <- function() {
   bms$information_bottom_player_name_offset <- 0.82
   bms$information_sentence_offset <- 1.18
   bms$information_on_roll_arrow_x_offset <- 1.45
-  bms$information_on_roll_arrow_size <- 6.0
+  bms$information_on_roll_arrow_size <- 6.4
   bms$information_player_x_nudge <- -0.15
   bms$information_sentence_x_nudge <- 0.00
 
@@ -192,6 +195,7 @@ validate_board_style <- function(values) {
     "cube_outside_gap",
     "cube_crosshair_length",
     "cube_crosshair_linewidth",
+    "crawford_text_size",
     "arrow_linewidth",
     "arrow_halo_dark_ratio",
     "arrow_halo_light_ratio",
@@ -232,6 +236,7 @@ validate_board_style <- function(values) {
   }
 
   unrestricted_scalars <- c(
+    "cube_centered_y_nudge",
     "information_player_x_nudge",
     "information_sentence_x_nudge"
   )
@@ -271,12 +276,12 @@ validate_board_style <- function(values) {
     stop("`cube_inner_scale` must be greater than 0 and less than 1.", call. = FALSE)
   }
 
-  if (!is.numeric(values$max_stack_visible) ||
-      length(values$max_stack_visible) != 1L ||
-      is.na(values$max_stack_visible) ||
-      values$max_stack_visible < 1 ||
-      values$max_stack_visible != as.integer(values$max_stack_visible)) {
-    stop("`max_stack_visible` must be a positive integer scalar.", call. = FALSE)
+  for (name in c("max_stack_visible", "bar_max_stack_visible")) {
+    value <- values[[name]]
+    if (!is.numeric(value) || length(value) != 1L || is.na(value) ||
+        value < 1 || value != as.integer(value)) {
+      stop(paste0("`", name, "` must be a positive integer scalar."), call. = FALSE)
+    }
   }
 
   if (values$arrow_halo_dark_ratio <= values$arrow_halo_light_ratio ||

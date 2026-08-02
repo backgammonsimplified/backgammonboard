@@ -126,7 +126,6 @@ cube_center <- function(
   } else {
     NULL
   }
-  offerer <- if (is_offered) other_semantic_player(receiver) else NULL
 
   x <- if (is_offered) {
     if (identical(receiver, perspective)) inside_left_x else inside_right_x
@@ -161,12 +160,8 @@ cube_center <- function(
     } else {
       white_first_checker_y + black_y_nudge
     },
-    offered_white = player_half_center_y(
-      offerer, perspective, geometry
-    ) + offered_y_nudge,
-    offered_black = player_half_center_y(
-      offerer, perspective, geometry
-    ) + offered_y_nudge
+    offered_white = board_y_center + offered_y_nudge,
+    offered_black = board_y_center + offered_y_nudge
   )
 
   data.frame(
@@ -174,6 +169,40 @@ cube_center <- function(
     y = y,
     x_mode = resolved_x_mode,
     stringsAsFactors = FALSE
+  )
+}
+
+
+add_crawford_marker <- function(
+    plot,
+    position,
+    geometry,
+    colors,
+    style,
+    perspective = "white",
+    cube_display_side = c("left", "right")) {
+  if (!identical(position$crawford_status, "crawford") && !isTRUE(position$is_crawford)) {
+    return(plot)
+  }
+  cube_display_side <- match.arg(cube_display_side)
+  center <- cube_center(
+    state = "centered",
+    x_mode = "outside",
+    geometry = geometry,
+    style = style,
+    centered_y_nudge = 0,
+    perspective = perspective,
+    cube_display_side = cube_display_side
+  )
+  label <- data.frame(x = center$x, y = center$y, label = "Crawford")
+  plot + ggplot2::geom_text(
+    data = label,
+    ggplot2::aes(x = x, y = y, label = label),
+    inherit.aes = FALSE,
+    color = colors$cube_text,
+    size = style$crawford_text_size,
+    fontface = "bold",
+    angle = 90
   )
 }
 

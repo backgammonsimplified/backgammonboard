@@ -16,6 +16,9 @@
 #' @param player_labels Display labels named `player_0` and `player_1`.
 #' @param score_format Match score display format: `"away"`, `"raw"`, or
 #'   `"both"`.
+#' @param point_1_side Screen side for the near player's 1-point.
+#' @param player_name_style Name-badge treatment: neutral package text or
+#'   checker-associated BMS colors.
 #'
 #' @return An ordinary object inheriting from `ggplot`.
 #' @export
@@ -28,7 +31,11 @@ ggboard <- function(
     decision = "auto",
     perspective = "decision_maker",
     player_labels = c(player_0 = "Homey", player_1 = "Foey"),
-    score_format = "away") {
+    score_format = "away",
+    point_1_side = c("right", "left"),
+    player_name_style = c("neutral", "checker")) {
+  point_1_side <- match.arg(point_1_side)
+  player_name_style <- match.arg(player_name_style)
   if (inherits(x, "backgammon_render_position")) {
     stop("Internal render positions are not supported release inputs.", call. = FALSE)
   }
@@ -48,6 +55,7 @@ ggboard <- function(
   )
   render_position <- as_render_position(position, display$player_labels)
   render_perspective <- to_render_player(display$perspective)
+  cube_display_side <- if (identical(point_1_side, "left")) "right" else "left"
 
   if (!isTRUE(display$show_dice)) render_position$dice <- integer()
   render_context <- board_context("none")
@@ -70,16 +78,19 @@ ggboard <- function(
     x = render_position,
     colors = colors,
     style = style,
+    point_1_side = point_1_side,
     perspective = render_perspective,
     point_labels_for = render_perspective,
     brand_text = NULL,
     show_cube = isTRUE(display$show_normal_cube) || isTRUE(display$show_offered_cube),
     cube_offer = NULL,
+    cube_display_side = cube_display_side,
     show_information = TRUE,
     white_name = unname(display$player_labels[["player_0"]]),
     black_name = unname(display$player_labels[["player_1"]]),
     context = render_context,
     score_format = display$score_format,
+    player_name_style = player_name_style,
     moves = selected_moves,
     alternative_moves = NULL
   )
@@ -97,6 +108,10 @@ ggboard <- function(
   attr(plot, "backgammon_context") <- display
   attr(plot, "backgammon_decision") <- display$decision
   attr(plot, "backgammon_perspective") <- display$perspective
+  attr(plot, "backgammon_point_1_side") <- point_1_side
+  attr(plot, "backgammon_player_name_style") <- player_name_style
+  attr(plot, "backgammon_information_side") <- point_1_side
+  attr(plot, "backgammon_cube_display_side") <- cube_display_side
   attr(plot, "backgammon_accessible_text") <- accessible_text
   attr(plot, "backgammon_cube_display") <- public_cube_display(rendered_cube)
   attr(plot, "backgammon_move_validation") <- if (is.null(applied)) NULL else list(

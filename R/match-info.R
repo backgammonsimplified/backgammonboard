@@ -122,6 +122,7 @@ board_information_layout <- function(
     black_wins = NULL,
     context = NULL,
     perspective = "white",
+    information_side = c("right", "left"),
     score_format = c("away", "raw", "both")
 ) {
   if (!inherits(position, "backgammon_position")) {
@@ -129,6 +130,7 @@ board_information_layout <- function(
   }
 
   perspective <- normalize_board_perspective(perspective)
+  information_side <- match.arg(information_side)
   score_format <- match.arg(score_format)
   white_name <- validate_information_name(white_name, "white_name")
   black_name <- validate_information_name(black_name, "black_name")
@@ -137,7 +139,18 @@ board_information_layout <- function(
 
   frame <- geometry$frame
   board_center_x <- mean(c(frame$xmin, frame$xmax))
-  player_x <- frame$xmax + style$information_player_x_nudge
+  player_x <- if (identical(information_side, "right")) {
+    frame$xmax + style$information_player_x_nudge
+  } else {
+    frame$xmin - style$information_player_x_nudge
+  }
+  player_hjust <- if (identical(information_side, "right")) 1 else 0
+  arrow_hjust <- if (identical(information_side, "right")) 1 else 0
+  arrow_direction <- if (identical(information_side, "right")) {
+    "on roll -->"
+  } else {
+    "<-- on roll"
+  }
 
   pips <- c(
     white = position_pip_count(position, "white"),
@@ -154,7 +167,7 @@ board_information_layout <- function(
         score_format,
         raw = raw_label,
         away = away_label,
-        both = paste0(raw_label, " \u00b7 ", away_label)
+        both = paste0(raw_label, " to ", position$match_length, " \u00b7 ", away_label)
       )
     }, character(1))
     names(secondary) <- c("white", "black")
@@ -180,17 +193,19 @@ board_information_layout <- function(
       player = player,
       name = unname(names_by_player[[player]]),
       on_roll = identical(player, position$on_roll),
-      on_roll_arrow = if (identical(player, position$on_roll)) "\u2192" else "",
+      on_roll_arrow = if (identical(player, position$on_roll)) arrow_direction else "",
       on_roll_arrow_x =
-        player_x - style$information_on_roll_arrow_x_offset,
+        player_x + if (identical(information_side, "right")) {
+          -style$information_on_roll_arrow_x_offset
+        } else {
+          style$information_on_roll_arrow_x_offset
+        },
       on_roll_arrow_y = player_name_y,
+      on_roll_arrow_hjust = arrow_hjust,
       secondary = unname(secondary[[player]]),
-      pip_label = paste0(
-        position_player_label(position, player),
-        " pips: ",
-        pips[[player]]
-      ),
+      pip_label = paste0("Pip count: ", pips[[player]]),
       player_x = player_x,
+      player_hjust = player_hjust,
       player_name_y = player_name_y,
       secondary_y = if (is_top) {
         frame$ymax + style$information_top_secondary_offset
@@ -230,6 +245,21 @@ board_information_layout <- function(
 }
 
 
+information_name_palette <- function(player, colors, player_name_style) {
+  player <- normalize_semantic_player(player)
+  player_name_style <- match.arg(player_name_style, c("neutral", "checker"))
+  if (is.na(player)) stop("Unsupported information player.", call. = FALSE)
+  if (identical(player_name_style, "neutral")) {
+    return(list(text = colors$score_text, fill = colors$outside_fill))
+  }
+  if (identical(player, "white")) {
+    list(text = colors$white_checker_fill, fill = colors$black_checker_fill)
+  } else {
+    list(text = colors$black_checker_fill, fill = colors$outside_fill)
+  }
+}
+
+
 add_board_information <- function(
     plot,
     position,
@@ -243,10 +273,14 @@ add_board_information <- function(
     context = NULL,
     family = "sans",
     perspective = "white",
+    information_side = c("right", "left"),
+    player_name_style = c("neutral", "checker"),
     score_format = c("away", "raw", "both")
 ) {
   family <- validate_information_name(family, "information_family")
   score_format <- match.arg(score_format)
+  information_side <- match.arg(information_side)
+  player_name_style <- match.arg(player_name_style)
 
   information <- board_information_layout(
     position = position,
@@ -258,7 +292,15 @@ add_board_information <- function(
     black_wins = black_wins,
     context = context,
     perspective = perspective,
+    information_side = information_side,
     score_format = score_format
+  )
+
+  top_name <- information_name_palette(
+    information$top$player[[1L]], colors, player_name_style
+  )
+  bottom_name <- information_name_palette(
+    information$bottom$player[[1L]], colors, player_name_style
   )
 
   plot +
@@ -278,29 +320,29 @@ add_board_information <- function(
       ggplot2::aes(
         x = on_roll_arrow_x,
         y = on_roll_arrow_y,
-        label = on_roll_arrow
+        label = on_roll_arrow,
+        hjust = on_roll_arrow_hjust
       ),
       inherit.aes = FALSE,
       color = colors$on_roll_arrow,
       size = style$information_on_roll_arrow_size,
       family = family,
       fontface = "bold",
-      hjust = 1,
       vjust = 0.5
     ) +
     ggplot2::geom_label(
       data = information$top,
       ggplot2::aes(x = player_x, y = player_name_y, label = name),
       inherit.aes = FALSE,
-      color = colors$score_text,
-      fill = colors$outside_fill,
-      linewidth = 0.25,
+      color = top_name$text,
+      fill = top_name$fill,
+      linewidth = 0.55,
       label.r = grid::unit(0.18, "lines"),
       label.padding = grid::unit(0.20, "lines"),
       size = style$information_player_name_size,
       family = family,
       fontface = "bold",
-      hjust = 1,
+      hjust = information$top$player_hjust[[1L]],
       vjust = 0.5
     ) +
     ggplot2::geom_text(
@@ -311,7 +353,7 @@ add_board_information <- function(
       size = style$information_secondary_text_size,
       family = family,
       fontface = "plain",
-      hjust = 1,
+      hjust = information$top$player_hjust[[1L]],
       vjust = 0.5
     ) +
     ggplot2::geom_text(
@@ -333,7 +375,7 @@ add_board_information <- function(
       size = style$information_secondary_text_size,
       family = family,
       fontface = "plain",
-      hjust = 1,
+      hjust = information$bottom$player_hjust[[1L]],
       vjust = 0.5
     ) +
     ggplot2::geom_text(
@@ -341,29 +383,29 @@ add_board_information <- function(
       ggplot2::aes(
         x = on_roll_arrow_x,
         y = on_roll_arrow_y,
-        label = on_roll_arrow
+        label = on_roll_arrow,
+        hjust = on_roll_arrow_hjust
       ),
       inherit.aes = FALSE,
       color = colors$on_roll_arrow,
       size = style$information_on_roll_arrow_size,
       family = family,
       fontface = "bold",
-      hjust = 1,
       vjust = 0.5
     ) +
     ggplot2::geom_label(
       data = information$bottom,
       ggplot2::aes(x = player_x, y = player_name_y, label = name),
       inherit.aes = FALSE,
-      color = colors$score_text,
-      fill = colors$outside_fill,
-      linewidth = 0.25,
+      color = bottom_name$text,
+      fill = bottom_name$fill,
+      linewidth = 0.55,
       label.r = grid::unit(0.18, "lines"),
       label.padding = grid::unit(0.20, "lines"),
       size = style$information_player_name_size,
       family = family,
       fontface = "bold",
-      hjust = 1,
+      hjust = information$bottom$player_hjust[[1L]],
       vjust = 0.5
     ) +
     ggplot2::geom_text(

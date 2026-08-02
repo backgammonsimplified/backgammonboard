@@ -8,7 +8,8 @@ test_that("the frozen public API has exactly seven exports", {
     names(formals(ggboard)),
     c(
       "x", "colors", "style", "moves", "after_xgid", "decision",
-      "perspective", "player_labels", "score_format"
+      "perspective", "player_labels", "score_format", "point_1_side",
+      "player_name_style"
     )
   )
   expect_identical(names(formals(board_moves)), c("from", "to", "die", "label"))

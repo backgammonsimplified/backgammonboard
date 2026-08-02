@@ -129,7 +129,7 @@ test_that("caller decoration is two lines and neutral package output stays unbra
 })
 
 
-test_that("pending offers occupy opposite offerer halves with factual values", {
+test_that("pending offers share the midline with opposite semantic-right fields", {
   player_0 <- review_offer_layout(review_xgids[["offer_player_0"]])
   player_1 <- review_offer_layout(review_xgids[["offer_player_1"]])
   display_0 <- attr(player_0$plot, "backgammon_cube_display")
@@ -139,14 +139,6 @@ test_that("pending offers occupy opposite offerer halves with factual values", {
   board_y_center <- mean(c(
     player_0$geometry$frame$ymin,
     player_0$geometry$frame$ymax
-  ))
-  bottom_half_center <- mean(c(
-    player_0$geometry$left_field$ymin,
-    board_y_center
-  ))
-  top_half_center <- mean(c(
-    board_y_center,
-    player_1$geometry$left_field$ymax
   ))
   right_field_center <- mean(c(
     player_0$geometry$right_field$xmin,
@@ -167,10 +159,8 @@ test_that("pending offers occupy opposite offerer halves with factual values", {
   expect_identical(display_1$value, 4L)
   expect_equal(player_0$layout$center$x, right_field_center)
   expect_equal(player_1$layout$center$x, left_field_center)
-  expect_equal(player_0$layout$center$y, bottom_half_center)
-  expect_equal(player_1$layout$center$y, top_half_center)
-  expect_lt(player_0$layout$center$y, board_y_center)
-  expect_gt(player_1$layout$center$y, board_y_center)
+  expect_equal(player_0$layout$center$y, board_y_center)
+  expect_equal(player_1$layout$center$y, board_y_center)
   for (context in list(context_0, context_1)) {
     expect_false(context$show_dice)
     expect_false(context$show_normal_cube)
