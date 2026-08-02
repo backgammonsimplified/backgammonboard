@@ -147,7 +147,7 @@ board_style_presets <- function() {
   bms$information_bottom_band_height <- 1.62
   bms$information_pip_offset <- 0.42
   bms$information_top_player_name_offset <- 0.86
-  bms$information_top_secondary_offset <- 0.42
+  bms$information_top_secondary_offset <- 0.30
   bms$information_bottom_secondary_offset <- 0.35
   bms$information_bottom_player_name_offset <- 0.82
   bms$information_sentence_offset <- 1.18

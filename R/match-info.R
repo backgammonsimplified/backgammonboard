@@ -163,11 +163,17 @@ board_information_layout <- function(
     secondary <- vapply(c("white", "black"), function(player) {
       raw_label <- paste0(position$score[[player]], " pts")
       away_label <- paste0(away[[player]], "-away")
+      point_label <- paste0(
+        position$score[[player]],
+        if (identical(position$score[[player]], 1L)) " point" else " points"
+      )
       switch(
         score_format,
         raw = raw_label,
         away = away_label,
-        both = paste0(raw_label, " up to ", position$match_length)
+        both = paste0(
+          point_label, " up to ", position$match_length, ": ", away_label
+        )
       )
     }, character(1))
     names(secondary) <- c("white", "black")
