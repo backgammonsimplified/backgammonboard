@@ -42,6 +42,9 @@ move_overlay_position_after <- function(position, result) {
   position$points <- result$points
   position$bar <- result$bar
   position$off <- result$off
+  if (!is.null(position$point_occupancy)) {
+    position$point_occupancy <- signed_points_to_occupancy(position$points)
+  }
   position
 }
 
@@ -333,12 +336,14 @@ move_overlay_geometry <- function(
   )
   segments$curvature <- move_overlay_duplicate_curvatures(segments, style)
 
+  movement_labels <- attr(moves, "label")
+  labelled <- which(!is.na(movement_labels) & nzchar(movement_labels))
   markers <- data.frame(
-    step_id = integer(),
-    x = numeric(),
-    y = numeric(),
-    label = character(),
-    role = character(),
+    step_id = segments$step_id[labelled],
+    x = (segments$source_x[labelled] + segments$destination_x[labelled]) / 2,
+    y = (segments$source_y[labelled] + segments$destination_y[labelled]) / 2,
+    label = movement_labels[labelled],
+    role = segments$role[labelled],
     stringsAsFactors = FALSE
   )
 
@@ -507,6 +512,18 @@ add_move_overlay_layers <- function(plot, overlay, colors, style) {
         size = style$move_marker_text_size,
         fontface = "bold"
       )
+  }
+
+  if (nrow(overlay$markers) > 0L) {
+    plot <- plot + ggplot2::geom_text(
+      data = overlay$markers,
+      ggplot2::aes(x = x, y = y, label = label),
+      inherit.aes = FALSE,
+      color = role_color,
+      size = style$move_marker_text_size,
+      fontface = "bold",
+      angle = 0
+    )
   }
 
   plot

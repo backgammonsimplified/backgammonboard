@@ -90,7 +90,7 @@ board_style_presets <- function() {
     cube_crosshair_length = 0.42,
     cube_crosshair_linewidth = 0.45,
     cube_crosshair_alpha = 0.80,
-    cube_centered_y_nudge = 0.65,
+    cube_centered_y_nudge = 0,
     crawford_text_size = 4.2,
     arrow_linewidth = 1.35,
     arrow_halo_dark_ratio = 2.2,

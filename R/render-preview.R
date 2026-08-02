@@ -163,6 +163,30 @@ resolve_board_brand_side <- function(
 }
 
 
+colors_for_light_player <- function(colors, light_player = "white") {
+  light_player <- normalize_board_perspective(light_player)
+  if (identical(light_player, "white")) return(colors)
+
+  result <- colors
+  pairs <- list(
+    c("white_checker_fill", "black_checker_fill"),
+    c("white_checker_ring", "black_checker_ring"),
+    c("white_checker_outer_ring", "black_checker_outer_ring"),
+    c("white_checker_text", "black_checker_text"),
+    c("die_white_fill", "die_black_fill"),
+    c("die_white_pips", "die_black_pips"),
+    c("die_white_border", "die_black_border")
+  )
+  for (pair in pairs) {
+    first <- result[[pair[[1L]]]]
+    result[[pair[[1L]]]] <- result[[pair[[2L]]]]
+    result[[pair[[2L]]]] <- first
+  }
+  attr(result, "light_render_player") <- light_player
+  result
+}
+
+
 add_board_brand <- function(plot,
                             geometry,
                             text,
@@ -260,6 +284,8 @@ render_board_preview <- function(
     style = board_style("bms"),
     point_1_side = c("right", "left"),
     perspective = NULL,
+    mirror_horizontal = NULL,
+    light_player = "white",
     bottom_home_board_side = NULL,
     point_labels_for = NULL,
     brand_text = "Backgammon\nSimplified",
@@ -296,6 +322,14 @@ render_board_preview <- function(
   } else {
     normalize_board_perspective(perspective)
   }
+  if (is.null(mirror_horizontal)) {
+    mirror_horizontal <- identical(point_1_side, "left")
+  }
+  if (!is.logical(mirror_horizontal) || length(mirror_horizontal) != 1L ||
+      is.na(mirror_horizontal)) {
+    stop("`mirror_horizontal` must be TRUE or FALSE.", call. = FALSE)
+  }
+  point_1_side <- if (isTRUE(mirror_horizontal)) "left" else "right"
   brand_side <- match.arg(brand_side)
   cube_x_mode <- match.arg(cube_x_mode)
   cube_display_side <- match.arg(cube_display_side)
@@ -335,12 +369,12 @@ render_board_preview <- function(
     position = position,
     offer = resolved_offer
   )
-  geometry <- board_geometry(
+  canonical_geometry <- board_geometry(
     style,
-    point_1_side = point_1_side,
-    perspective = if (is.null(perspective)) NULL else resolved_perspective,
-    bottom_home_board_side = bottom_home_board_side,
-    point_labels_for = point_labels_for
+    point_1_side = "right",
+    perspective = "white",
+    bottom_home_board_side = "right",
+    point_labels_for = "white"
   )
   selected_overlay <- if (is.null(selected_moves)) {
     NULL
@@ -349,10 +383,10 @@ render_board_preview <- function(
       position = position,
       moves = selected_moves,
       style = style,
-      perspective = resolved_perspective,
-      point_1_side = point_1_side,
-      bottom_home_board_side = bottom_home_board_side,
-      point_labels_for = point_labels_for,
+      perspective = "white",
+      point_1_side = "right",
+      bottom_home_board_side = "right",
+      point_labels_for = "white",
       role = "selected"
     )
   }
@@ -364,10 +398,10 @@ render_board_preview <- function(
       position = position,
       moves = alternative_moves,
       style = style,
-      perspective = resolved_perspective,
-      point_1_side = point_1_side,
-      bottom_home_board_side = bottom_home_board_side,
-      point_labels_for = point_labels_for,
+      perspective = "white",
+      point_1_side = "right",
+      bottom_home_board_side = "right",
+      point_labels_for = "white",
       role = "alternative"
     )
   }
@@ -377,34 +411,87 @@ render_board_preview <- function(
   } else {
     move_overlay_position_after(position, selected_overlay$applied_moves)
   }
-  checkers <- checker_layout(
+  canonical_checkers <- checker_layout(
     display_position,
     style,
-    point_1_side = point_1_side,
-    perspective = if (is.null(perspective)) NULL else resolved_perspective,
-    bottom_home_board_side = bottom_home_board_side,
-    point_labels_for = point_labels_for
+    point_1_side = "right",
+    perspective = "white",
+    bottom_home_board_side = "right",
+    point_labels_for = "white"
   )
-  brand_dice <- dice_layout(
+  canonical_dice <- dice_layout(
     position = display_position,
-    geometry = geometry,
+    geometry = canonical_geometry,
     style = style,
-    perspective = resolved_perspective
+    perspective = "white"
   )
-  brand_cube <- if (isTRUE(show_cube)) {
+  canonical_cube <- if (isTRUE(show_cube)) {
     cube_layout(
       position = display_position,
-      geometry = geometry,
+      geometry = canonical_geometry,
       style = style,
       cube_display = cube_display,
       cube_x_mode = cube_x_mode,
       centered_y_nudge = style$cube_centered_y_nudge,
-      perspective = resolved_perspective,
-      cube_display_side = cube_display_side
+      perspective = "white",
+      cube_display_side = "left"
     )
   } else {
     NULL
   }
+  light_player <- normalize_board_perspective(light_player)
+  colors <- colors_for_light_player(colors, light_player)
+  canonical_crawford <- if (
+      identical(display_position$crawford_status, "crawford") ||
+      isTRUE(display_position$is_crawford)) {
+    center <- cube_center(
+      state = "centered", x_mode = "outside",
+      geometry = canonical_geometry, style = style,
+      centered_y_nudge = 0, perspective = "white",
+      cube_display_side = "left"
+    )
+    data.frame(x = center$x, y = center$y, label = "Crawford")
+  } else {
+    data.frame(x = numeric(), y = numeric(), label = character())
+  }
+  canonical_information <- if (isTRUE(show_information)) {
+    board_information_layout(
+      position = display_position,
+      geometry = canonical_geometry,
+      style = style,
+      white_name = white_name,
+      black_name = black_name,
+      white_wins = white_wins,
+      black_wins = black_wins,
+      context = context,
+      perspective = "white",
+      information_side = "right",
+      score_format = score_format
+    )
+  } else {
+    NULL
+  }
+  prepared <- transform_prepared_layout(
+    list(
+      geometry = canonical_geometry,
+      checkers = canonical_checkers,
+      dice = canonical_dice,
+      cube = canonical_cube,
+      crawford = canonical_crawford,
+      information = canonical_information,
+      selected_overlay = selected_overlay,
+      alternative_overlay = alternative_overlay
+    ),
+    style = style,
+    near_player = render_player_to_project_player(resolved_perspective),
+    mirror_horizontal = mirror_horizontal
+  )
+  geometry <- prepared$geometry
+  checkers <- prepared$checkers
+  brand_dice <- prepared$dice
+  brand_cube <- prepared$cube
+  selected_overlay <- prepared$selected_overlay
+  alternative_overlay <- prepared$alternative_overlay
   resolved_brand_side <- resolve_board_brand_side(
     side = brand_side,
     geometry = geometry,
@@ -475,7 +562,8 @@ render_board_preview <- function(
     geometry = geometry,
     colors = colors,
     style = style,
-    perspective = resolved_perspective
+    perspective = resolved_perspective,
+    dice = prepared$dice
   )
 
   if (isTRUE(show_cube) && isTRUE(cube_display$visible)) {
@@ -490,7 +578,8 @@ render_board_preview <- function(
       show_crosshair = show_cube_crosshair,
       centered_y_nudge = style$cube_centered_y_nudge,
       perspective = resolved_perspective,
-      cube_display_side = cube_display_side
+      cube_display_side = cube_display_side,
+      cube = prepared$cube
     )
   }
 
@@ -501,7 +590,8 @@ render_board_preview <- function(
     colors = colors,
     style = style,
     perspective = resolved_perspective,
-    cube_display_side = cube_display_side
+    cube_display_side = cube_display_side,
+    label_data = prepared$crawford
   )
 
   plot <- add_board_brand(
@@ -544,7 +634,8 @@ render_board_preview <- function(
       perspective = resolved_perspective,
       information_side = point_1_side,
       player_name_style = player_name_style,
-      score_format = score_format
+      score_format = score_format,
+      information = prepared$information
     )
   }
 
@@ -599,5 +690,6 @@ render_board_preview <- function(
     alternative = alternative_overlay
   )
   attr(plot, "backgammon_display_position") <- display_position
+  attr(plot, "backgammon_prepared_layout") <- prepared
   plot
 }

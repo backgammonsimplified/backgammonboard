@@ -1,20 +1,24 @@
 # Implementation status
 
-Contract version: 1.1
+Contract version: 1.2
 Package version: 0.1.0
 
 ## Current release path
 
 - complete-XGID normalization and structured diagnostics;
-- fixed `player_0` and `player_1` factual state;
+- fixed XGID top -> `player_0`/Foey and bottom -> `player_1`/Homey mapping;
 - conservative display-context resolution and Section 11 precedence;
-- one resolved perspective shared by the visual layer;
+- one resolved near player plus independent horizontal mirroring;
+- independent light-player palette selection, including a near-player option;
+- canonical prepared layout followed by shared vertical/horizontal transforms;
+- a game-status sentence pinned to the bottom viewport band;
+- neutral and offered cubes pinned to the vertical midline, with non-neutral owned cubes on the owner's side;
 - factual dice, cube, score, Crawford, bar, and borne-off rendering;
 - ordered structured movements with deterministic application;
 - limited supplied-die checking and optional checker-layout `after_xgid` proof;
 - static `ggplot` output and neutral/BMS presets.
 
-## Deferred outside v1.1
+## Deferred outside v1.2
 
 GNU Position/Match ID, GNU move notation, Engine Kit, Node, AnkiGammon,
 RendererPosition, analysis, complete legal-play generation, post-Crawford XGID
@@ -31,5 +35,6 @@ devtools::check(args = "--no-manual")
 ```
 
 ```text
-Rscript dev/render-v11-gallery.R <staging-directory> <output-directory>
+Rscript dev/render-v12-gallery.R <staging-directory> <output-directory>
+Rscript dev/render-v12-comparison.R <comparison-directory> <corrected-commit>
 ```

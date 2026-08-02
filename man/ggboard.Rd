@@ -11,10 +11,12 @@ ggboard(
   moves = NULL,
   after_xgid = NULL,
   decision = "auto",
-  perspective = "decision_maker",
-  player_labels = c(player_0 = "Homey", player_1 = "Foey"),
+  perspective = "player_1",
+  mirror_horizontal = FALSE,
+  light_player = c("player_1", "player_0", "near_player"),
+  player_labels = c(player_0 = "Foey", player_1 = "Homey"),
   score_format = "away",
-  point_1_side = c("right", "left"),
+  point_1_side = NULL,
   player_name_style = c("neutral", "checker")
 )
 }
@@ -36,12 +38,21 @@ checker layout. It does not replace the displayed before-position.}
 \item{perspective}{One of \code{"decision_maker"}, \code{"on_roll"}, \code{"player_0"},
 or \code{"player_1"}.}
 
+\item{mirror_horizontal}{Whether to independently mirror the prepared layout
+left-to-right. This never changes player identity or the near player.}
+
+\item{light_player}{Which factual player uses the light checker, die, and
+checker-associated badge palette. Use \code{"near_player"} to keep the bottom
+player light as perspective changes. This display choice never changes
+XGID decoding or factual ownership.}
+
 \item{player_labels}{Display labels named \code{player_0} and \code{player_1}.}
 
 \item{score_format}{Match score display format: \code{"away"}, \code{"raw"}, or
 \code{"both"}.}
 
-\item{point_1_side}{Screen side for the near player's 1-point.}
+\item{point_1_side}{Compatibility alias for the horizontal display control.
+Prefer \code{mirror_horizontal} in new code.}
 
 \item{player_name_style}{Name-badge treatment: neutral package text or
 checker-associated BMS colors.}
@@ -50,6 +61,6 @@ checker-associated BMS colors.}
 An ordinary object inheriting from \code{ggplot}.
 }
 \description{
-\code{ggboard()} resolves one conservative display context, applies one
-perspective, and returns an ordinary static \code{ggplot}.
+\code{ggboard()} resolves one conservative display context, applies independent
+vertical and horizontal display transforms, and returns a static \code{ggplot}.
 }

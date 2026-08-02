@@ -14,10 +14,11 @@ license: MIT
 source archive SHA256: 3c82ef42e0a603431d5839b7fa115bc416ca92d8c0df903dd3f99aa1be88e13c
 ```
 
-The native R code is an independent behavioral port. AnkiGammon was used to
-verify turn-relative payload decoding, bar and point ordering, checker-case
-meaning, factual cube metadata, action markers, absolute raw scores, match
-metadata, and maximum-cube metadata.
+The native R code is independent. AnkiGammon was used historically to inspect
+payload, cube, action, score, match, and maximum-cube fields. Its turn-relative
+player interpretation is not current package authority. Contract v1.2 fixes
+source roles directly: top/lowercase is `player_0`, bottom/uppercase is
+`player_1`, and point order does not change because of turn.
 
 The package deliberately differs where its accepted contract is stricter:
 

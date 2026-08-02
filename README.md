@@ -1,13 +1,15 @@
 # backgammonboard
 
 `backgammonboard` validates complete XGIDs, constructs factual positions, and
-renders static `ggplot` boards. Contract version 1.1 has one release path:
+renders static `ggplot` boards. Contract version 1.2 has one release path:
 
 ```text
 complete XGID
+-> XGID source-role decode and fixed project-player mapping
 -> factual backgammon_position
 -> explicit or conservatively resolved display context
--> prepared layout
+-> canonical Homey-near prepared layout
+-> independent vertical and horizontal display transforms
 -> optional structured movements
 -> ggplot
 ```
@@ -20,13 +22,19 @@ plot <- ggboard(xgid)
 inherits(plot, "ggplot")
 ```
 
-The fixed factual identities are `player_0` (XGID bottom player) and
-`player_1` (XGID top player). The default display labels are Homey and Foey;
-perspective changes screen placement, not identity.
+The fixed factual identities are `player_0` (XGID top player, Foey) and
+`player_1` (XGID bottom player, Homey). Homey is near by default. Perspective
+changes only the near player; `mirror_horizontal` independently changes the
+left-right arrangement. Neither display control changes factual identity.
+The independent `light_player` control selects which factual player uses the
+light visual palette; set it to `"near_player"` to keep the bottom player light.
+Neutral centered and offered cubes remain on the board's vertical midline.
+When the cube exponent is non-zero, an owned cube remains outside on its
+factual owner's vertical side.
 
 Complete XGID, with or without the `XGID=` prefix, is the only release source
 identifier. GNU identifiers, Engine Kit/Node conversion, AnkiGammon, and
-RendererPosition are outside the package v1.1 boundary.
+RendererPosition are outside the package v1.2 boundary.
 
 ## Display context
 
@@ -38,6 +46,8 @@ questions must be explicit.
 ggboard(xgid_without_dice, decision = "roll_double")
 ggboard(xgid_with_D_marker, decision = "take_pass")
 ggboard(xgid, perspective = "player_1")
+ggboard(xgid, perspective = "player_0", mirror_horizontal = TRUE)
+ggboard(xgid, perspective = "player_0", light_player = "near_player")
 ```
 
 ## Structured movements

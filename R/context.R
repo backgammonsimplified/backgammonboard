@@ -4,6 +4,8 @@ resolve_display_context <- function(
     moves,
     decision,
     perspective,
+    mirror_horizontal,
+    light_player,
     player_labels,
     score_format) {
   assert_backgammon_position(position)
@@ -16,7 +18,12 @@ resolve_display_context <- function(
     perspective,
     c("decision_maker", "on_roll", "player_0", "player_1")
   )
+  light_player <- match.arg(light_player, c("player_1", "player_0", "near_player"))
   score_format <- match.arg(score_format, c("away", "raw", "both"))
+  if (!is.logical(mirror_horizontal) || length(mirror_horizontal) != 1L ||
+      is.na(mirror_horizontal)) {
+    stop("`mirror_horizontal` must be TRUE or FALSE.", call. = FALSE)
+  }
 
   resolved_decision <- if (identical(decision, "auto")) {
     if (!is.null(moves)) {
@@ -79,19 +86,26 @@ resolve_display_context <- function(
     take_pass = other_player(position$on_roll),
     none = NA_character_
   )
-  resolved_perspective <- switch(
+  near_player <- switch(
     perspective,
     player_0 = "player_0",
     player_1 = "player_1",
     on_roll = position$on_roll,
     decision_maker = if (is.na(decision_maker)) position$on_roll else decision_maker
   )
+  resolved_light_player <- if (identical(light_player, "near_player")) {
+    near_player
+  } else {
+    light_player
+  }
 
   structure(
     list(
       decision = resolved_decision,
       decision_maker = decision_maker,
-      perspective = resolved_perspective,
+      near_player = near_player,
+      mirror_horizontal = mirror_horizontal,
+      light_player = resolved_light_player,
       player_labels = labels,
       score_format = score_format,
       show_dice = length(position$dice) == 2L &&
@@ -128,12 +142,7 @@ other_player <- function(player) {
 
 
 to_render_player <- function(player) {
-  switch(
-    player,
-    player_0 = "white",
-    player_1 = "black",
-    stop("Player identity must be `player_0` or `player_1`.", call. = FALSE)
-  )
+  project_player_to_render_player(player)
 }
 
 

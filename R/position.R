@@ -1,8 +1,8 @@
 #' Construct a factual backgammon position
 #'
 #' `backgammon_position()` converts one complete XGID into factual state. The
-#' fixed identities are `player_0` (the XGID bottom player) and `player_1` (the
-#' XGID top player); labels and screen placement are display context, not facts.
+#' fixed identities are `player_0` (the XGID top player) and `player_1` (the
+#' XGID bottom player); labels and screen placement are display context, not facts.
 #'
 #' @param x A complete XGID string, with or without the `XGID=` prefix.
 #'
@@ -23,12 +23,7 @@ backgammon_position <- function(x) {
     integer()
   }
 
-  cube_owner <- switch(
-    as.character(parsed$cube_owner_code),
-    `-1` = "player_1",
-    `0` = "center",
-    `1` = "player_0"
-  )
+  cube_owner <- xgid_cube_owner_player(parsed$cube_owner_code)
   cube_action <- switch(
     parsed$dice_action,
     D = "double",
@@ -49,18 +44,21 @@ backgammon_position <- function(x) {
   structure(
     list(
       xgid = xgid,
+      source_roles = c(top = "top", bottom = "bottom"),
+      player_mapping = xgid_source_player_map(),
       play_context = play_context,
       points = as.integer(payload$points),
+      point_occupancy = payload$point_occupancy,
       bar = stats::setNames(as.integer(payload$bar), c("player_0", "player_1")),
       off = stats::setNames(as.integer(payload$off), c("player_0", "player_1")),
-      on_roll = if (parsed$turn_code == 1L) "player_0" else "player_1",
+      on_roll = xgid_turn_player(parsed$turn_code),
       dice = dice,
       cube_value = as.integer(2^parsed$cube_exponent),
       cube_owner = cube_owner,
       cube_action = cube_action,
       score = c(
-        player_0 = as.integer(parsed$score_white),
-        player_1 = as.integer(parsed$score_black)
+        player_0 = as.integer(parsed$score_second),
+        player_1 = as.integer(parsed$score_first)
       ),
       match_length = if (identical(play_context, "match")) {
         as.integer(parsed$match_length)
@@ -87,7 +85,7 @@ backgammon_position <- function(x) {
 # accepted input type and never escapes as the factual plot attribute.
 as_render_position <- function(
     position,
-    player_labels = c(player_0 = "Homey", player_1 = "Foey")) {
+    player_labels = c(player_0 = "Foey", player_1 = "Homey")) {
   assert_backgammon_position(position)
   labels <- validate_player_labels(player_labels)
 
@@ -101,23 +99,23 @@ as_render_position <- function(
 
   render <- position
   render$bar <- c(
-    white = unname(position$bar[["player_0"]]),
-    black = unname(position$bar[["player_1"]])
+    white = unname(position$bar[[render_player_to_project_player("white")]]),
+    black = unname(position$bar[[render_player_to_project_player("black")]])
   )
   render$off <- c(
-    white = unname(position$off[["player_0"]]),
-    black = unname(position$off[["player_1"]])
+    white = unname(position$off[[render_player_to_project_player("white")]]),
+    black = unname(position$off[[render_player_to_project_player("black")]])
   )
-  render$on_roll <- if (identical(position$on_roll, "player_0")) "white" else "black"
+  render$on_roll <- project_player_to_render_player(position$on_roll)
   render$cube_owner <- switch(
     position$cube_owner,
-    player_0 = "white",
-    player_1 = "black",
+    player_0 = project_player_to_render_player("player_0"),
+    player_1 = project_player_to_render_player("player_1"),
     center = "center"
   )
   render$score <- c(
-    white = unname(position$score[["player_0"]]),
-    black = unname(position$score[["player_1"]])
+    white = unname(position$score[[render_player_to_project_player("white")]]),
+    black = unname(position$score[[render_player_to_project_player("black")]])
   )
   render$score_white <- unname(render$score[["white"]])
   render$score_black <- unname(render$score[["black"]])
@@ -129,8 +127,8 @@ as_render_position <- function(
   render$max_supported_cube_value <- supported_cube_max()
   render$beavers <- position$beavers_allowed
   render$player_labels <- c(
-    white = unname(labels[["player_0"]]),
-    black = unname(labels[["player_1"]])
+    white = unname(labels[[render_player_to_project_player("white")]]),
+    black = unname(labels[[render_player_to_project_player("black")]])
   )
   class(render) <- c("backgammon_render_position", "backgammon_position")
   render

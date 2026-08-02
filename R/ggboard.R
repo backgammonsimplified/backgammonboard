@@ -1,7 +1,7 @@
 #' Render a factual backgammon board from a complete XGID
 #'
-#' `ggboard()` resolves one conservative display context, applies one
-#' perspective, and returns an ordinary static `ggplot`.
+#' `ggboard()` resolves one conservative display context, applies independent
+#' vertical and horizontal display transforms, and returns a static `ggplot`.
 #'
 #' @param x A complete XGID string or a factual `backgammon_position`.
 #' @param colors A validated object created by [board_colors()].
@@ -13,10 +13,17 @@
 #'   `"take_pass"`, or `"none"`.
 #' @param perspective One of `"decision_maker"`, `"on_roll"`, `"player_0"`,
 #'   or `"player_1"`.
+#' @param mirror_horizontal Whether to independently mirror the prepared layout
+#'   left-to-right. This never changes player identity or the near player.
+#' @param light_player Which factual player uses the light checker, die, and
+#'   checker-associated badge palette. Use `"near_player"` to keep the bottom
+#'   player light as perspective changes. This display choice never changes
+#'   XGID decoding or factual ownership.
 #' @param player_labels Display labels named `player_0` and `player_1`.
 #' @param score_format Match score display format: `"away"`, `"raw"`, or
 #'   `"both"`.
-#' @param point_1_side Screen side for the near player's 1-point.
+#' @param point_1_side Compatibility alias for the horizontal display control.
+#'   Prefer `mirror_horizontal` in new code.
 #' @param player_name_style Name-badge treatment: neutral package text or
 #'   checker-associated BMS colors.
 #'
@@ -29,12 +36,26 @@ ggboard <- function(
     moves = NULL,
     after_xgid = NULL,
     decision = "auto",
-    perspective = "decision_maker",
-    player_labels = c(player_0 = "Homey", player_1 = "Foey"),
+    perspective = "player_1",
+    mirror_horizontal = FALSE,
+    light_player = c("player_1", "player_0", "near_player"),
+    player_labels = c(player_0 = "Foey", player_1 = "Homey"),
     score_format = "away",
-    point_1_side = c("right", "left"),
+    point_1_side = NULL,
     player_name_style = c("neutral", "checker")) {
-  point_1_side <- match.arg(point_1_side)
+  mirror_was_missing <- missing(mirror_horizontal)
+  if (is.null(point_1_side)) {
+    point_1_side <- if (isTRUE(mirror_horizontal)) "left" else "right"
+  } else {
+    point_1_side <- match.arg(point_1_side, c("right", "left"))
+    compatible_mirror <- identical(point_1_side, "left")
+    if (mirror_was_missing) {
+      mirror_horizontal <- compatible_mirror
+    } else if (!identical(isTRUE(mirror_horizontal), compatible_mirror)) {
+      stop("`point_1_side` conflicts with `mirror_horizontal`.", call. = FALSE)
+    }
+  }
+  light_player <- match.arg(light_player)
   player_name_style <- match.arg(player_name_style)
   if (inherits(x, "backgammon_render_position")) {
     stop("Internal render positions are not supported release inputs.", call. = FALSE)
@@ -50,11 +71,13 @@ ggboard <- function(
     moves = selected_moves,
     decision = decision,
     perspective = perspective,
+    mirror_horizontal = mirror_horizontal,
+    light_player = light_player,
     player_labels = player_labels,
     score_format = score_format
   )
   render_position <- as_render_position(position, display$player_labels)
-  render_perspective <- to_render_player(display$perspective)
+  render_perspective <- to_render_player(display$near_player)
   cube_display_side <- if (identical(point_1_side, "left")) "right" else "left"
 
   if (!isTRUE(display$show_dice)) render_position$dice <- integer()
@@ -80,14 +103,16 @@ ggboard <- function(
     style = style,
     point_1_side = point_1_side,
     perspective = render_perspective,
+    mirror_horizontal = display$mirror_horizontal,
+    light_player = to_render_player(display$light_player),
     point_labels_for = render_perspective,
     brand_text = NULL,
     show_cube = isTRUE(display$show_normal_cube) || isTRUE(display$show_offered_cube),
     cube_offer = NULL,
     cube_display_side = cube_display_side,
     show_information = TRUE,
-    white_name = unname(display$player_labels[["player_0"]]),
-    black_name = unname(display$player_labels[["player_1"]]),
+    white_name = unname(display$player_labels[[render_player_to_project_player("white")]]),
+    black_name = unname(display$player_labels[[render_player_to_project_player("black")]]),
     context = render_context,
     score_format = display$score_format,
     player_name_style = player_name_style,
@@ -107,7 +132,10 @@ ggboard <- function(
   attr(plot, "backgammon_display_position") <- public_display_position
   attr(plot, "backgammon_context") <- display
   attr(plot, "backgammon_decision") <- display$decision
-  attr(plot, "backgammon_perspective") <- display$perspective
+  attr(plot, "backgammon_perspective") <- display$near_player
+  attr(plot, "backgammon_near_player") <- display$near_player
+  attr(plot, "backgammon_mirror_horizontal") <- display$mirror_horizontal
+  attr(plot, "backgammon_light_player") <- display$light_player
   attr(plot, "backgammon_point_1_side") <- point_1_side
   attr(plot, "backgammon_player_name_style") <- player_name_style
   attr(plot, "backgammon_information_side") <- point_1_side
@@ -126,17 +154,17 @@ ggboard <- function(
 public_cube_display <- function(display) {
   map_player <- function(value) {
     if (is.null(value)) return(NULL)
-    switch(value, white = "player_0", black = "player_1", value)
+    if (value %in% c("white", "black")) render_player_to_project_player(value) else value
   }
   display$owner <- map_player(display$owner)
   display$offerer <- map_player(display$offerer)
   display$receiver <- map_player(display$receiver)
   display$placement <- switch(
     display$placement,
-    white_side = "player_0_side",
-    black_side = "player_1_side",
-    offered_to_white = "offered_to_player_0",
-    offered_to_black = "offered_to_player_1",
+    white_side = paste0(render_player_to_project_player("white"), "_side"),
+    black_side = paste0(render_player_to_project_player("black"), "_side"),
+    offered_to_white = paste0("offered_to_", render_player_to_project_player("white")),
+    offered_to_black = paste0("offered_to_", render_player_to_project_player("black")),
     display$placement
   )
   display
@@ -148,13 +176,14 @@ position_after_application <- function(position, applied) {
   result <- position
   result$points <- as.integer(applied$points)
   result$bar <- c(
-    player_0 = unname(applied$bar[["white"]]),
-    player_1 = unname(applied$bar[["black"]])
+    player_0 = unname(applied$bar[[project_player_to_render_player("player_0")]]),
+    player_1 = unname(applied$bar[[project_player_to_render_player("player_1")]])
   )
   result$off <- c(
-    player_0 = unname(applied$off[["white"]]),
-    player_1 = unname(applied$off[["black"]])
+    player_0 = unname(applied$off[[project_player_to_render_player("player_0")]]),
+    player_1 = unname(applied$off[[project_player_to_render_player("player_1")]])
   )
+  result$point_occupancy <- signed_points_to_occupancy(result$points)
   result
 }
 

@@ -54,103 +54,49 @@ point_layout_table <- function(
     layout$left_play_xmin + (seq_len(6) - 0.5) * left_step
   right_centers <-
     layout$right_play_xmin + (seq_len(6) - 0.5) * right_step
-
   if (!is.null(bottom_home_board_side)) {
-    bottom_home_board_side <- match.arg(
-      bottom_home_board_side,
-      c("left", "right")
-    )
+    point_1_side <- match.arg(bottom_home_board_side, c("right", "left"))
   }
-
-  if (!is.null(perspective) && is.null(bottom_home_board_side)) {
-    bottom_home_board_side <- point_1_side
-  }
-
-  if (!is.null(perspective) && !is.null(bottom_home_board_side)) {
-    perspective <- normalize_board_perspective(perspective)
-
-    if (
-      identical(perspective, "white") &&
-      identical(bottom_home_board_side, "right")
-    ) {
-      bottom_left <- 12:7
-      bottom_right <- 6:1
-      top_left <- 13:18
-      top_right <- 19:24
-    } else if (
-      identical(perspective, "white") &&
-      identical(bottom_home_board_side, "left")
-    ) {
-      bottom_left <- 1:6
-      bottom_right <- 7:12
-      top_left <- 24:19
-      top_right <- 18:13
-    } else if (identical(bottom_home_board_side, "left")) {
-      bottom_left <- 24:19
-      bottom_right <- 18:13
-      top_left <- 1:6
-      top_right <- 7:12
-    } else {
-      bottom_left <- 13:18
-      bottom_right <- 19:24
-      top_left <- 12:7
-      top_right <- 6:1
-    }
-  } else if (!is.null(perspective)) {
-    perspective <- normalize_board_perspective(perspective)
-
-    if (identical(perspective, "white")) {
-      bottom_left <- 12:7
-      bottom_right <- 6:1
-      top_left <- 13:18
-      top_right <- 19:24
-    } else {
-      bottom_left <- 24:19
-      bottom_right <- 18:13
-      top_left <- 1:6
-      top_right <- 7:12
-    }
-  } else if (identical(point_1_side, "right")) {
-    bottom_left <- 12:7
-    bottom_right <- 6:1
-    top_left <- 13:18
-    top_right <- 19:24
+  resolved_perspective <- if (is.null(perspective)) {
+    "white"
   } else {
-    bottom_left <- 1:6
-    bottom_right <- 7:12
-    top_left <- 24:19
-    top_right <- 18:13
+    normalize_board_perspective(perspective)
   }
-
-  rbind(
+  canonical <- rbind(
     data.frame(
-      point = bottom_left,
+      point = 12:7,
       x = left_centers,
       side = "bottom",
       base_width = rep(left_step - style$point_gap, 6L),
       stringsAsFactors = FALSE
     ),
     data.frame(
-      point = bottom_right,
+      point = 6:1,
       x = right_centers,
       side = "bottom",
       base_width = rep(right_step - style$point_gap, 6L),
       stringsAsFactors = FALSE
     ),
     data.frame(
-      point = top_left,
+      point = 13:18,
       x = left_centers,
       side = "top",
       base_width = rep(left_step - style$point_gap, 6L),
       stringsAsFactors = FALSE
     ),
     data.frame(
-      point = top_right,
+      point = 19:24,
       x = right_centers,
       side = "top",
       base_width = rep(right_step - style$point_gap, 6L),
       stringsAsFactors = FALSE
     )
+  )
+  transform_coordinate_frame(
+    canonical,
+    layout_transform_bounds(style),
+    mirror_horizontal = identical(point_1_side, "left"),
+    flip_vertical = identical(resolved_perspective, "black")
   )
 }
 
@@ -191,9 +137,10 @@ point_number_data <- function(layout, style, point_labels_for = NULL) {
   labels <- layout$point
   if (!is.null(point_labels_for)) {
     point_labels_for <- normalize_board_perspective(point_labels_for)
-    if (identical(point_labels_for, "black")) {
-      labels <- 25L - labels
-    }
+    labels <- displayed_point_value(
+      labels,
+      near_player = render_player_to_project_player(point_labels_for)
+    )
   }
 
   data.frame(

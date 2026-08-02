@@ -113,6 +113,7 @@ for (index in seq_len(nrow(cases))) {
     case$xgid[[1L]], colors = colors, style = style,
     decision = case$decision[[1L]], perspective = case$perspective[[1L]],
     score_format = "both", point_1_side = case$point_1_side[[1L]],
+    light_player = "near_player",
     player_name_style = "checker"
   )
   brand_text <- "Backgammon\nSimplified"
@@ -133,6 +134,7 @@ for (index in seq_len(nrow(cases))) {
     case_id = case$case_id[[1L]], title = case$title[[1L]],
     xgid = position$xgid, decision = attr(plot, "backgammon_decision"),
     perspective = attr(plot, "backgammon_perspective"),
+    light_player = attr(plot, "backgammon_light_player"),
     point_1_side = attr(plot, "backgammon_point_1_side"),
     on_roll = position$on_roll,
     dice = if (length(position$dice)) paste(position$dice, collapse = "-") else "absent",

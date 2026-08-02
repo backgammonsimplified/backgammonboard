@@ -92,7 +92,6 @@ cube_center <- function(
   right_field_xmax <- geometry$right_field$xmax[[1L]]
   field_ymin <- geometry$left_field$ymin[[1L]]
   field_ymax <- geometry$left_field$ymax[[1L]]
-
   board_y_center <- mean(c(
     geometry$frame$ymin[[1L]],
     geometry$frame$ymax[[1L]]
@@ -136,17 +135,13 @@ cube_center <- function(
   }
 
   white_first_checker_y <-
-    field_ymin +
-    style$checker_margin +
-    style$checker_outer_radius
-
+    field_ymin + style$checker_margin + style$checker_outer_radius
   black_first_checker_y <-
-    field_ymax -
-    style$checker_margin -
-    style$checker_outer_radius
-
+    field_ymax - style$checker_margin - style$checker_outer_radius
   white_is_bottom <- identical(perspective, "white")
 
+  # Neutral and offered cubes share the midline. A non-neutral owned cube
+  # remains on its factual owner's side, as in the accepted BMS treatment.
   y <- switch(
     state,
     centered = board_y_center + centered_y_nudge,
@@ -180,23 +175,26 @@ add_crawford_marker <- function(
     colors,
     style,
     perspective = "white",
-    cube_display_side = c("left", "right")) {
+    cube_display_side = c("left", "right"),
+    label_data = NULL) {
   if (!identical(position$crawford_status, "crawford") && !isTRUE(position$is_crawford)) {
     return(plot)
   }
-  cube_display_side <- match.arg(cube_display_side)
-  center <- cube_center(
-    state = "centered",
-    x_mode = "outside",
-    geometry = geometry,
-    style = style,
-    centered_y_nudge = 0,
-    perspective = perspective,
-    cube_display_side = cube_display_side
-  )
-  label <- data.frame(x = center$x, y = center$y, label = "Crawford")
+  if (is.null(label_data)) {
+    cube_display_side <- match.arg(cube_display_side)
+    center <- cube_center(
+      state = "centered",
+      x_mode = "outside",
+      geometry = geometry,
+      style = style,
+      centered_y_nudge = 0,
+      perspective = perspective,
+      cube_display_side = cube_display_side
+    )
+    label_data <- data.frame(x = center$x, y = center$y, label = "Crawford")
+  }
   plot + ggplot2::geom_text(
-    data = label,
+    data = label_data,
     ggplot2::aes(x = x, y = y, label = label),
     inherit.aes = FALSE,
     color = colors$cube_text,
@@ -267,6 +265,13 @@ cube_layout <- function(
     offered_y_nudge = offered_y_nudge,
     perspective = perspective,
     cube_display_side = cube_display_side
+  )
+  center$player <- switch(
+    display$state,
+    owned = display$owner,
+    offered = display$offerer,
+    centered = NA_character_,
+    NA_character_
   )
 
   outer <- cube_face_polygon(
@@ -341,27 +346,30 @@ add_cube_layers <- function(
     black_y_nudge = 0,
     offered_y_nudge = 0,
     perspective = "white",
-    cube_display_side = c("left", "right")
+    cube_display_side = c("left", "right"),
+    cube = NULL
 ) {
   cube_x_mode <- match.arg(cube_x_mode)
   cube_display_side <- match.arg(cube_display_side)
 
-  cube <- cube_layout(
-    position = position,
-    geometry = geometry,
-    style = style,
-    cube_display = cube_display,
-    cube_x_mode = cube_x_mode,
-    number_x_nudge = number_x_nudge,
-    number_y_nudge = number_y_nudge,
-    cube_x_nudge = cube_x_nudge,
-    centered_y_nudge = centered_y_nudge,
-    white_y_nudge = white_y_nudge,
-    black_y_nudge = black_y_nudge,
-    offered_y_nudge = offered_y_nudge,
-    perspective = perspective,
-    cube_display_side = cube_display_side
-  )
+  if (is.null(cube)) {
+    cube <- cube_layout(
+      position = position,
+      geometry = geometry,
+      style = style,
+      cube_display = cube_display,
+      cube_x_mode = cube_x_mode,
+      number_x_nudge = number_x_nudge,
+      number_y_nudge = number_y_nudge,
+      cube_x_nudge = cube_x_nudge,
+      centered_y_nudge = centered_y_nudge,
+      white_y_nudge = white_y_nudge,
+      black_y_nudge = black_y_nudge,
+      offered_y_nudge = offered_y_nudge,
+      perspective = perspective,
+      cube_display_side = cube_display_side
+    )
+  }
 
   if (!isTRUE(cube$visible)) {
     return(plot)

@@ -255,6 +255,13 @@ information_name_palette <- function(player, colors, player_name_style) {
   if (identical(player_name_style, "neutral")) {
     return(list(text = colors$score_text, fill = colors$outside_fill))
   }
+  palette_swapped <- identical(attr(colors, "light_render_player"), "black")
+  if (isTRUE(palette_swapped)) {
+    if (identical(player, "white")) {
+      return(list(text = colors$white_checker_text, fill = colors$white_checker_fill))
+    }
+    return(list(text = colors$black_checker_text, fill = colors$black_checker_fill))
+  }
   if (identical(player, "white")) {
     list(text = colors$white_checker_ring, fill = colors$white_checker_fill)
   } else {
@@ -278,26 +285,29 @@ add_board_information <- function(
     perspective = "white",
     information_side = c("right", "left"),
     player_name_style = c("neutral", "checker"),
-    score_format = c("away", "raw", "both")
+    score_format = c("away", "raw", "both"),
+    information = NULL
 ) {
   family <- validate_information_name(family, "information_family")
   score_format <- match.arg(score_format)
   information_side <- match.arg(information_side)
   player_name_style <- match.arg(player_name_style)
 
-  information <- board_information_layout(
-    position = position,
-    geometry = geometry,
-    style = style,
-    white_name = white_name,
-    black_name = black_name,
-    white_wins = white_wins,
-    black_wins = black_wins,
-    context = context,
-    perspective = perspective,
-    information_side = information_side,
-    score_format = score_format
-  )
+  if (is.null(information)) {
+    information <- board_information_layout(
+      position = position,
+      geometry = geometry,
+      style = style,
+      white_name = white_name,
+      black_name = black_name,
+      white_wins = white_wins,
+      black_wins = black_wins,
+      context = context,
+      perspective = perspective,
+      information_side = information_side,
+      score_format = score_format
+    )
+  }
 
   top_name <- information_name_palette(
     information$top$player[[1L]], colors, player_name_style

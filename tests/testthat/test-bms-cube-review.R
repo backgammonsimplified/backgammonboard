@@ -1,7 +1,7 @@
 review_xgids <- c(
   opening = "XGID=-b----E-C---eE---c-e----B-:0:0:1:52:0:0:0:0:10",
-  offer_player_0 = "XGID=-b----E-C---eE---c-e----B-:1:1:1:D:0:0:0:0:10",
-  offer_player_1 = "XGID=-b----E-C---eE---c-e----B-:1:-1:-1:D:0:0:0:0:10"
+  offer_player_0 = "XGID=-b----E-C---eE---c-e----B-:1:-1:-1:D:0:0:0:0:10",
+  offer_player_1 = "XGID=-b----E-C---eE---c-e----B-:1:1:1:D:0:0:0:0:10"
 )
 
 
@@ -31,14 +31,14 @@ review_offer_layout <- function(xgid) {
 }
 
 
-test_that("BMS labels and player_0 white styling preserve factual identity", {
+test_that("BMS labels and player_1 white styling preserve factual identity", {
   plot <- ggboard(
     review_xgids[["opening"]],
     colors = board_colors("bms"),
     style = board_style("bms"),
     decision = "checker_play",
     perspective = "player_0",
-    player_labels = c(player_0 = "Homey", player_1 = "Foey")
+    player_labels = c(player_0 = "Foey", player_1 = "Homey")
   )
   factual <- attr(plot, "backgammon_position")
   context <- attr(plot, "backgammon_context")
@@ -55,7 +55,7 @@ test_that("BMS labels and player_0 white styling preserve factual identity", {
     perspective = "white"
   )
 
-  expect_identical(factual$on_roll, "player_0")
+  expect_identical(factual$on_roll, "player_1")
   expect_identical(names(factual$bar), c("player_0", "player_1"))
   expect_identical(names(factual$score), c("player_0", "player_1"))
   expect_false(any(c("white", "black") %in% names(factual$bar)))
@@ -95,7 +95,7 @@ test_that("Homey dice are screen-right and clear of information text", {
     information$sentence$y
   )
 
-  expect_identical(factual$on_roll, "player_0")
+  expect_identical(factual$on_roll, "player_1")
   expect_equal(factual$dice, c(5L, 2L))
   expect_gt(min(dice$faces$x), board_center_x)
   expect_true(all(information_y < dice_y[[1L]] | information_y > dice_y[[2L]]))
@@ -163,12 +163,12 @@ test_that("caller decoration reuses the dice and cube fields while ggboard stays
     review_xgids[["offer_player_1"]], decision = "take_pass",
     perspective = "player_0"
   )
-  expect_identical(attr(offered, "backgammon_brand_side"), "right")
+  expect_identical(attr(offered, "backgammon_brand_side"), "left")
   offered_by_player_0 <- ggboard(
     review_xgids[["offer_player_0"]], decision = "take_pass",
     perspective = "player_0"
   )
-  expect_identical(attr(offered_by_player_0, "backgammon_brand_side"), "left")
+  expect_identical(attr(offered_by_player_0, "backgammon_brand_side"), "right")
 
   dice_left <- ggboard(
     "XGID=-b----E-C---eE---c-e----B-:0:0:-1:31:0:0:0:0:10",
@@ -195,13 +195,13 @@ test_that("pending offers share the midline with opposite semantic-right fields"
     player_0$geometry$frame$ymin,
     player_0$geometry$frame$ymax
   ))
-  right_field_center <- mean(c(
-    player_0$geometry$right_field$xmin,
-    player_0$geometry$right_field$xmax
-  ))
   left_field_center <- mean(c(
-    player_1$geometry$left_field$xmin,
-    player_1$geometry$left_field$xmax
+    player_0$geometry$left_field$xmin,
+    player_0$geometry$left_field$xmax
+  ))
+  right_field_center <- mean(c(
+    player_1$geometry$right_field$xmin,
+    player_1$geometry$right_field$xmax
   ))
 
   expect_identical(display_0$state, "offered")
@@ -212,8 +212,8 @@ test_that("pending offers share the midline with opposite semantic-right fields"
   expect_identical(display_1$offerer, "player_1")
   expect_identical(display_1$receiver, "player_0")
   expect_identical(display_1$value, 4L)
-  expect_equal(player_0$layout$center$x, right_field_center)
-  expect_equal(player_1$layout$center$x, left_field_center)
+  expect_equal(player_0$layout$center$x, left_field_center)
+  expect_equal(player_1$layout$center$x, right_field_center)
   expect_equal(player_0$layout$center$y, board_y_center)
   expect_equal(player_1$layout$center$y, board_y_center)
   for (context in list(context_0, context_1)) {

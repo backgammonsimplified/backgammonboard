@@ -1,8 +1,8 @@
 test_that("bar stacks begin beside the point tips and count after four", {
   style <- board_style("bms")
   position <- custom_position(
-    player_0 = c(`6` = 5L),
-    player_0_bar = 5L,
+    player_1 = c(`6` = 5L),
+    player_1_bar = 5L,
     dice = integer()
   )
   layout <- backgammonboard:::checker_layout(
@@ -122,7 +122,7 @@ test_that("dice remain on the roller's semantic right", {
 })
 
 
-test_that("centered cubes sit higher and Crawford occupies the middle outside lane", {
+test_that("centered cubes and Crawford occupy the middle outside lane", {
   style <- board_style("bms")
   geometry <- backgammonboard:::board_geometry(style, perspective = "white")
   render <- backgammonboard:::as_render_position(
@@ -149,7 +149,7 @@ test_that("centered cubes sit higher and Crawford occupies the middle outside la
     }
   }), use.names = FALSE)
 
-  expect_gt(cube$center$y, style$board_height / 2)
+  expect_equal(cube$center$y, style$board_height / 2)
   expect_equal(style$cube_text_size, 7.6)
   expect_true("Crawford" %in% layer_labels)
   expect_equal(crawford_y, style$board_height / 2)

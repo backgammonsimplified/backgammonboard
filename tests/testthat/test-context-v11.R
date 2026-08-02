@@ -38,17 +38,18 @@ test_that("decision maker and labels remain attached to factual players", {
   offer <- ggboard(
     fixture_xgid("offer_to_black"),
     decision = "take_pass",
-    player_labels = c(player_0 = "Homey", player_1 = "Foey")
+    perspective = "decision_maker",
+    player_labels = c(player_0 = "Foey", player_1 = "Homey")
   )
   context <- attr(offer, "backgammon_context")
-  expect_identical(context$decision_maker, "player_1")
-  expect_identical(context$perspective, "player_1")
-  expect_identical(context$player_labels[["player_0"]], "Homey")
-  expect_identical(context$player_labels[["player_1"]], "Foey")
+  expect_identical(context$decision_maker, "player_0")
+  expect_identical(context$near_player, "player_0")
+  expect_identical(context$player_labels[["player_0"]], "Foey")
+  expect_identical(context$player_labels[["player_1"]], "Homey")
 
   explicit <- ggboard(fixture_xgid("opening_white_roll"), perspective = "player_1")
   expect_identical(attr(explicit, "backgammon_perspective"), "player_1")
-  expect_identical(attr(explicit, "backgammon_position")$on_roll, "player_0")
+  expect_identical(attr(explicit, "backgammon_position")$on_roll, "player_1")
 })
 
 test_that("Crawford rejects cube decisions", {
@@ -67,8 +68,8 @@ test_that("cube display follows the decision matrix", {
   expect_identical(roll$state, "centered")
   expect_identical(pending_none$state, "owned")
   expect_identical(pending_take$state, "offered")
-  expect_identical(pending_take$offerer, "player_0")
-  expect_identical(pending_take$receiver, "player_1")
+  expect_identical(pending_take$offerer, "player_1")
+  expect_identical(pending_take$receiver, "player_0")
   expect_identical(pending_take$value, 4L)
   expect_identical(crawford$state, "hidden")
 })

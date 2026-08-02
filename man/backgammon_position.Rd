@@ -14,6 +14,6 @@ An object of class \code{backgammon_position}.
 }
 \description{
 \code{backgammon_position()} converts one complete XGID into factual state. The
-fixed identities are \code{player_0} (the XGID bottom player) and \code{player_1} (the
-XGID top player); labels and screen placement are display context, not facts.
+fixed identities are \code{player_0} (the XGID top player) and \code{player_1} (the
+XGID bottom player); labels and screen placement are display context, not facts.
 }

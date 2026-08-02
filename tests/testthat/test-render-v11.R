@@ -8,7 +8,7 @@ test_that("the frozen public API has exactly seven exports", {
     names(formals(ggboard)),
     c(
       "x", "colors", "style", "moves", "after_xgid", "decision",
-      "perspective", "player_labels", "score_format", "point_1_side",
+      "perspective", "mirror_horizontal", "light_player", "player_labels", "score_format", "point_1_side",
       "player_name_style"
     )
   )
@@ -49,8 +49,8 @@ test_that("one perspective resolution changes layout but not facts or labels", {
   expect_identical(attr(player_0, "backgammon_position"), position)
   expect_identical(attr(player_1, "backgammon_position"), position)
   expect_false(identical(player_0$layers[[6]]$data, player_1$layers[[6]]$data))
-  expect_identical(attr(player_0, "backgammon_context")$player_labels, c(player_0 = "Homey", player_1 = "Foey"))
-  expect_identical(attr(player_1, "backgammon_context")$player_labels, c(player_0 = "Homey", player_1 = "Foey"))
+  expect_identical(attr(player_0, "backgammon_context")$player_labels, c(player_0 = "Foey", player_1 = "Homey"))
+  expect_identical(attr(player_1, "backgammon_context")$player_labels, c(player_0 = "Foey", player_1 = "Homey"))
 })
 
 test_that("ordinary render inputs reject deferred compatibility objects", {
@@ -67,6 +67,7 @@ test_that("prepared cube geometry preserves centered, owned, and offered states"
   centered <- backgammonboard:::cube_layout(centered_position, geometry, style)
   expect_identical(centered$state, "centered")
   expect_lt(centered$center$x[[1L]], geometry$frame$xmin[[1L]])
+  expect_equal(centered$center$y[[1L]], style$board_height / 2)
 
   owned_position <- backgammonboard:::as_render_position(
     backgammon_position(fixture_xgid("white_owned_cube"))
@@ -74,6 +75,7 @@ test_that("prepared cube geometry preserves centered, owned, and offered states"
   owned <- backgammonboard:::cube_layout(owned_position, geometry, style)
   expect_identical(owned$state, "owned_white")
   expect_identical(owned$value, 2L)
+  expect_lt(owned$center$y[[1L]], style$board_height / 2)
 
   offer_position <- backgammonboard:::as_render_position(
     backgammon_position(fixture_xgid("offer_to_black"))
@@ -86,4 +88,5 @@ test_that("prepared cube geometry preserves centered, owned, and offered states"
   expect_identical(offered$state, "offered_black")
   expect_identical(offered$value, 4L)
   expect_identical(offered$center$x_mode[[1L]], "inside")
+  expect_equal(offered$center$y[[1L]], style$board_height / 2)
 })

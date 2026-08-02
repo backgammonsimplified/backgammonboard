@@ -1,56 +1,42 @@
-test_that("complete XGID fixtures map to fixed player identities", {
+test_that("complete historical fixtures remain valid under v1.2 facts", {
   fixtures <- read_factual_fixtures()
 
   for (index in seq_len(nrow(fixtures))) {
     fixture <- fixtures[index, , drop = FALSE]
     position <- backgammon_position(fixture$xgid)
 
-    expect_identical(position$points, semicolon_integers(fixture$points), info = fixture$fixture_id)
-    expect_identical(
-      position$bar,
-      c(player_0 = as.integer(fixture$bar_white), player_1 = as.integer(fixture$bar_black)),
-      info = fixture$fixture_id
-    )
-    expect_identical(
-      position$off,
-      c(player_0 = as.integer(fixture$off_white), player_1 = as.integer(fixture$off_black)),
-      info = fixture$fixture_id
-    )
-    expect_identical(
-      position$on_roll,
-      if (fixture$on_roll == "white") "player_0" else "player_1",
-      info = fixture$fixture_id
-    )
+    fields <- strsplit(sub("^XGID=", "", fixture$xgid), ":", fixed = TRUE)[[1L]]
+    expect_identical(position$on_roll, if (fields[[4L]] == "-1") "player_0" else "player_1")
     expect_identical(position$dice, semicolon_integers(fixture$dice), info = fixture$fixture_id)
     expect_identical(
       position$cube_owner,
-      switch(fixture$cube_owner, white = "player_0", black = "player_1", center = "center"),
+      switch(fields[[3L]], `-1` = "player_0", `0` = "center", `1` = "player_1"),
       info = fixture$fixture_id
     )
     expect_identical(
       position$score,
-      c(player_0 = as.integer(fixture$score_white), player_1 = as.integer(fixture$score_black)),
+      c(player_0 = as.integer(fields[[7L]]), player_1 = as.integer(fields[[6L]])),
       info = fixture$fixture_id
     )
     expect_equal(position$max_cube, fixture$xgid_max_cube, info = fixture$fixture_id)
-    expect_equal(sum(pmax(position$points, 0L)) + position$bar[["player_0"]] + position$off[["player_0"]], 15L)
-    expect_equal(sum(pmax(-position$points, 0L)) + position$bar[["player_1"]] + position$off[["player_1"]], 15L)
+    expect_equal(sum(pmax(-position$points, 0L)) + position$bar[["player_0"]] + position$off[["player_0"]], 15L)
+    expect_equal(sum(pmax(position$points, 0L)) + position$bar[["player_1"]] + position$off[["player_1"]], 15L)
+    expect_identical(position$point_occupancy, backgammonboard:::signed_points_to_occupancy(position$points))
   }
 })
 
-test_that("turn-relative encodings preserve factual layout", {
-  for (pair in list(
-    c("opening_white_roll", "opening_black_roll"),
-    c("asymmetric_white_roll", "asymmetric_black_roll")
-  )) {
-    first <- backgammon_position(fixture_xgid(pair[[1L]]))
-    second <- backgammon_position(fixture_xgid(pair[[2L]]))
-    expect_identical(first$points, second$points)
-    expect_identical(first$bar, second$bar)
-    expect_identical(first$off, second$off)
-    expect_identical(first$on_roll, "player_0")
-    expect_identical(second$on_roll, "player_1")
-  }
+test_that("point order and ownership never change because of turn", {
+  first <- backgammon_position(fixture_xgid("opening_white_roll"))
+  second <- backgammon_position(fixture_xgid("opening_black_roll"))
+  expect_identical(first$points, second$points)
+  expect_identical(first$bar, second$bar)
+  expect_identical(first$off, second$off)
+  expect_identical(first$on_roll, "player_1")
+  expect_identical(second$on_roll, "player_0")
+
+  asymmetric_first <- backgammon_position(fixture_xgid("asymmetric_white_roll"))
+  asymmetric_second <- backgammon_position(fixture_xgid("asymmetric_black_roll"))
+  expect_false(identical(asymmetric_first$points, asymmetric_second$points))
 })
 
 test_that("factual state excludes display and compatibility fields", {

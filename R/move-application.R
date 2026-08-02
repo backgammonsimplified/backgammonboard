@@ -443,11 +443,17 @@ validate_after_xgid <- function(applied, after_xgid) {
   same_points <- identical(as.integer(applied$points), as.integer(after$points))
   same_bar <- identical(
     unname(as.integer(applied$bar[c("white", "black")])),
-    unname(as.integer(after$bar[c("player_0", "player_1")]))
+    unname(as.integer(after$bar[c(
+      render_player_to_project_player("white"),
+      render_player_to_project_player("black")
+    )]))
   )
   same_off <- identical(
     unname(as.integer(applied$off[c("white", "black")])),
-    unname(as.integer(after$off[c("player_0", "player_1")]))
+    unname(as.integer(after$off[c(
+      render_player_to_project_player("white"),
+      render_player_to_project_player("black")
+    )]))
   )
   if (!same_points || !same_bar || !same_off) {
     stop(

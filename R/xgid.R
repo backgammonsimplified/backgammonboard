@@ -133,13 +133,19 @@ validate_xgid <- function(x) {
   }
 
   integer_fields <- c(
-    "cube_exponent", "score_white", "score_black", "crawford_jacoby",
+    "cube_exponent", "score_first", "score_second", "crawford_jacoby",
     "match_length", "max_cube_exponent"
   )
   for (field in integer_fields) {
     if (!is_unsigned_integer_text(fields[[field]])) {
+      diagnostic_field <- switch(
+        field,
+        score_first = "score_white",
+        score_second = "score_black",
+        field
+      )
       add_error(
-        paste0("xgid_invalid_", field), "metadata", field,
+        paste0("xgid_invalid_", diagnostic_field), "metadata", field,
         paste0("`", field, "` must be a non-negative integer")
       )
     }
@@ -191,8 +197,8 @@ validate_xgid <- function(x) {
           "Match play requires a Crawford field of 0 or 1"
         )
       }
-      if (parsed$score_white >= parsed$match_length ||
-          parsed$score_black >= parsed$match_length) {
+      if (parsed$score_first >= parsed$match_length ||
+          parsed$score_second >= parsed$match_length) {
         add_error(
           "xgid_invalid_match_score", "factual_state", "score",
           "Both raw match scores must be below the match length"
@@ -243,8 +249,8 @@ validate_xgid <- function(x) {
 
     if (parsed$match_length > 0L && parsed$crawford_jacoby == 1L) {
       away <- parsed$match_length - c(
-        player_0 = parsed$score_white,
-        player_1 = parsed$score_black
+        player_0 = parsed$score_second,
+        player_1 = parsed$score_first
       )
       if (sum(away == 1L) != 1L) {
         add_error(
@@ -255,7 +261,7 @@ validate_xgid <- function(x) {
     }
 
     if (parsed$match_length == 0L &&
-        (parsed$score_white != 0L || parsed$score_black != 0L)) {
+        (parsed$score_first != 0L || parsed$score_second != 0L)) {
       add_warning(
         "xgid_unlimited_score_ignored", "metadata", "score",
         "Unlimited-play score fields are preserved factually but are not displayed as a match score"
@@ -364,7 +370,7 @@ bind_xgid_diagnostics <- function(x) {
 xgid_field_names <- function() {
   c(
     "position", "cube_exponent", "cube_owner", "turn", "dice_action",
-    "score_white", "score_black", "crawford_jacoby", "match_length",
+    "score_first", "score_second", "crawford_jacoby", "match_length",
     "max_cube_exponent"
   )
 }
@@ -382,8 +388,8 @@ parse_validated_xgid_fields <- function(fields) {
     cube_owner_code = as.integer(fields[["cube_owner"]]),
     turn_code = as.integer(fields[["turn"]]),
     dice_action = fields[["dice_action"]],
-    score_white = as.integer(fields[["score_white"]]),
-    score_black = as.integer(fields[["score_black"]]),
+    score_first = as.integer(fields[["score_first"]]),
+    score_second = as.integer(fields[["score_second"]]),
     crawford_jacoby = as.integer(fields[["crawford_jacoby"]]),
     match_length = as.integer(fields[["match_length"]]),
     max_cube_exponent = as.integer(fields[["max_cube_exponent"]])
@@ -392,7 +398,7 @@ parse_validated_xgid_fields <- function(fields) {
 
 canonicalize_xgid_fields <- function(fields) {
   numeric_fields <- c(
-    "cube_exponent", "cube_owner", "turn", "score_white", "score_black",
+    "cube_exponent", "cube_owner", "turn", "score_first", "score_second",
     "crawford_jacoby", "match_length", "max_cube_exponent"
   )
   fields[numeric_fields] <- vapply(
@@ -403,31 +409,23 @@ canonicalize_xgid_fields <- function(fields) {
   paste0("XGID=", paste(fields, collapse = ":"))
 }
 
-decode_xgid_character <- function(entry, turn_code) {
+decode_xgid_character <- function(entry) {
   if (identical(entry, "-")) {
     return(0L)
   }
-
-  if (entry %in% LETTERS[1:16]) {
-    count <- match(entry, LETTERS)
-    return(if (turn_code == 1L) as.integer(count) else -as.integer(count))
-  }
-
-  if (entry %in% letters[1:16]) {
-    count <- match(entry, letters)
-    return(if (turn_code == 1L) -as.integer(count) else as.integer(count))
-  }
-
-  stop("Unsupported XGID checker character.", call. = FALSE)
+  role <- xgid_checker_source_role(entry)
+  player <- xgid_source_role_to_player(role)
+  count <- if (entry %in% LETTERS[1:16]) match(entry, LETTERS) else match(entry, letters)
+  as.integer(count) * project_player_sign(player)
 }
 
-# Decode the turn-relative XGID payload into stable player_0-relative facts.
+# Decode fixed XGID source roles into stable project-player facts.
 #
 # The returned slots are always:
-#   values[1]    = player_1 bar
-#   values[2:25] = player_0-relative points 1:24
-#   values[26]   = player_0 bar
-# Positive counts are player_0 and negative counts are player_1.
+#   values[1]    = player_0 / top bar
+#   values[2:25] = canonical points 1:24 from player_1's source perspective
+#   values[26]   = player_1 / bottom bar
+# Positive counts are player_1 and negative counts are player_0.
 decode_xgid_payload <- function(payload, turn_code = 1L) {
   if (!turn_code %in% c(-1L, 1L)) {
     stop("`turn_code` must be -1 or 1.", call. = FALSE)
@@ -438,27 +436,24 @@ decode_xgid_payload <- function(payload, turn_code = 1L) {
     stop("The XGID position field must contain 26 characters.", call. = FALSE)
   }
 
-  canonical_entries <- if (turn_code == 1L) entries else rev(entries)
   values <- vapply(
-    canonical_entries,
+    entries,
     decode_xgid_character,
-    integer(1),
-    turn_code = turn_code
+    integer(1)
   )
 
   points <- as.integer(values[2:25])
   bar <- c(
-    white = max(values[[26L]], 0L),
-    black = max(-values[[1L]], 0L)
+    player_0 = max(-values[[1L]], 0L),
+    player_1 = max(values[[26L]], 0L)
   )
-
-  names(bar) <- c("player_0", "player_1")
-  player_0_total <- sum(pmax(points, 0L)) + bar[["player_0"]]
-  player_1_total <- sum(pmax(-points, 0L)) + bar[["player_1"]]
+  player_0_total <- sum(pmax(-points, 0L)) + bar[["player_0"]]
+  player_1_total <- sum(pmax(points, 0L)) + bar[["player_1"]]
 
   list(
     values = as.integer(values),
     points = points,
+    point_occupancy = signed_points_to_occupancy(points),
     bar = stats::setNames(as.integer(bar), names(bar)),
     off = c(
       player_0 = 15L - player_0_total,

@@ -113,6 +113,7 @@ empty_dice_layout <- function() {
     faces = data.frame(
       die = integer(),
       value = integer(),
+      player = character(),
       x = numeric(),
       y = numeric(),
       group = integer(),
@@ -121,6 +122,7 @@ empty_dice_layout <- function() {
     pips = data.frame(
       die = integer(),
       value = integer(),
+      player = character(),
       x = numeric(),
       y = numeric(),
       radius = numeric(),
@@ -203,9 +205,13 @@ dice_layout <- function(
     )
   })
 
+  faces <- do.call(rbind, face_rows)
+  pips <- do.call(rbind, pip_rows)
+  faces$player <- position$on_roll
+  pips$player <- position$on_roll
   list(
-    faces = do.call(rbind, face_rows),
-    pips = do.call(rbind, pip_rows)
+    faces = faces[, c("die", "value", "player", "x", "y", "group")],
+    pips = pips[, c("die", "value", "player", "x", "y", "radius")]
   )
 }
 
@@ -216,14 +222,17 @@ add_dice_layers <- function(
     geometry,
     colors,
     style,
-    perspective = "white"
+    perspective = "white",
+    dice = NULL
 ) {
-  dice <- dice_layout(
-    position = position,
-    geometry = geometry,
-    style = style,
-    perspective = perspective
-  )
+  if (is.null(dice)) {
+    dice <- dice_layout(
+      position = position,
+      geometry = geometry,
+      style = style,
+      perspective = perspective
+    )
+  }
 
   if (nrow(dice$faces) == 0L) {
     return(plot)

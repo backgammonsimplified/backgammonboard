@@ -15,26 +15,27 @@ test_that("board_moves constructs ordered structured movements only", {
 
 test_that("player_0 and player_1 movements use mover-relative points", {
   player_0 <- backgammonboard:::as_render_position(
-    backgammon_position(fixture_xgid("opening_white_roll"))
+    backgammon_position(fixture_xgid("opening_black_roll"))
   )
   player_1 <- backgammonboard:::as_render_position(
-    backgammon_position(fixture_xgid("opening_black_roll"))
+    backgammon_position(fixture_xgid("opening_white_roll"))
   )
   moves <- board_moves(c(13, 6), c(8, 5), die = c(5, 1))
 
   result_0 <- backgammonboard:::apply_board_moves(player_0, moves)
   result_1 <- backgammonboard:::apply_board_moves(player_1, moves)
-  expect_equal(result_0$points[[13]], player_0$points[[13]] - 1L)
-  expect_equal(result_0$points[[8]], player_0$points[[8]] + 1L)
-  expect_equal(result_1$points[[12]], player_1$points[[12]] + 1L)
-  expect_equal(result_1$points[[17]], player_1$points[[17]] - 1L)
+  expect_equal(result_0$points[[12]], player_0$points[[12]] + 1L)
+  expect_equal(result_0$points[[17]], player_0$points[[17]] - 1L)
+  expect_equal(result_1$points[[13]], player_1$points[[13]] - 1L)
+  expect_equal(result_1$points[[8]], player_1$points[[8]] + 1L)
   expect_identical(result_0$die_validation_status, "checked")
 })
 
 test_that("application handles bar entry, hits, blocking, and bearing off", {
   hit_position <- custom_position(
-    player_0 = c(`13` = 1L),
-    player_1 = c(`8` = 1L)
+    on_roll = "player_1",
+    player_1 = c(`13` = 1L),
+    player_0 = c(`8` = 1L)
   )
   hit <- backgammonboard:::apply_board_moves(
     backgammonboard:::as_render_position(hit_position),
@@ -43,7 +44,9 @@ test_that("application handles bar entry, hits, blocking, and bearing off", {
   expect_true(hit$applied_steps$hit_confirmed[[1L]])
   expect_equal(hit$bar[["black"]], 1L)
 
-  blocked <- custom_position(player_0 = c(`13` = 1L), player_1 = c(`8` = 2L))
+  blocked <- custom_position(
+    on_roll = "player_1", player_1 = c(`13` = 1L), player_0 = c(`8` = 2L)
+  )
   expect_error(
     backgammonboard:::apply_board_moves(
       backgammonboard:::as_render_position(blocked), board_moves(13, 8)
@@ -51,14 +54,14 @@ test_that("application handles bar entry, hits, blocking, and bearing off", {
     "blocked"
   )
 
-  entry <- custom_position(player_0_bar = 1L)
+  entry <- custom_position(on_roll = "player_1", player_1_bar = 1L)
   entered <- backgammonboard:::apply_board_moves(
     backgammonboard:::as_render_position(entry), board_moves("bar", 24, die = 1)
   )
   expect_equal(entered$bar[["white"]], 0L)
   expect_equal(entered$points[[24]], 1L)
 
-  bearoff <- custom_position(player_0 = c(`2` = 1L))
+  bearoff <- custom_position(on_roll = "player_1", player_1 = c(`2` = 1L))
   borne <- backgammonboard:::apply_board_moves(
     backgammonboard:::as_render_position(bearoff), board_moves(2, "off", die = 2)
   )
@@ -74,8 +77,14 @@ test_that("die distances and after_xgid are checked without replacing before fac
   before <- sub(":00:", ":11:", fixture_xgid("white_bar"), fixed = TRUE)
   moves <- board_moves("bar", 24, die = 1)
   plot <- ggboard(before, moves = moves, after_xgid = fixture_xgid("opening_white_roll"))
-  expect_identical(attr(plot, "backgammon_position")$bar[["player_0"]], 1L)
-  expect_identical(attr(plot, "backgammon_display_position")$bar[["player_0"]], 0L)
+  expect_identical(attr(plot, "backgammon_position")$bar[["player_1"]], 1L)
+  expect_identical(attr(plot, "backgammon_display_position")$bar[["player_1"]], 0L)
+  expect_identical(
+    attr(plot, "backgammon_display_position")$point_occupancy,
+    backgammonboard:::signed_points_to_occupancy(
+      attr(plot, "backgammon_display_position")$points
+    )
+  )
   expect_true(attr(plot, "backgammon_move_validation")$after_xgid_checked)
   expect_error(
     ggboard(before, moves = moves, after_xgid = before),
