@@ -158,16 +158,29 @@ test_that("caller decoration reuses the dice and cube fields while ggboard stays
   expect_identical(tail(source_code$layers, 1L)[[1L]]$aes_params$family, "Source Code Pro BMS 700")
   expect_identical(tail(source_code$layers, 1L)[[1L]]$aes_params$fontface, "plain")
   expect_identical(colors$brand_text, colors$bar_fill)
-  expect_identical(backgammonboard:::resolve_board_brand_side(
-    "auto", attr(neutral, "backgammon_cube_display"), "white"
-  ), "left")
+  expect_identical(attr(neutral, "backgammon_brand_side"), "left")
   offered <- ggboard(
     review_xgids[["offer_player_1"]], decision = "take_pass",
     perspective = "player_0"
   )
-  expect_identical(backgammonboard:::resolve_board_brand_side(
-    "auto", attr(offered, "backgammon_cube_display"), "white"
-  ), "right")
+  expect_identical(attr(offered, "backgammon_brand_side"), "right")
+  offered_by_player_0 <- ggboard(
+    review_xgids[["offer_player_0"]], decision = "take_pass",
+    perspective = "player_0"
+  )
+  expect_identical(attr(offered_by_player_0, "backgammon_brand_side"), "left")
+
+  dice_left <- ggboard(
+    "XGID=-b----E-C---eE---c-e----B-:0:0:-1:31:0:0:0:0:10",
+    decision = "checker_play", perspective = "player_0"
+  )
+  expect_identical(attr(dice_left, "backgammon_brand_side"), "right")
+
+  no_field_object <- ggboard(
+    "XGID=-b----E-C---eE---c-e----B-:0:0:1:00:0:0:0:0:10",
+    decision = "none", perspective = "player_0"
+  )
+  expect_identical(attr(no_field_object, "backgammon_brand_side"), "left")
 })
 
 

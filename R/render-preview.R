@@ -125,8 +125,9 @@ add_off_checkers <- function(plot, off, colors, style) {
 
 resolve_board_brand_side <- function(
     side = c("auto", "left", "right"),
-    cube_display = NULL,
-    perspective = "white"
+    geometry = NULL,
+    dice = NULL,
+    cube = NULL
 ) {
   side <- match.arg(side)
 
@@ -134,11 +135,31 @@ resolve_board_brand_side <- function(
     return(side)
   }
 
-  if (
-    !is.null(cube_display) &&
-    inherits(cube_display, "backgammon_cube_display") &&
-    identical(cube_display$state, "offered")
-  ) "right" else "left"
+  if (is.null(geometry)) {
+    return("left")
+  }
+
+  field_side <- function(x) {
+    x <- x[is.finite(x)]
+    if (length(x) == 0L) return(character())
+    in_left <- any(x >= geometry$left_field$xmin & x <= geometry$left_field$xmax)
+    in_right <- any(x >= geometry$right_field$xmin & x <= geometry$right_field$xmax)
+    if (xor(in_left, in_right)) if (in_left) "left" else "right" else character()
+  }
+
+  occupied <- character()
+  if (!is.null(dice) && nrow(dice$faces) > 0L) {
+    occupied <- c(occupied, field_side(dice$faces$x))
+  }
+  if (!is.null(cube) && isTRUE(cube$visible) && nrow(cube$center) > 0L) {
+    occupied <- c(occupied, field_side(cube$center$x))
+  }
+  occupied <- unique(occupied)
+
+  if (length(occupied) != 1L) {
+    return("left")
+  }
+  if (identical(occupied, "left")) "right" else "left"
 }
 
 
@@ -314,12 +335,6 @@ render_board_preview <- function(
     position = position,
     offer = resolved_offer
   )
-  resolved_brand_side <- resolve_board_brand_side(
-    side = brand_side,
-    cube_display = cube_display,
-    perspective = resolved_perspective
-  )
-
   geometry <- board_geometry(
     style,
     point_1_side = point_1_side,
@@ -369,6 +384,32 @@ render_board_preview <- function(
     perspective = if (is.null(perspective)) NULL else resolved_perspective,
     bottom_home_board_side = bottom_home_board_side,
     point_labels_for = point_labels_for
+  )
+  brand_dice <- dice_layout(
+    position = display_position,
+    geometry = geometry,
+    style = style,
+    perspective = resolved_perspective
+  )
+  brand_cube <- if (isTRUE(show_cube)) {
+    cube_layout(
+      position = display_position,
+      geometry = geometry,
+      style = style,
+      cube_display = cube_display,
+      cube_x_mode = cube_x_mode,
+      centered_y_nudge = style$cube_centered_y_nudge,
+      perspective = resolved_perspective,
+      cube_display_side = cube_display_side
+    )
+  } else {
+    NULL
+  }
+  resolved_brand_side <- resolve_board_brand_side(
+    side = brand_side,
+    geometry = geometry,
+    dice = brand_dice,
+    cube = brand_cube
   )
 
   plot <- ggplot2::ggplot() +

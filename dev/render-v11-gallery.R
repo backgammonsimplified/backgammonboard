@@ -116,7 +116,7 @@ for (index in seq_len(nrow(cases))) {
     player_name_style = "checker"
   )
   brand_text <- "Backgammon\nSimplified"
-  brand_side <- if (identical(case$case_id[[1L]], "22")) "right" else "left"
+  brand_side <- attr(plot, "backgammon_brand_side")
   source_code_example <- case$case_id[[1L]] %in% c("23", "24")
   brand_family <- if (source_code_example) source_code_family else "Source Sans 3"
   brand_fontface <- if (source_code_example) "plain" else "bold"
