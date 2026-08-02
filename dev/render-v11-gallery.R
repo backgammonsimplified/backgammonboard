@@ -12,7 +12,7 @@ dir.create(output, recursive = TRUE, showWarnings = FALSE)
 devtools::load_all(reset = TRUE, quiet = TRUE)
 
 cases <- data.frame(
-  case_id = sprintf("%02d", 1:19),
+  case_id = sprintf("%02d", 1:22),
   slug = c(
     "accepted-opening-learner-right", "opening-learner-left",
     "player0-on-roll-dice", "player1-on-roll-dice", "dice-absent",
@@ -20,7 +20,8 @@ cases <- data.frame(
     "both-players-borne-off", "tall-stacks", "centered-cube",
     "cube-owned-player0", "cube-owned-player1", "money-game",
     "match-score", "crawford", "on-roll-view-invariance",
-    "late-bearoff", "asymmetric-borne-off"
+    "late-bearoff", "asymmetric-borne-off",
+    "bms-homey-on-roll", "pending-offer-player0", "pending-offer-player1"
   ),
   title = c(
     "Opening — player_1 perspective (historical case 01)",
@@ -33,7 +34,9 @@ cases <- data.frame(
     "Centered cube", "Cube owned by player_1 (historical case 12)",
     "Cube owned by player_0 (historical case 13)",
     "Unlimited game", "Match score", "Crawford",
-    "Same factual view as case 03", "Late bearoff", "Asymmetric borne-off"
+    "Same factual view as case 03", "Late bearoff", "Asymmetric borne-off",
+    "BMS review - Homey on roll", "BMS review - player_0 pending offer",
+    "BMS review - player_1 pending offer"
   ),
   xgid = c(
     "XGID=-b----E-C---eE---c-e----B-:0:0:1:00:0:0:0:0:10",
@@ -54,14 +57,18 @@ cases <- data.frame(
     "XGID=-b----E-C---eE---c-e----B-:0:0:1:00:2:6:1:7:10",
     "XGID=-b----E-C---eE---c-e----B-:0:0:-1:31:0:0:0:0:10",
     "XGID=---D---------------a--b-a-:0:0:-1:00:0:0:0:0:8",
-    "XGID=-FDaA--------------a-Acbb-:0:0:1:00:3:0:0:7:10"
+    "XGID=-FDaA--------------a-Acbb-:0:0:1:00:3:0:0:7:10",
+    "XGID=-b----E-C---eE---c-e----B-:0:0:1:52:0:0:0:0:10",
+    "XGID=-b----E-C---eE---c-e----B-:1:1:1:D:0:0:0:0:10",
+    "XGID=-b----E-C---eE---c-e----B-:1:-1:-1:D:0:0:0:0:10"
   ),
   decision = c(
     "none", "none", "checker_play", "checker_play", "none", "none",
     "none", "none", "none", "none", "none", "none", "none", "none",
-    "none", "none", "checker_play", "none", "none"
+    "none", "none", "checker_play", "none", "none", "checker_play",
+    "take_pass", "take_pass"
   ),
-  perspective = rep("player_1", 19L),
+  perspective = c(rep("player_1", 19L), rep("player_0", 3L)),
   stringsAsFactors = FALSE
 )
 

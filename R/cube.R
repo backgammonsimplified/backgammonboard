@@ -126,6 +126,7 @@ cube_center <- function(
   } else {
     NULL
   }
+  offerer <- if (is_offered) other_semantic_player(receiver) else NULL
 
   x <- if (is_offered) {
     if (identical(receiver, perspective)) inside_left_x else inside_right_x
@@ -160,8 +161,12 @@ cube_center <- function(
     } else {
       white_first_checker_y + black_y_nudge
     },
-    offered_white = board_y_center + offered_y_nudge,
-    offered_black = board_y_center + offered_y_nudge
+    offered_white = player_half_center_y(
+      offerer, perspective, geometry
+    ) + offered_y_nudge,
+    offered_black = player_half_center_y(
+      offerer, perspective, geometry
+    ) + offered_y_nudge
   )
 
   data.frame(
