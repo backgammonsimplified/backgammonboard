@@ -38,7 +38,7 @@ cases <- data.frame(
     "Same factual view as case 03", "Late bearoff", "Asymmetric borne-off",
     "BMS review - Homey on roll", "BMS review - player_0 pending offer",
     "BMS review - player_1 pending offer",
-    "Source Code Pro 700 - single line",
+    "Source Code Pro 700 - two lines",
     "Source Code Pro 700 - two lines"
   ),
   xgid = c(
@@ -115,15 +115,7 @@ for (index in seq_len(nrow(cases))) {
     score_format = "both", point_1_side = case$point_1_side[[1L]],
     player_name_style = "checker"
   )
-  brand_text <- switch(
-    case$case_id[[1L]],
-    "01" = "Backgammon\nSimplified",
-    "02" = "Backgammon\nSimplified",
-    "22" = "Backgammon\nSimplified",
-    "23" = "Backgammon Simplified",
-    "24" = "Backgammon\nSimplified",
-    NULL
-  )
+  brand_text <- "Backgammon\nSimplified"
   brand_side <- if (identical(case$case_id[[1L]], "22")) "right" else "left"
   source_code_example <- case$case_id[[1L]] %in% c("23", "24")
   brand_family <- if (source_code_example) source_code_family else "Source Sans 3"
@@ -152,6 +144,9 @@ for (index in seq_len(nrow(cases))) {
   )
 }
 manifest <- do.call(rbind, manifest)
+if (!all(manifest$caller_text == "Backgammon\nSimplified")) {
+  stop("Every gallery case must use the standard two-line brand text.", call. = FALSE)
+}
 utils::write.csv(manifest, file.path(staging, "manifest.csv"), row.names = FALSE, na = "")
 
 cards <- vapply(seq_len(nrow(manifest)), function(index) {
