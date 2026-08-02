@@ -147,9 +147,9 @@ board_information_layout <- function(
   player_hjust <- if (identical(information_side, "right")) 1 else 0
   arrow_hjust <- if (identical(information_side, "right")) 1 else 0
   arrow_direction <- if (identical(information_side, "right")) {
-    "on roll -->"
+    "on roll \u2192"
   } else {
-    "<-- on roll"
+    "\u2190 on roll"
   }
 
   pips <- c(

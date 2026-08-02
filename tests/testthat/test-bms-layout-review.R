@@ -59,8 +59,8 @@ test_that("information wording, side, arrows, and name palettes follow BMS revie
   expect_identical(right$top$secondary, "2 points to 7 \u00b7 5-away")
   expect_match(right$bottom$pip_label, "^Pip count: [0-9]+$")
   expect_false(grepl("Homey|Foey", right$bottom$pip_label))
-  expect_identical(right$bottom$on_roll_arrow, "on roll -->")
-  expect_identical(left$bottom$on_roll_arrow, "<-- on roll")
+  expect_identical(right$bottom$on_roll_arrow, "on roll \u2192")
+  expect_identical(left$bottom$on_roll_arrow, "\u2190 on roll")
   expect_gt(right$bottom$player_x, geometry$canvas$xmax / 2)
   expect_lt(left$bottom$player_x, geometry$canvas$xmax / 2)
   expect_identical(light, list(
