@@ -1,219 +1,168 @@
 #' Render a factual backgammon board from a complete XGID
 #'
-#' `ggboard()` is the public rendering entry point. It validates and constructs
-#' a factual position, resolves any factual pending cube offer and optional
-#' instructional context, applies one semantic perspective, and returns an
-#' ordinary `ggplot` object.
+#' `ggboard()` resolves one conservative display context, applies one
+#' perspective, and returns an ordinary static `ggplot`.
 #'
-#' @param x A complete XGID string or a `backgammon_position`.
+#' @param x A complete XGID string or a factual `backgammon_position`.
 #' @param colors A validated object created by [board_colors()].
 #' @param style A validated object created by [board_style()].
+#' @param moves Optional structured movements created by [board_moves()].
+#' @param after_xgid Optional complete XGID used only to validate the applied
+#'   checker layout. It does not replace the displayed before-position.
 #' @param decision One of `"auto"`, `"checker_play"`, `"roll_double"`,
-#'   `"take_pass"`, or `"none"`. `"auto"` never infers a cube question.
-#' @param perspective One of `"decision_maker"`, `"on_roll"`, `"white"`, or
-#'   `"black"`. RendererPosition input is fixed to its learner perspective;
-#'   an explicit value that would rotate the opponent to the bottom is rejected.
+#'   `"take_pass"`, or `"none"`.
+#' @param perspective One of `"decision_maker"`, `"on_roll"`, `"player_0"`,
+#'   or `"player_1"`.
+#' @param player_labels Display labels named `player_0` and `player_1`.
 #' @param score_format Match score display format: `"away"`, `"raw"`, or
 #'   `"both"`.
-#' @param show_information Whether to draw score, pip, and status information.
-#' @param brand_text Optional static brand text. The neutral default is `NULL`.
-#' @param moves Optional selected checker-play notation or an object created by
-#'   [board_moves()].
-#' @param alternative_moves Optional alternative checker-play notation or an
-#'   object created by [board_moves()]. Alternatives use dashed structural
-#'   styling.
 #'
 #' @return An ordinary object inheriting from `ggplot`.
 #' @export
 ggboard <- function(
     x,
-    colors = board_colors("default"),
-    style = board_style("default"),
-    decision = c("auto", "checker_play", "roll_double", "take_pass", "none"),
-    perspective = c("decision_maker", "on_roll", "white", "black"),
-    score_format = c("away", "raw", "both"),
-    show_information = TRUE,
-    brand_text = NULL,
+    colors = board_colors(),
+    style = board_style(),
     moves = NULL,
-    alternative_moves = NULL
-) {
-  perspective_was_missing <- missing(perspective)
-  decision <- match.arg(decision)
-  perspective <- match.arg(perspective)
-  score_format <- match.arg(score_format)
-
-  position <- if (inherits(x, "backgammon_position")) {
-    x
-  } else {
-    backgammon_position(x)
+    after_xgid = NULL,
+    decision = "auto",
+    perspective = "decision_maker",
+    player_labels = c(player_0 = "Homey", player_1 = "Foey"),
+    score_format = "away") {
+  if (inherits(x, "backgammon_render_position")) {
+    stop("Internal render positions are not supported release inputs.", call. = FALSE)
   }
-  renderer_view <- if (inherits(position, "backgammon_renderer_position")) {
-    position$renderer_view
-  } else {
-    NULL
+  position <- if (inherits(x, "backgammon_position")) x else backgammon_position(x)
+  selected_moves <- normalize_move_overlay_input(moves, "moves")
+  if (!is.null(after_xgid) && is.null(selected_moves)) {
+    stop("`after_xgid` requires `moves` [after_xgid_without_moves]", call. = FALSE)
   }
 
-  resolved_decision <- if (identical(decision, "auto")) {
-    if (length(position$dice) == 2L) "checker_play" else "none"
-  } else {
-    decision
-  }
+  display <- resolve_display_context(
+    position = position,
+    moves = selected_moves,
+    decision = decision,
+    perspective = perspective,
+    player_labels = player_labels,
+    score_format = score_format
+  )
+  render_position <- as_render_position(position, display$player_labels)
+  render_perspective <- to_render_player(display$perspective)
 
-  pending_offer <- pending_offer_from_position(position)
-  context <- board_context("none")
+  if (!isTRUE(display$show_dice)) render_position$dice <- integer()
+  render_context <- board_context("none")
   cube_offer <- NULL
-
-  if (identical(resolved_decision, "checker_play")) {
-    if (!is.null(pending_offer)) {
-      stop(
-        "A checker-play context cannot be combined with a pending cube offer [offer_already_pending]",
-        call. = FALSE
-      )
-    }
-  } else if (identical(resolved_decision, "roll_double")) {
-    context <- if (is.null(pending_offer)) {
-      board_context("cube_offer")
-    } else {
-      board_context("cube_offer", offer = pending_offer)
-    }
-  } else if (identical(resolved_decision, "take_pass")) {
-    response_offer <- if (is.null(pending_offer)) {
-      proposed_cube_offer(position)
-    } else {
-      pending_offer
-    }
-    context <- board_context("cube_response", offer = response_offer)
-  } else if (!is.null(pending_offer)) {
-    cube_offer <- pending_offer
+  if (identical(display$decision, "roll_double")) {
+    render_context <- board_context("cube_offer")
+  } else if (identical(display$decision, "take_pass")) {
+    cube_offer <- pending_offer_from_position(render_position)
+    render_context <- board_context("cube_response", offer = cube_offer)
   }
 
-  resolved_perspective <- if (
-    !is.null(renderer_view) &&
-    isTRUE(perspective_was_missing)
-  ) {
-    renderer_slot_to_player(renderer_view$bottom_player)
-  } else {
-    switch(
-      perspective,
-      white = "white",
-      black = "black",
-      on_roll = position$on_roll,
-      decision_maker = if (identical(resolved_decision, "take_pass")) {
-        context$offer$receiver
-      } else {
-        position$on_roll
-      }
-    )
-  }
-  resolved_perspective <- normalize_board_perspective(resolved_perspective)
-  if (
-    !is.null(renderer_view) &&
-    !identical(resolved_perspective, position$learner_player)
-  ) {
-    stop(
-      paste0(
-        "Initial learner-view policy requires `",
-        position$learner_slot,
-        "` to remain at the bottom; `perspective` must not rotate the board."
-      ),
-      call. = FALSE
-    )
-  }
-
-  bottom_home_board_side <- if (is.null(renderer_view)) {
+  applied <- if (is.null(selected_moves)) {
     NULL
   } else {
-    renderer_view$bottom_home_board_side
+    apply_board_moves(render_position, selected_moves)
   }
-  point_labels_for <- if (is.null(renderer_view)) {
-    NULL
-  } else {
-    renderer_slot_to_player(renderer_view$point_labels_for)
-  }
-  cube_display_side <- if (is.null(renderer_view)) {
-    "left"
-  } else if (renderer_view$cube_display_side %in% c("left", "right")) {
-    renderer_view$cube_display_side
-  } else {
-    stop(
-      paste0(
-        "Accepted view cube_display_side `",
-        renderer_view$cube_display_side,
-        "` has no current W7 placement; supported values are `left` and `right`."
-      ),
-      call. = FALSE
-    )
-  }
-  player_labels <- if (
-    !is.null(position$player_labels) &&
-    length(position$player_labels) == 2L
-  ) {
-    position$player_labels
-  } else {
-    c(white = "White", black = "Black")
-  }
+  if (!is.null(after_xgid)) validate_after_xgid(applied, after_xgid)
 
   plot <- render_board_preview(
-    x = position,
+    x = render_position,
     colors = colors,
     style = style,
-    perspective = resolved_perspective,
-    bottom_home_board_side = bottom_home_board_side,
-    point_labels_for = point_labels_for,
-    brand_text = brand_text,
-    show_cube = TRUE,
-    cube_display_side = cube_display_side,
-    cube_offer = cube_offer,
-    show_information = show_information,
-    white_name = unname(player_labels[["white"]]),
-    black_name = unname(player_labels[["black"]]),
-    context = context,
-    score_format = score_format,
-    moves = moves,
-    alternative_moves = alternative_moves
+    perspective = render_perspective,
+    point_labels_for = render_perspective,
+    brand_text = NULL,
+    show_cube = isTRUE(display$show_normal_cube) || isTRUE(display$show_offered_cube),
+    cube_offer = NULL,
+    show_information = TRUE,
+    white_name = unname(display$player_labels[["player_0"]]),
+    black_name = unname(display$player_labels[["player_1"]]),
+    context = render_context,
+    score_format = display$score_format,
+    moves = selected_moves,
+    alternative_moves = NULL
   )
-  status_text <- position_status_label(position, context = context)
-  accessible_text <- if (grepl("on roll", status_text, fixed = TRUE)) {
-    status_text
-  } else {
-    paste0(
-      position_player_label(position, position$on_roll),
-      " on roll. ",
-      status_text
-    )
-  }
-  plot <- plot + ggplot2::labs(alt = accessible_text)
 
-  displayed_offer <- if (!is.null(cube_offer)) cube_offer else context$offer
-  cube_display <- resolve_cube_display(position, offer = displayed_offer)
+  accessible_text <- display_status_text(position, display)
+  plot <- plot + ggplot2::labs(alt = accessible_text)
+  public_display_position <- position_after_application(position, applied)
+  rendered_cube <- resolve_cube_display(
+    render_position,
+    offer = if (identical(display$decision, "take_pass")) cube_offer else NULL
+  )
 
   attr(plot, "backgammon_position") <- position
-  attr(plot, "backgammon_context") <- context
-  attr(plot, "backgammon_decision") <- resolved_decision
-  attr(plot, "backgammon_perspective") <- resolved_perspective
-  attr(plot, "backgammon_cube_display") <- cube_display
+  attr(plot, "backgammon_display_position") <- public_display_position
+  attr(plot, "backgammon_context") <- display
+  attr(plot, "backgammon_decision") <- display$decision
+  attr(plot, "backgammon_perspective") <- display$perspective
   attr(plot, "backgammon_accessible_text") <- accessible_text
-  if (!is.null(renderer_view)) {
-    attr(plot, "backgammon_renderer_view") <- renderer_view
-    attr(plot, "backgammon_semantic_state_hash") <-
-      position$renderer_semantic_state_hash
-    attr(plot, "backgammon_view_hash") <- position$renderer_view_hash
-  }
+  attr(plot, "backgammon_cube_display") <- public_cube_display(rendered_cube)
+  attr(plot, "backgammon_move_validation") <- if (is.null(applied)) NULL else list(
+    die_validation_status = applied$die_validation_status,
+    full_play_validation_status = applied$full_play_validation_status,
+    after_xgid_checked = !is.null(after_xgid)
+  )
   plot
 }
 
+
+public_cube_display <- function(display) {
+  map_player <- function(value) {
+    if (is.null(value)) return(NULL)
+    switch(value, white = "player_0", black = "player_1", value)
+  }
+  display$owner <- map_player(display$owner)
+  display$offerer <- map_player(display$offerer)
+  display$receiver <- map_player(display$receiver)
+  display$placement <- switch(
+    display$placement,
+    white_side = "player_0_side",
+    black_side = "player_1_side",
+    offered_to_white = "offered_to_player_0",
+    offered_to_black = "offered_to_player_1",
+    display$placement
+  )
+  display
+}
+
+
+position_after_application <- function(position, applied) {
+  if (is.null(applied)) return(position)
+  result <- position
+  result$points <- as.integer(applied$points)
+  result$bar <- c(
+    player_0 = unname(applied$bar[["white"]]),
+    player_1 = unname(applied$bar[["black"]])
+  )
+  result$off <- c(
+    player_0 = unname(applied$off[["white"]]),
+    player_1 = unname(applied$off[["black"]])
+  )
+  result
+}
+
+
+display_status_text <- function(position, display) {
+  label <- function(player) unname(display$player_labels[[player]])
+  switch(
+    display$decision,
+    checker_play = if (length(position$dice) == 2L) {
+      paste0(label(position$on_roll), " on roll, to play: ", paste(position$dice, collapse = "-"))
+    } else {
+      paste0(label(position$on_roll), " on roll")
+    },
+    roll_double = paste0(label(position$on_roll), " to decide: Roll or Double?"),
+    take_pass = paste0(label(other_player(position$on_roll)), " to decide: Take or Pass?"),
+    none = paste0(label(position$on_roll), " on roll")
+  )
+}
+
+
 pending_offer_from_position <- function(position) {
   assert_backgammon_position(position)
-
-  marker <- if (!is.null(position$action_marker)) {
-    position$action_marker
-  } else {
-    position$dice_action
-  }
-
-  if (!identical(marker, "D")) {
-    return(NULL)
-  }
-
+  marker <- if (!is.null(position$action_marker)) position$action_marker else position$dice_action
+  if (!identical(marker, "D")) return(NULL)
   proposed_cube_offer(position)
 }

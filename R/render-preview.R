@@ -310,17 +310,6 @@ render_board_preview <- function(
     stop("Supply a cube offer through `cube_offer` or `context`, not both.", call. = FALSE)
   }
 
-  if (!identical(context$decision, "none")) {
-    context_validation <- validate_board_context(
-      position = position,
-      context = context
-    )
-
-    if (!isTRUE(context_validation$valid)) {
-      stop_for_board_context_validation(context_validation)
-    }
-  }
-
   resolved_offer <- if (!is.null(cube_offer)) cube_offer else context$offer
   cube_display <- resolve_cube_display(
     position = position,

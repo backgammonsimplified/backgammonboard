@@ -3,16 +3,6 @@ normalize_move_overlay_input <- function(x, argument = "moves") {
     return(NULL)
   }
 
-  if (is.character(x)) {
-    if (length(x) != 1L || is.na(x)) {
-      stop(
-        paste0("`", argument, "` must be one move-notation string."),
-        call. = FALSE
-      )
-    }
-    return(board_moves(x))
-  }
-
   if (inherits(x, "backgammon_board_moves")) {
     validate_board_moves(x)
     return(x)
@@ -21,7 +11,7 @@ normalize_move_overlay_input <- function(x, argument = "moves") {
   stop(
     paste0(
       "`", argument,
-      "` must be NULL, a move-notation string, or a backgammon_board_moves object."
+      "` must be NULL or an object created by `board_moves()`."
     ),
     call. = FALSE
   )
@@ -36,12 +26,13 @@ move_overlay_role <- function(role) {
 move_overlay_one_step <- function(step) {
   one <- step[, move_step_columns(), drop = FALSE]
   one$step_id <- 1L
-  one$chain_id <- 1L
   rownames(one) <- NULL
 
   structure(
     one,
-    notation = one$source_token[[1L]],
+    die = NA_integer_,
+    label = NA_character_,
+    mover_relative = FALSE,
     class = c("backgammon_board_moves", "data.frame")
   )
 }
@@ -305,8 +296,12 @@ move_overlay_geometry <- function(
 
     rows[[index]] <- data.frame(
       step_id = step$step_id[[1L]],
-      chain_id = step$chain_id[[1L]],
-      source_token = step$source_token[[1L]],
+      chain_id = step$step_id[[1L]],
+      source_token = paste0(
+        format_applied_location(step$from_type[[1L]], step$from_point[[1L]]),
+        "/",
+        format_applied_location(step$to_type[[1L]], step$to_point[[1L]])
+      ),
       # Preserve untrimmed semantic anchors for review and testing; rendered
       # endpoints are then inset so arrowheads do not cover checkers.
       source_x = unname(from[["x"]]),
@@ -369,7 +364,7 @@ move_overlay_geometry <- function(
   structure(
     list(
       role = role,
-      notation = attr(moves, "notation"),
+      movements = moves,
       applied_moves = applied,
       segments = segments,
       ghosts = ghosts,

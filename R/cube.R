@@ -25,118 +25,6 @@ cube_visual_state <- function(cube_display) {
 }
 
 
-# Legacy visual override used only by development preview scripts.
-legacy_cube_display <- function(position, cube_state, cube_value = NULL) {
-  valid_states <- c(
-    "centered",
-    "owned_white",
-    "owned_black",
-    "offered_white",
-    "offered_black"
-  )
-
-  if (
-    !is.character(cube_state) ||
-    length(cube_state) != 1L ||
-    is.na(cube_state) ||
-    !cube_state %in% valid_states
-  ) {
-    stop(
-      paste0(
-        "`cube_state` must be one of: ",
-        paste(valid_states, collapse = ", ")
-      ),
-      call. = FALSE
-    )
-  }
-
-  value <- resolve_cube_value(position, cube_state, cube_value)
-
-  switch(
-    cube_state,
-    centered = new_cube_display(
-      TRUE, "centered", 1L, placement = "outside_center"
-    ),
-    owned_white = new_cube_display(
-      TRUE, "owned", value, owner = "white", placement = "white_side"
-    ),
-    owned_black = new_cube_display(
-      TRUE, "owned", value, owner = "black", placement = "black_side"
-    ),
-    offered_white = new_cube_display(
-      TRUE,
-      "offered",
-      value,
-      owner = if (identical(position$cube_owner, "center")) NULL else position$cube_owner,
-      offerer = "black",
-      receiver = "white",
-      placement = "offered_to_white"
-    ),
-    offered_black = new_cube_display(
-      TRUE,
-      "offered",
-      value,
-      owner = if (identical(position$cube_owner, "center")) NULL else position$cube_owner,
-      offerer = "white",
-      receiver = "black",
-      placement = "offered_to_black"
-    )
-  )
-}
-
-
-resolve_cube_state <- function(position, cube_state = NULL) {
-  assert_backgammon_position(position)
-
-  if (!is.null(cube_state)) {
-    return(cube_visual_state(
-      legacy_cube_display(position, cube_state, cube_value = NULL)
-    ))
-  }
-
-  cube_visual_state(resolve_cube_display(position))
-}
-
-
-resolve_cube_value <- function(position, cube_state, cube_value = NULL) {
-  assert_backgammon_position(position)
-
-  if (identical(cube_state, "centered")) {
-    return(1L)
-  }
-
-  if (identical(cube_state, "hidden")) {
-    return(NA_integer_)
-  }
-
-  value <- if (is.null(cube_value)) {
-    position$cube_value
-  } else {
-    cube_value
-  }
-
-  valid_values <- c(2L, 4L, 8L, 16L, 32L, 64L)
-
-  if (
-    !is.numeric(value) ||
-    length(value) != 1L ||
-    is.na(value) ||
-    value != as.integer(value) ||
-    !as.integer(value) %in% valid_values
-  ) {
-    stop(
-      paste0(
-        "Owned and offered cubes must show one of: ",
-        paste(valid_values, collapse = ", ")
-      ),
-      call. = FALSE
-    )
-  }
-
-  as.integer(value)
-}
-
-
 cube_face_polygon <- function(
     center_x,
     center_y,
@@ -290,9 +178,7 @@ cube_layout <- function(
     geometry,
     style,
     cube_display = NULL,
-    cube_state = NULL,
     cube_x_mode = c("outside", "inside"),
-    cube_value = NULL,
     number_x_nudge = 0,
     number_y_nudge = 0,
     cube_x_nudge = 0,
@@ -307,17 +193,11 @@ cube_layout <- function(
   cube_x_mode <- match.arg(cube_x_mode)
   cube_display_side <- match.arg(cube_display_side)
 
-  if (!is.null(cube_display) && !is.null(cube_state)) {
-    stop("Supply `cube_display` or the development `cube_state`, not both.", call. = FALSE)
-  }
-
   display <- if (!is.null(cube_display)) {
     if (!inherits(cube_display, "backgammon_cube_display")) {
       stop("`cube_display` must be created by resolve_cube_display().", call. = FALSE)
     }
     cube_display
-  } else if (!is.null(cube_state)) {
-    legacy_cube_display(position, cube_state, cube_value)
   } else {
     resolve_cube_display(position)
   }
@@ -339,11 +219,7 @@ cube_layout <- function(
     ))
   }
 
-  value <- if (!is.null(cube_state)) {
-    resolve_cube_value(position, state, cube_value)
-  } else {
-    as.integer(display$value)
-  }
+  value <- as.integer(display$value)
 
   center <- cube_center(
     state = state,
@@ -421,9 +297,7 @@ add_cube_layers <- function(
     colors,
     style,
     cube_display = NULL,
-    cube_state = NULL,
     cube_x_mode = c("outside", "inside"),
-    cube_value = NULL,
     show_crosshair = FALSE,
     number_x_nudge = 0,
     number_y_nudge = 0,
@@ -443,9 +317,7 @@ add_cube_layers <- function(
     geometry = geometry,
     style = style,
     cube_display = cube_display,
-    cube_state = cube_state,
     cube_x_mode = cube_x_mode,
-    cube_value = cube_value,
     number_x_nudge = number_x_nudge,
     number_y_nudge = number_y_nudge,
     cube_x_nudge = cube_x_nudge,

@@ -1,68 +1,35 @@
 # Implementation status
 
-Contract version: 1.0
+Contract version: 1.1
 Package version: 0.1.0
 
-## Completed in the XGID render integration checkpoint
+## Current release path
 
-1. strict complete-XGID normalization and structured validation;
-2. turn-relative payload decoding into stable White-relative facts;
-3. factual `backgammon_position()` with `is_crawford`, `action_marker`, and
-   separate XGID maximum-cube metadata;
-4. package-supported factual cube limit of 64;
-5. centered, owned, hidden, and receiver-aware offered cube states;
-6. explicit versus neutral status context;
-7. semantic White and Black perspective across points, checkers, bars, off
-   markers, dice, cubes, and information rows;
-8. public `ggboard(xgid)` returning an ordinary `ggplot`;
-9. static differential XGID fixtures and end-to-end tests;
-10. deterministic 17-image factual visual-review script.
+- complete-XGID normalization and structured diagnostics;
+- fixed `player_0` and `player_1` factual state;
+- conservative display-context resolution and Section 11 precedence;
+- one resolved perspective shared by the visual layer;
+- factual dice, cube, score, Crawford, bar, and borne-off rendering;
+- ordered structured movements with deterministic application;
+- limited supplied-die checking and optional checker-layout `after_xgid` proof;
+- static `ggplot` output and neutral/BMS presets.
 
-## RendererPosition integration
+## Deferred outside v1.1
 
-The additive `renderer_position()` adapter accepts the Engine Kit
-`RendererPosition` JSON envelope as a parsed object, JSON text, or JSON file.
-It maps Universal Position facts into the existing `backgammon_position`
-model, preserves Engine Kit semantic/view hashes for diagnostics, and applies
-Backgammon View v1 only during rendering.
+GNU Position/Match ID, GNU move notation, Engine Kit, Node, AnkiGammon,
+RendererPosition, analysis, complete legal-play generation, post-Crawford XGID
+inference, and beaver/raccoon visual acceptance.
 
-The exact field and orientation mapping is recorded in
-`inst/contracts/RENDERER_POSITION_MAPPING_v1.md`.
+Historical contracts remain under `inst/contracts/` for provenance. They are
+not current API authority unless the contract index marks them current.
 
-RendererPosition rendering enforces the initial learner-view policy: learner
-bottom, opponent top, learner-relative point labels, independent home-side
-mirroring, canonical on-roll dice and cube ownership, an orange on-roll arrow,
-and explicit visible/accessible on-roll text. Themes remain appearance-only.
-
-## Deferred
-
-```text
-board_moves()
-move parsing
-move application
-after_xgid validation
-move overlays
-Shiny migration
-website integration
-familiar board-style gallery
-user-created and saved themes
-hex colour selectors
-```
-
-## Review gate
-
-Run:
+## Verification
 
 ```r
 devtools::test()
-source("dev/xgid-render-fixtures.R")
-devtools::check()
+devtools::check(args = "--no-manual")
 ```
-
-Review the generated images under:
 
 ```text
-dev/preview-output/xgid-render-fixtures/
+Rscript dev/render-v11-gallery.R <staging-directory> <output-directory>
 ```
-
-Do not release while any factual render is false or misleading.

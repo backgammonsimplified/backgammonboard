@@ -2,37 +2,25 @@
 % Please edit documentation in R/moves.R
 \name{board_moves}
 \alias{board_moves}
-\title{Parse backgammon checker-move notation}
+\title{Construct ordered checker movements}
 \usage{
-board_moves(notation)
+board_moves(from, to, die = NULL, label = NULL)
 }
 \arguments{
-\item{notation}{A length-one character value such as \code{"13/8 6/5"},
-\code{"24/18/13"}, \code{"bar/24"}, or \code{"13/8(2)"}.}
+\item{from}{Source locations: points 1 through 24 or \code{"bar"}.}
+
+\item{to}{Destination locations: points 1 through 24 or \code{"off"}.}
+
+\item{die}{Optional die used by each atomic movement. Supply integers 1
+through 6 or \code{NA} for a row that should not receive limited die checking.}
+
+\item{label}{Optional non-empty display labels, one per movement.}
 }
 \value{
-A data frame inheriting from \code{backgammon_board_moves}, with one row
-per atomic movement and the columns \code{step_id}, \code{chain_id},
-\code{source_token}, \code{from_type}, \code{from_point}, \code{to_type}, \code{to_point},
-\code{hit_marked}, and \code{repeat_group}.
+A data frame inheriting from \code{backgammon_board_moves}.
 }
 \description{
-\code{board_moves()} parses one selected checker play into ordered atomic
-movements. It preserves compound chains, repetition groups, source tokens,
-and explicit hit markers without applying the moves or claiming that the
-play is legal in a particular position.
-}
-\details{
-Supported notation includes ordinary point moves, compound moves, bar
-entry, bearing off, hit markers, and repetition suffixes. Move groups may be
-separated by whitespace or commas.
-}
-\examples{
-board_moves("13/8 6/5")
-board_moves("24/18/13")
-board_moves("bar/24")
-board_moves("6/off")
-board_moves("13/8(2)")
-board_moves("13/8*")
-
+\code{board_moves()} constructs structured, ordered atomic movements. It does not
+parse GNU or other source notation. Point numbers are relative to the mover:
+\code{1} is that player's 1-point and \code{24} is that player's 24-point.
 }

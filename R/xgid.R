@@ -233,7 +233,7 @@ validate_xgid <- function(x) {
         "The XGID bar slots contain checkers for the wrong semantic player"
       )
     }
-    if (payload_state$white_total > 15L || payload_state$black_total > 15L ||
+    if (payload_state$player_0_total > 15L || payload_state$player_1_total > 15L ||
         any(payload_state$off < 0L)) {
       add_error(
         "xgid_impossible_checker_total", "factual_state", "position",
@@ -243,8 +243,8 @@ validate_xgid <- function(x) {
 
     if (parsed$match_length > 0L && parsed$crawford_jacoby == 1L) {
       away <- parsed$match_length - c(
-        white = parsed$score_white,
-        black = parsed$score_black
+        player_0 = parsed$score_white,
+        player_1 = parsed$score_black
       )
       if (sum(away == 1L) != 1L) {
         add_error(
@@ -421,13 +421,13 @@ decode_xgid_character <- function(entry, turn_code) {
   stop("Unsupported XGID checker character.", call. = FALSE)
 }
 
-# Decode the turn-relative XGID payload into stable White-relative facts.
+# Decode the turn-relative XGID payload into stable player_0-relative facts.
 #
 # The returned slots are always:
-#   values[1]  = Black bar
-#   values[2:25] = White-relative points 1:24
-#   values[26] = White bar
-# Positive counts are White and negative counts are Black.
+#   values[1]    = player_1 bar
+#   values[2:25] = player_0-relative points 1:24
+#   values[26]   = player_0 bar
+# Positive counts are player_0 and negative counts are player_1.
 decode_xgid_payload <- function(payload, turn_code = 1L) {
   if (!turn_code %in% c(-1L, 1L)) {
     stop("`turn_code` must be -1 or 1.", call. = FALSE)
@@ -452,19 +452,20 @@ decode_xgid_payload <- function(payload, turn_code = 1L) {
     black = max(-values[[1L]], 0L)
   )
 
-  white_total <- sum(pmax(points, 0L)) + bar[["white"]]
-  black_total <- sum(pmax(-points, 0L)) + bar[["black"]]
+  names(bar) <- c("player_0", "player_1")
+  player_0_total <- sum(pmax(points, 0L)) + bar[["player_0"]]
+  player_1_total <- sum(pmax(-points, 0L)) + bar[["player_1"]]
 
   list(
     values = as.integer(values),
     points = points,
     bar = stats::setNames(as.integer(bar), names(bar)),
     off = c(
-      white = 15L - white_total,
-      black = 15L - black_total
+      player_0 = 15L - player_0_total,
+      player_1 = 15L - player_1_total
     ),
-    white_total = as.integer(white_total),
-    black_total = as.integer(black_total),
+    player_0_total = as.integer(player_0_total),
+    player_1_total = as.integer(player_1_total),
     bar_valid = values[[1L]] <= 0L && values[[26L]] >= 0L
   )
 }

@@ -13,9 +13,7 @@ backgammon_position(x)
 An object of class \code{backgammon_position}.
 }
 \description{
-\code{backgammon_position()} converts a supported complete XGID into a factual
-position object. White and Black are stable semantic identities; display
-perspective is deliberately absent from this object. The object preserves the
-raw action marker and XGID maximum-cube metadata separately from the package's
-supported factual cube limit.
+\code{backgammon_position()} converts one complete XGID into factual state. The
+fixed identities are \code{player_0} (the XGID bottom player) and \code{player_1} (the
+XGID top player); labels and screen placement are display context, not facts.
 }

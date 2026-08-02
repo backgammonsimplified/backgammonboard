@@ -15,6 +15,11 @@ apply_board_moves <- function(position, moves) {
   validate_board_moves(moves)
 
   player <- position[["on_roll"]]
+  supplied_die <- attr(moves, "die")
+  if (isTRUE(attr(moves, "mover_relative"))) {
+    validate_move_die_distances(moves, supplied_die)
+    moves <- moves_for_render_player(moves, player)
+  }
   opponent <- if (identical(player, "white")) "black" else "white"
   player_sign <- if (identical(player, "white")) 1L else -1L
 
@@ -36,19 +41,8 @@ apply_board_moves <- function(position, moves) {
     applied_steps[["from_type"]] == "bar"
   applied_steps[["borne_off"]] <- applied_steps[["to_type"]] == "off"
 
-  chain_destination <- list()
-
   for (row_index in seq_len(nrow(applied_steps))) {
     step <- applied_steps[row_index, , drop = FALSE]
-    step_id <- step[["step_id"]][[1L]]
-    chain_id <- step[["chain_id"]][[1L]]
-    chain_key <- as.character(chain_id)
-
-    validate_move_chain_continuity(
-      step = step,
-      previous_destination = chain_destination[[chain_key]]
-    )
-
     validate_move_step_structure(
       step = step,
       player = player,
@@ -90,18 +84,6 @@ apply_board_moves <- function(position, moves) {
 
       hit_confirmed <- opposing_count == 1L
 
-      if (isTRUE(step[["hit_marked"]][[1L]]) && !hit_confirmed) {
-        stop_move_application_step_error(
-          step,
-          paste0(
-            "the notation marks a hit on point ", to_point,
-            ", but no opposing blot is present"
-          ),
-          subclass = "backgammon_move_marked_hit_not_confirmed",
-          player = player
-        )
-      }
-
       if (hit_confirmed) {
         points[[to_point]] <- 0L
         bar[[opponent]] <- bar[[opponent]] + 1L
@@ -112,10 +94,6 @@ apply_board_moves <- function(position, moves) {
       points[[to_point]] <- points[[to_point]] + player_sign
     }
 
-    chain_destination[[chain_key]] <- move_location_key(
-      step[["to_type"]][[1L]],
-      step[["to_point"]][[1L]]
-    )
   }
 
   validate_resulting_checker_state(points, bar, off)
@@ -136,11 +114,51 @@ apply_board_moves <- function(position, moves) {
       bar = checker_state$bar,
       off = checker_state$off,
       checker_state = checker_state,
-      die_validation_status = "not_checked",
+      die_validation_status = if (any(!is.na(supplied_die))) "checked" else "not_checked",
       full_play_validation_status = "not_performed"
     ),
     class = "backgammon_applied_moves"
   )
+}
+
+
+moves_for_render_player <- function(moves, player) {
+  transformed <- moves
+  if (identical(player, "black")) {
+    from_points <- transformed$from_type == "point"
+    to_points <- transformed$to_type == "point"
+    transformed$from_point[from_points] <- 25L - transformed$from_point[from_points]
+    transformed$to_point[to_points] <- 25L - transformed$to_point[to_points]
+  }
+  attr(transformed, "die") <- attr(moves, "die")
+  attr(transformed, "label") <- attr(moves, "label")
+  attr(transformed, "mover_relative") <- FALSE
+  transformed
+}
+
+
+validate_move_die_distances <- function(moves, die) {
+  checked <- which(!is.na(die))
+  for (index in checked) {
+    distance <- if (identical(moves$from_type[[index]], "bar")) {
+      25L - moves$to_point[[index]]
+    } else if (identical(moves$to_type[[index]], "off")) {
+      moves$from_point[[index]]
+    } else {
+      moves$from_point[[index]] - moves$to_point[[index]]
+    }
+    if (!identical(as.integer(distance), die[[index]])) {
+      stop_move_application_error(
+        paste0(
+          "Movement ", index, " has distance ", distance,
+          " but specifies die ", die[[index]], " [die_distance_mismatch]"
+        ),
+        subclass = "backgammon_move_die_mismatch",
+        step_id = index
+      )
+    }
+  }
+  invisible(moves)
 }
 
 
@@ -195,33 +213,6 @@ validate_move_application_position <- function(position) {
   )
 
   invisible(position)
-}
-
-
-validate_move_chain_continuity <- function(step, previous_destination) {
-  if (is.null(previous_destination)) {
-    return(invisible(step))
-  }
-
-  actual_source <- move_location_key(
-    step[["from_type"]][[1L]],
-    step[["from_point"]][[1L]]
-  )
-
-  if (!identical(actual_source, previous_destination)) {
-    stop_move_application_step_error(
-      step,
-      paste0(
-        "chain ", step[["chain_id"]][[1L]],
-        " continues from ", format_move_location(actual_source),
-        " instead of the prior destination ",
-        format_move_location(previous_destination)
-      ),
-      subclass = "backgammon_move_invalid_chain"
-    )
-  }
-
-  invisible(step)
 }
 
 
@@ -368,24 +359,6 @@ opponent_checker_count <- function(destination_value, player) {
 }
 
 
-move_location_key <- function(type, point) {
-  if (identical(type, "point")) {
-    return(paste0("point:", as.integer(point)))
-  }
-
-  type
-}
-
-
-format_move_location <- function(key) {
-  if (startsWith(key, "point:")) {
-    return(substring(key, 7L))
-  }
-
-  key
-}
-
-
 validate_resulting_checker_state <- function(
     points,
     bar,
@@ -419,14 +392,19 @@ stop_move_application_step_error <- function(
   stop_move_application_error(
     paste0(
       "Cannot apply atomic step ", step[["step_id"]][[1L]],
-      " (`", step[["source_token"]][[1L]], "`): ", detail
+      " (", format_applied_location(step$from_type[[1L]], step$from_point[[1L]]),
+      "/", format_applied_location(step$to_type[[1L]], step$to_point[[1L]]),
+      "): ", detail
     ),
     subclass = subclass,
     step_id = step[["step_id"]][[1L]],
-    chain_id = step[["chain_id"]][[1L]],
-    source_token = step[["source_token"]][[1L]],
     player = player
   )
+}
+
+
+format_applied_location <- function(type, point) {
+  if (identical(type, "point")) as.character(point) else type
 }
 
 
@@ -434,8 +412,6 @@ stop_move_application_error <- function(
     message,
     subclass = "backgammon_move_application_error",
     step_id = NULL,
-    chain_id = NULL,
-    source_token = NULL,
     player = NULL
 ) {
   condition <- structure(
@@ -443,8 +419,6 @@ stop_move_application_error <- function(
       message = message,
       call = NULL,
       step_id = step_id,
-      chain_id = chain_id,
-      source_token = source_token,
       player = player
     ),
     class = unique(c(
@@ -457,4 +431,29 @@ stop_move_application_error <- function(
   )
 
   stop(condition)
+}
+
+
+validate_after_xgid <- function(applied, after_xgid) {
+  if (is.null(after_xgid)) return(invisible(applied))
+  if (!inherits(applied, "backgammon_applied_moves")) {
+    stop("`applied` must be a movement application result.", call. = FALSE)
+  }
+  after <- backgammon_position(after_xgid)
+  same_points <- identical(as.integer(applied$points), as.integer(after$points))
+  same_bar <- identical(
+    unname(as.integer(applied$bar[c("white", "black")])),
+    unname(as.integer(after$bar[c("player_0", "player_1")]))
+  )
+  same_off <- identical(
+    unname(as.integer(applied$off[c("white", "black")])),
+    unname(as.integer(after$off[c("player_0", "player_1")]))
+  )
+  if (!same_points || !same_bar || !same_off) {
+    stop(
+      "Applied movements do not match `after_xgid` checker layout [after_xgid_mismatch]",
+      call. = FALSE
+    )
+  }
+  invisible(applied)
 }
