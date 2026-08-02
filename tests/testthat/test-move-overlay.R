@@ -170,6 +170,29 @@ test_that("bar entry, bearing off, and confirmed hits receive explicit geometry"
 })
 
 
+test_that("bar-entry arrows retain the centred bar anchor in either orientation", {
+  style <- board_style("bms")
+
+  for (perspective in c("white", "black")) {
+    player <- perspective
+    position <- if (identical(player, "white")) {
+      overlay_test_position(player = player, white_bar = 2L)
+    } else {
+      overlay_test_position(player = player, black_bar = 2L)
+    }
+    move <- if (identical(player, "white")) "bar/24" else "bar/1"
+    overlay <- backgammonboard:::move_overlay_geometry(
+      position, board_moves(move), style = style, perspective = perspective
+    )
+    geometry <- backgammonboard:::board_geometry(style, perspective = perspective)
+    checkers <- backgammonboard:::checker_layout(position, style, perspective = perspective)$bar
+
+    expect_equal(overlay$segments$source_x[[1L]], mean(c(geometry$bar$xmin, geometry$bar$xmax)))
+    expect_equal(overlay$segments$source_y[[1L]], max(checkers$y[checkers$player == player]))
+  }
+})
+
+
 test_that("alternative overlays use dashed structural styling", {
   overlay <- backgammonboard:::move_overlay_geometry(
     position = overlay_test_position(white = c(`13` = 1L)),

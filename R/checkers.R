@@ -121,19 +121,19 @@ checker_layout <- function(
 
     visible <- min(total, max_visible)
 
+    # The bar is its own lane: centre each player's visible stack within that
+    # player's half rather than borrowing the point-edge placement.  This
+    # keeps bar checkers unmistakably in the middle lane in either view.
+    field_midpoint <- mean(c(geometry$layout$field_ymin, geometry$layout$field_ymax))
+    stack_offsets <- (seq_len(visible) - (visible + 1) / 2) * style$checker_stack_step
+
     if (identical(player, bottom_player)) {
-      y <-
-        geometry$layout$field_ymin +
-        style$checker_margin +
-        style$checker_outer_radius +
-        (seq_len(visible) - 1L) * style$checker_stack_step
+      lane_center <- mean(c(geometry$layout$field_ymin, field_midpoint))
+      y <- lane_center + stack_offsets
       side <- "bottom"
     } else {
-      y <-
-        geometry$layout$field_ymax -
-        style$checker_margin -
-        style$checker_outer_radius -
-        (seq_len(visible) - 1L) * style$checker_stack_step
+      lane_center <- mean(c(field_midpoint, geometry$layout$field_ymax))
+      y <- lane_center - stack_offsets
       side <- "top"
     }
 

@@ -307,6 +307,10 @@ move_overlay_geometry <- function(
       step_id = step$step_id[[1L]],
       chain_id = step$chain_id[[1L]],
       source_token = step$source_token[[1L]],
+      # Preserve untrimmed semantic anchors for review and testing; rendered
+      # endpoints are then inset so arrowheads do not cover checkers.
+      source_x = unname(from[["x"]]),
+      source_y = unname(from[["y"]]),
       x = unname(from[["x"]]),
       y = unname(from[["y"]]),
       # The destination ghost occupies the slot immediately above the

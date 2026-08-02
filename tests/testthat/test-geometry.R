@@ -98,6 +98,14 @@ test_that("bar checkers stay in their owner half under either orientation", {
     expect_true(all(bar$x > geometry$bar$xmin & bar$x < geometry$bar$xmax))
     expect_true(all(bar$y[bar$player == perspective] < midpoint))
     expect_true(all(bar$y[bar$player != perspective] > midpoint))
+    expect_equal(
+      mean(bar$y[bar$player == perspective]),
+      mean(c(geometry$bar$ymin, midpoint))
+    )
+    expect_equal(
+      mean(bar$y[bar$player != perspective]),
+      mean(c(midpoint, geometry$bar$ymax))
+    )
   }
 })
 
