@@ -161,13 +161,13 @@ board_information_layout <- function(
   if (identical(position$play_context, "match")) {
     away <- position$match_length - position$score
     secondary <- vapply(c("white", "black"), function(player) {
-      raw_label <- paste0(position$score[[player]], " points")
+      raw_label <- paste0(position$score[[player]], " pts")
       away_label <- paste0(away[[player]], "-away")
       switch(
         score_format,
         raw = raw_label,
         away = away_label,
-        both = paste0(raw_label, " to ", position$match_length, " \u00b7 ", away_label)
+        both = paste0(raw_label, " up to ", position$match_length)
       )
     }, character(1))
     names(secondary) <- c("white", "black")
@@ -184,6 +184,9 @@ board_information_layout <- function(
 
   make_row <- function(player, side) {
     is_top <- identical(side, "top")
+    player_name <- unname(names_by_player[[player]])
+    arrow_offset <- style$information_on_roll_arrow_x_offset *
+      (0.2 + 0.16 * nchar(player_name, type = "width"))
     player_name_y <- if (is_top) {
       frame$ymax + style$information_top_player_name_offset
     } else {
@@ -191,14 +194,14 @@ board_information_layout <- function(
     }
     data.frame(
       player = player,
-      name = unname(names_by_player[[player]]),
+      name = player_name,
       on_roll = identical(player, position$on_roll),
       on_roll_arrow = if (identical(player, position$on_roll)) arrow_direction else "",
       on_roll_arrow_x =
         player_x + if (identical(information_side, "right")) {
-          -style$information_on_roll_arrow_x_offset
+          -arrow_offset
         } else {
-          style$information_on_roll_arrow_x_offset
+          arrow_offset
         },
       on_roll_arrow_y = player_name_y,
       on_roll_arrow_hjust = arrow_hjust,
@@ -338,7 +341,7 @@ add_board_information <- function(
       fill = top_name$fill,
       linewidth = 0.55,
       label.r = grid::unit(0.18, "lines"),
-      label.padding = grid::unit(0.20, "lines"),
+      label.padding = grid::unit(0.28, "lines"),
       size = style$information_player_name_size,
       family = family,
       fontface = "bold",
@@ -401,7 +404,7 @@ add_board_information <- function(
       fill = bottom_name$fill,
       linewidth = 0.55,
       label.r = grid::unit(0.18, "lines"),
-      label.padding = grid::unit(0.20, "lines"),
+      label.padding = grid::unit(0.28, "lines"),
       size = style$information_player_name_size,
       family = family,
       fontface = "bold",

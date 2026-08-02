@@ -60,12 +60,14 @@ test_that("information wording, side, arrows, and name palettes follow BMS revie
   light <- backgammonboard:::information_name_palette("white", colors, "checker")
   dark <- backgammonboard:::information_name_palette("black", colors, "checker")
 
-  expect_identical(right$bottom$secondary, "4 points to 7 \u00b7 3-away")
-  expect_identical(right$top$secondary, "2 points to 7 \u00b7 5-away")
+  expect_identical(right$bottom$secondary, "4 pts up to 7")
+  expect_identical(right$top$secondary, "2 pts up to 7")
   expect_match(right$bottom$pip_label, "^Pip count: [0-9]+$")
   expect_false(grepl("Homey|Foey", right$bottom$pip_label))
   expect_identical(right$bottom$on_roll_arrow, "on roll \u2192")
   expect_identical(left$bottom$on_roll_arrow, "\u2190 on roll")
+  expect_lt(right$top$on_roll_arrow_x, right$top$player_x)
+  expect_gt(right$top$on_roll_arrow_x, right$bottom$on_roll_arrow_x)
   expect_gt(right$bottom$player_x, geometry$canvas$xmax / 2)
   expect_lt(left$bottom$player_x, geometry$canvas$xmax / 2)
   expect_identical(light, list(

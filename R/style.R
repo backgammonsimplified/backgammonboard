@@ -118,7 +118,7 @@ board_style_presets <- function() {
     information_bottom_secondary_offset = 0.35,
     information_bottom_player_name_offset = 0.82,
     information_sentence_offset = 1.18,
-    information_on_roll_arrow_x_offset = 1.45,
+    information_on_roll_arrow_x_offset = 1.55,
     information_on_roll_arrow_size = 6.0,
     information_player_x_nudge = -0.15,
     information_sentence_x_nudge = 0.00
@@ -151,7 +151,7 @@ board_style_presets <- function() {
   bms$information_bottom_secondary_offset <- 0.35
   bms$information_bottom_player_name_offset <- 0.82
   bms$information_sentence_offset <- 1.18
-  bms$information_on_roll_arrow_x_offset <- 1.45
+  bms$information_on_roll_arrow_x_offset <- 1.55
   bms$information_on_roll_arrow_size <- 6.4
   bms$information_player_x_nudge <- -0.15
   bms$information_sentence_x_nudge <- 0.00

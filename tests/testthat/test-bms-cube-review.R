@@ -145,7 +145,8 @@ test_that("caller decoration reuses the dice and cube fields while ggboard stays
   expect_equal(tail(single$layers, 1L)[[1L]]$data$y, style$board_height / 2)
   expect_identical(tail(single$layers, 1L)[[1L]]$aes_params$family, "Source Sans 3")
   expect_identical(tail(single$layers, 1L)[[1L]]$aes_params$colour, colors$brand_text)
-  expect_identical(colors$brand_text, "#E7D8C1")
+  expect_identical(tail(single$layers, 1L)[[1L]]$aes_params$fontface, "bold")
+  expect_identical(colors$brand_text, colors$bar_fill)
   expect_identical(backgammonboard:::resolve_board_brand_side(
     "auto", attr(neutral, "backgammon_cube_display"), "white"
   ), "left")
