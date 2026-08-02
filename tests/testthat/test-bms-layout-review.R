@@ -64,12 +64,12 @@ test_that("information wording, side, arrows, and name palettes follow BMS revie
   expect_gt(right$bottom$player_x, geometry$canvas$xmax / 2)
   expect_lt(left$bottom$player_x, geometry$canvas$xmax / 2)
   expect_identical(light, list(
-    text = colors$white_checker_fill,
-    fill = colors$black_checker_fill
+    text = colors$white_checker_ring,
+    fill = colors$white_checker_fill
   ))
   expect_identical(dark, list(
-    text = colors$black_checker_fill,
-    fill = colors$outside_fill
+    text = colors$outside_fill,
+    fill = colors$black_checker_fill
   ))
 })
 

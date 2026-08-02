@@ -253,9 +253,9 @@ information_name_palette <- function(player, colors, player_name_style) {
     return(list(text = colors$score_text, fill = colors$outside_fill))
   }
   if (identical(player, "white")) {
-    list(text = colors$white_checker_fill, fill = colors$black_checker_fill)
+    list(text = colors$white_checker_ring, fill = colors$white_checker_fill)
   } else {
-    list(text = colors$black_checker_fill, fill = colors$outside_fill)
+    list(text = colors$outside_fill, fill = colors$black_checker_fill)
   }
 }
 
