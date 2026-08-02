@@ -32,7 +32,8 @@ Reduced-size output must still be reviewed at:
 Every move segment is drawn in this order:
 
 ```text
-1. translucent ghost checker at the origin
+1. translucent ghost checker at the destination, immediately beyond the
+   pre-move destination stack
 2. dark outer halo
 3. light inner halo
 4. semantic coloured arrow
@@ -65,20 +66,21 @@ dark halo     #081126
 ## Structure beyond colour
 
 ```text
-selected play       solid arrow with circular order markers
-alternative play    dashed arrow with square order markers
-multi-part play     numbered markers in atomic step order
+selected play       solid arrow
+alternative play    dashed arrow
+multi-part play     ordered atomic arrows without numbered circles
 confirmed hit       explicit bordered multiplication marker
 ```
 
-A single-part play does not require a number because no order ambiguity exists.
+Arrow width, head size, and endpoint clearance are deliberately large enough
+to remain visible without covering the semantic source or destination checker.
 
 ## Geometry
 
-The base checker layer shows the selected play's resulting position. Arrow
-origins retain translucent ghost checkers so the starting locations remain
-legible. Arrow endpoints are derived from the exposed checker before and after
-each atomic step. Compound moves are simulated step by step, so chained
+The base checker layer shows the selected play's resulting position with solid
+checker styling. Ghost styling applies only to the overlay destination ghost.
+Arrow endpoints and ghosts are derived from the exposed checker before and
+after each atomic step. Compound moves are simulated step by step, so chained
 movement, bar entry, bearing off, hits, and repeated movements receive
 deterministic perspective-aware coordinates.
 

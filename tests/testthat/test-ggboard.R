@@ -374,6 +374,41 @@ test_that("explicit brand side overrides automatic placement", {
 })
 
 
+test_that("optional brand text preserves lines outside checker play and null adds no layer", {
+  style <- board_style("bms")
+  geometry <- backgammonboard:::board_geometry(style, perspective = "white")
+  branded <- backgammonboard:::add_board_brand(
+    ggplot2::ggplot(), geometry, "Backgammon\nSimplified", color = "#111111"
+  )
+  absent <- backgammonboard:::add_board_brand(
+    ggplot2::ggplot(), geometry, NULL, color = "#111111"
+  )
+
+  expect_equal(branded$layers[[1L]]$data$label, "Backgammon\nSimplified")
+  expect_lt(branded$layers[[1L]]$data$y, geometry$left_field$ymin)
+  expect_equal(length(absent$layers), 0L)
+})
+
+
+test_that("player names use rounded labels while retaining the left-pointing arrow", {
+  plot <- ggboard(ggboard_fixture("opening_white_roll"), decision = "none")
+  information <- backgammonboard:::board_information_layout(
+    plot_position(plot),
+    backgammonboard:::board_geometry(board_style("default"), perspective = "white"),
+    board_style("default"),
+    perspective = "white"
+  )
+  label_layers <- vapply(
+    plot$layers,
+    function(layer) inherits(layer$geom, "GeomLabel"),
+    logical(1)
+  )
+
+  expect_equal(sum(label_layers), 2L)
+  expect_true(information$bottom$on_roll_arrow_x < information$bottom$player_x)
+})
+
+
 test_that("ggboard renders selected and alternative checker plays", {
   position <- backgammon_position(
     "XGID=-b----E-C---eE---c-e----B-:0:0:1:00:0:0:0:0:10"

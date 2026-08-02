@@ -64,7 +64,7 @@ cases <- list(
     position = gallery_position(white = c(`13` = 1L, `6` = 1L)),
     move = "13/8",
     perspective = "white",
-    brand_text = "Backgammon\nMade Simple"
+    brand_text = "Backgammon\nSimplified"
   ),
   hit = list(
     position = gallery_position(white = c(`13` = 1L), black = c(`8` = 1L)),

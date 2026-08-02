@@ -81,6 +81,26 @@ test_that("asymmetric layout shows bar, off counts, and excess label", {
   expect_identical(tail(point_one$count_label, 1L), "6")
 })
 
+
+test_that("bar checkers stay in their owner half under either orientation", {
+  position <- backgammon_position(
+    "XGID=-b----E-C---eE---c-e----B-:0:0:1:00:0:0:0:0:10"
+  )
+  position$bar <- c(white = 2L, black = 3L)
+  position$off <- c(white = 13L, black = 12L)
+  style <- board_style("bms")
+
+  for (perspective in c("white", "black")) {
+    geometry <- backgammonboard:::board_geometry(style, perspective = perspective)
+    bar <- backgammonboard:::checker_layout(position, style, perspective = perspective)$bar
+    midpoint <- mean(c(geometry$bar$ymin, geometry$bar$ymax))
+
+    expect_true(all(bar$x > geometry$bar$xmin & bar$x < geometry$bar$xmax))
+    expect_true(all(bar$y[bar$player == perspective] < midpoint))
+    expect_true(all(bar$y[bar$player != perspective] > midpoint))
+  }
+})
+
 test_that("borne-off markers use normal checker dimensions", {
   style <- board_style("bms")
 

@@ -164,15 +164,10 @@ add_board_brand <- function(plot,
   }
 
   side <- match.arg(side)
-  field <- if (identical(side, "left")) {
-    geometry$left_field
-  } else {
-    geometry$right_field
-  }
-
   label <- data.frame(
-    x = mean(c(field$xmin, field$xmax)),
-    y = mean(c(field$ymin, field$ymax)) + y_nudge,
+    # Branding belongs in the lower rail, never over playable points or bars.
+    x = mean(c(geometry$frame$xmin, geometry$frame$xmax)),
+    y = geometry$frame$ymin + (geometry$layout$field_ymin / 2) + y_nudge,
     label = text,
     stringsAsFactors = FALSE
   )

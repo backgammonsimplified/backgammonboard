@@ -288,11 +288,15 @@ add_board_information <- function(
       hjust = 1,
       vjust = 0.5
     ) +
-    ggplot2::geom_text(
+    ggplot2::geom_label(
       data = information$top,
       ggplot2::aes(x = player_x, y = player_name_y, label = name),
       inherit.aes = FALSE,
       color = colors$score_text,
+      fill = colors$outside_fill,
+      linewidth = 0.25,
+      label.r = grid::unit(0.18, "lines"),
+      label.padding = grid::unit(0.20, "lines"),
       size = style$information_player_name_size,
       family = family,
       fontface = "bold",
@@ -347,11 +351,15 @@ add_board_information <- function(
       hjust = 1,
       vjust = 0.5
     ) +
-    ggplot2::geom_text(
+    ggplot2::geom_label(
       data = information$bottom,
       ggplot2::aes(x = player_x, y = player_name_y, label = name),
       inherit.aes = FALSE,
       color = colors$score_text,
+      fill = colors$outside_fill,
+      linewidth = 0.25,
+      label.r = grid::unit(0.18, "lines"),
+      label.padding = grid::unit(0.20, "lines"),
       size = style$information_player_name_size,
       family = family,
       fontface = "bold",

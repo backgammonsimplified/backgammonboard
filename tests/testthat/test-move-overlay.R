@@ -73,6 +73,8 @@ test_that("simple selected move receives finite perspective-aware geometry", {
   expect_equal(nrow(overlay$ghosts), 1L)
   expect_equal(overlay$ghosts$x, overlay$segments$ghost_x)
   expect_equal(overlay$ghosts$y, overlay$segments$ghost_y)
+  expect_equal(overlay$ghosts$x, overlay$segments$destination_x)
+  expect_equal(overlay$ghosts$y, overlay$segments$destination_y)
   expect_true(all(is.finite(unlist(
     overlay$segments[c("x", "y", "xend", "yend", "curvature")]
   ))))
@@ -89,7 +91,7 @@ test_that("compound and repeated moves preserve structural order", {
   )
 
   expect_identical(compound$segments$step_id, 1:2)
-  expect_identical(compound$markers$label, c("1", "2"))
+  expect_equal(nrow(compound$markers), 0L)
   expect_identical(compound$segments$chain_id, c(1L, 1L))
 
   repeated <- backgammonboard:::move_overlay_geometry(
@@ -99,7 +101,7 @@ test_that("compound and repeated moves preserve structural order", {
   )
 
   expect_equal(nrow(repeated$segments), 2L)
-  expect_identical(repeated$markers$label, c("1", "2"))
+  expect_equal(nrow(repeated$markers), 0L)
   expect_true(
     any(repeated$segments$x != repeated$segments$x[[1L]]) ||
       any(repeated$segments$y != repeated$segments$y[[1L]]) ||
@@ -107,6 +109,32 @@ test_that("compound and repeated moves preserve structural order", {
       any(repeated$segments$yend != repeated$segments$yend[[1L]]) ||
       any(repeated$segments$curvature != repeated$segments$curvature[[1L]])
   )
+})
+
+
+test_that("destination ghosts sit above the pre-move destination stack", {
+  style <- board_style("bms")
+  position <- overlay_test_position(
+    white = c(`13` = 1L, `8` = 2L)
+  )
+  overlay <- backgammonboard:::move_overlay_geometry(
+    position,
+    board_moves("13/8"),
+    style = style,
+    perspective = "white"
+  )
+  before <- backgammonboard:::checker_layout(position, style, perspective = "white")
+  after <- backgammonboard:::checker_layout(
+    backgammonboard:::move_overlay_position_after(position, overlay$applied_moves),
+    style,
+    perspective = "white"
+  )
+  before_destination <- before$points[before$points$point == 8L, , drop = FALSE]
+  after_destination <- after$points[after$points$point == 8L, , drop = FALSE]
+
+  expect_equal(overlay$ghosts$x[[1L]], after_destination$x[[1L]])
+  expect_equal(overlay$ghosts$y[[1L]], max(after_destination$y))
+  expect_gt(overlay$ghosts$y[[1L]], max(before_destination$y))
 })
 
 
@@ -173,6 +201,9 @@ test_that("layer construction uses both halos above the board", {
   )
 
   expect_equal(length(plot$layers), 4L)
+  expect_gte(style$arrow_linewidth, 1.35)
+  expect_gte(style$arrow_head_length_mm, 4.2)
+  expect_gte(style$arrow_endpoint_clearance, style$checker_outer_radius)
   expect_gt(style$arrow_halo_dark_ratio, style$arrow_halo_light_ratio)
   expect_gt(style$arrow_halo_light_ratio, 1)
   expect_identical(colors$arrow_halo_dark, "#081126")

@@ -309,8 +309,10 @@ move_overlay_geometry <- function(
       source_token = step$source_token[[1L]],
       x = unname(from[["x"]]),
       y = unname(from[["y"]]),
-      ghost_x = unname(from[["x"]]),
-      ghost_y = unname(from[["y"]]),
+      # The destination ghost occupies the slot immediately above the
+      # pre-move destination stack (the moved checker slot after this step).
+      ghost_x = unname(to[["x"]]),
+      ghost_y = unname(to[["y"]]),
       xend = unname(to[["x"]]),
       yend = unname(to[["y"]]),
       destination_x = unname(to[["x"]]),
@@ -332,20 +334,6 @@ move_overlay_geometry <- function(
   )
   segments$curvature <- move_overlay_duplicate_curvatures(segments, style)
 
-  midpoints <- t(vapply(
-    seq_len(nrow(segments)),
-    function(index) {
-      move_overlay_midpoint(
-        segments$x[[index]],
-        segments$y[[index]],
-        segments$xend[[index]],
-        segments$yend[[index]],
-        segments$curvature[[index]]
-      )
-    },
-    numeric(2)
-  ))
-
   markers <- data.frame(
     step_id = integer(),
     x = numeric(),
@@ -354,17 +342,6 @@ move_overlay_geometry <- function(
     role = character(),
     stringsAsFactors = FALSE
   )
-
-  if (nrow(segments) > 1L) {
-    markers <- data.frame(
-      step_id = segments$step_id,
-      x = midpoints[, "x"],
-      y = midpoints[, "y"],
-      label = as.character(segments$step_id),
-      role = segments$role,
-      stringsAsFactors = FALSE
-    )
-  }
 
   hit_rows <- segments[segments$hit_confirmed, , drop = FALSE]
   hits <- data.frame(
@@ -509,30 +486,6 @@ add_move_overlay_layers <- function(plot, overlay, colors, style) {
       linewidth = style$arrow_linewidth,
       style = style
     )
-  }
-
-  if (nrow(overlay$markers) > 0L) {
-    marker_shape <- if (identical(overlay$role, "selected")) 21 else 22
-
-    plot <- plot +
-      ggplot2::geom_point(
-        data = overlay$markers,
-        ggplot2::aes(x = x, y = y),
-        inherit.aes = FALSE,
-        shape = marker_shape,
-        size = style$move_marker_size,
-        stroke = style$move_marker_border_width,
-        fill = colors$arrow_marker_fill,
-        color = colors$arrow_marker_border
-      ) +
-      ggplot2::geom_text(
-        data = overlay$markers,
-        ggplot2::aes(x = x, y = y, label = label),
-        inherit.aes = FALSE,
-        color = colors$arrow_order_label,
-        size = style$move_marker_text_size,
-        fontface = "bold"
-      )
   }
 
   if (nrow(overlay$hits) > 0L) {
