@@ -149,7 +149,9 @@ add_board_brand <- function(plot,
                             color,
                             size = 6.0,
                             alpha = 0.90,
-                            y_nudge = 0) {
+                            y_nudge = 0,
+                            family = "Source Sans 3",
+                            fontface = "bold") {
   if (is.null(text) || !nzchar(text)) {
     return(plot)
   }
@@ -174,8 +176,8 @@ add_board_brand <- function(plot,
       color = color,
       alpha = alpha,
       size = size,
-      family = "Source Sans 3",
-      fontface = "bold",
+      family = family,
+      fontface = fontface,
       lineheight = 0.95,
       hjust = 0.5,
       vjust = 0.5

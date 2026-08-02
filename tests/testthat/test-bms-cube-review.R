@@ -123,6 +123,11 @@ test_that("caller decoration reuses the dice and cube fields while ggboard stays
     neutral, geometry, two_line_text, side = "right",
     color = colors$brand_text
   )
+  source_code <- backgammonboard:::add_board_brand(
+    neutral, geometry, single_text, side = "left",
+    color = colors$brand_text, family = "Source Code Pro BMS 700",
+    fontface = "plain"
+  )
   layer_labels <- function(plot) {
     unlist(lapply(plot$layers, function(layer) {
       c(
@@ -146,6 +151,8 @@ test_that("caller decoration reuses the dice and cube fields while ggboard stays
   expect_identical(tail(single$layers, 1L)[[1L]]$aes_params$family, "Source Sans 3")
   expect_identical(tail(single$layers, 1L)[[1L]]$aes_params$colour, colors$brand_text)
   expect_identical(tail(single$layers, 1L)[[1L]]$aes_params$fontface, "bold")
+  expect_identical(tail(source_code$layers, 1L)[[1L]]$aes_params$family, "Source Code Pro BMS 700")
+  expect_identical(tail(source_code$layers, 1L)[[1L]]$aes_params$fontface, "plain")
   expect_identical(colors$brand_text, colors$bar_fill)
   expect_identical(backgammonboard:::resolve_board_brand_side(
     "auto", attr(neutral, "backgammon_cube_display"), "white"
