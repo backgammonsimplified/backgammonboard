@@ -55,6 +55,7 @@ test_that("light-player palette swaps checker, die, and badge colors together", 
 
   expect_identical(swapped$black_checker_fill, colors$white_checker_fill)
   expect_identical(swapped$black_checker_ring, colors$white_checker_ring)
+  expect_identical(swapped$black_checker_outer_ring, colors$black_checker_fill)
   expect_identical(swapped$black_checker_text, colors$white_checker_text)
   expect_identical(swapped$die_black_fill, colors$die_white_fill)
   expect_identical(swapped$die_black_pips, colors$die_white_pips)

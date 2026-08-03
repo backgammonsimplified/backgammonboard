@@ -6,6 +6,8 @@
 #' @param x A complete XGID string or a factual `backgammon_position`.
 #' @param colors A validated object created by [board_colors()].
 #' @param style A validated object created by [board_style()].
+#' @param movement_style Optional movement-overlay appearance created by
+#'   [movement_overlay_style()]. `NULL` preserves the board preset's overlay.
 #' @param moves Optional structured movements created by [board_moves()].
 #' @param after_xgid Optional complete XGID used only to validate the applied
 #'   checker layout. It does not replace the displayed before-position.
@@ -42,7 +44,8 @@ ggboard <- function(
     player_labels = c(player_0 = "Foey", player_1 = "Homey"),
     score_format = "away",
     point_1_side = NULL,
-    player_name_style = c("neutral", "checker")) {
+    player_name_style = c("neutral", "checker"),
+    movement_style = NULL) {
   mirror_was_missing <- missing(mirror_horizontal)
   if (is.null(point_1_side)) {
     point_1_side <- if (isTRUE(mirror_horizontal)) "left" else "right"
@@ -101,6 +104,7 @@ ggboard <- function(
     x = render_position,
     colors = colors,
     style = style,
+    movement_style = movement_style,
     point_1_side = point_1_side,
     perspective = render_perspective,
     mirror_horizontal = display$mirror_horizontal,

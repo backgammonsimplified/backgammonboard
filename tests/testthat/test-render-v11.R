@@ -1,15 +1,15 @@
-test_that("the frozen public API has exactly seven exports", {
+test_that("the public API includes configurable movement overlays", {
   expected <- c(
     "backgammon_position", "board_colors", "board_moves", "board_style",
-    "ggboard", "normalize_xgid", "validate_xgid"
+    "ggboard", "movement_overlay_style", "normalize_xgid", "validate_xgid"
   )
   expect_identical(sort(getNamespaceExports("backgammonboard")), sort(expected))
   expect_identical(
     names(formals(ggboard)),
     c(
       "x", "colors", "style", "moves", "after_xgid", "decision",
-      "perspective", "mirror_horizontal", "light_player", "player_labels", "score_format", "point_1_side",
-      "player_name_style"
+      "perspective", "mirror_horizontal", "light_player", "player_labels",
+      "score_format", "point_1_side", "player_name_style", "movement_style"
     )
   )
   expect_identical(names(formals(board_moves)), c("from", "to", "die", "label"))

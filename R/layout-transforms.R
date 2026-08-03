@@ -24,8 +24,11 @@ transform_coordinate_frame <- function(
 
   reflect <- function(value, minimum, maximum) minimum + maximum - value
   if (isTRUE(mirror_horizontal)) {
-    for (column in intersect(c("x", "xend", "source_x", "ghost_x", "destination_x", "player_x", "pip_x", "on_roll_arrow_x"), names(result))) {
+    for (column in intersect(c("x", "xend", "source_x", "ghost_x", "destination_x", "control_x", "control2_x", "player_x", "pip_x", "on_roll_arrow_x"), names(result))) {
       result[[column]] <- reflect(result[[column]], bounds$x_min, bounds$x_max)
+    }
+    if ("final_tangent_x" %in% names(result)) {
+      result$final_tangent_x <- -result$final_tangent_x
     }
     if (all(c("xmin", "xmax") %in% names(result))) {
       old_min <- result$xmin
@@ -34,8 +37,11 @@ transform_coordinate_frame <- function(
     }
   }
   if (isTRUE(flip_vertical)) {
-    for (column in intersect(c("y", "yend", "source_y", "ghost_y", "destination_y", "player_name_y", "secondary_y", "pip_y", "on_roll_arrow_y"), names(result))) {
+    for (column in intersect(c("y", "yend", "source_y", "ghost_y", "destination_y", "control_y", "control2_y", "player_name_y", "secondary_y", "pip_y", "on_roll_arrow_y"), names(result))) {
       result[[column]] <- reflect(result[[column]], bounds$y_min, bounds$y_max)
+    }
+    if ("final_tangent_y" %in% names(result)) {
+      result$final_tangent_y <- -result$final_tangent_y
     }
     if (all(c("ymin", "ymax") %in% names(result))) {
       old_min <- result$ymin
@@ -43,8 +49,12 @@ transform_coordinate_frame <- function(
       result$ymax <- reflect(old_min, bounds$y_min, bounds$y_max)
     }
   }
-  if ("curvature" %in% names(result) && xor(isTRUE(mirror_horizontal), isTRUE(flip_vertical))) {
-    result$curvature <- -result$curvature
+  if (xor(isTRUE(mirror_horizontal), isTRUE(flip_vertical))) {
+    for (column in intersect(
+        c("curvature", "curve_offset", "curve_level"), names(result)
+    )) {
+      result[[column]] <- -result[[column]]
+    }
   }
   if ("side" %in% names(result) && isTRUE(flip_vertical)) {
     result$side <- ifelse(result$side == "top", "bottom", ifelse(result$side == "bottom", "top", result$side))
@@ -125,9 +135,18 @@ transform_prepared_layout <- function(
   result$geometry <- transform_board_geometry(
     layout$geometry, bounds, mirror_horizontal, vertical
   )
-  for (name in intersect(c("checkers", "dice", "cube", "crawford", "selected_overlay", "alternative_overlay"), names(layout))) {
+  for (name in intersect(c("checkers", "cube", "crawford", "selected_overlay", "alternative_overlay"), names(layout))) {
     result[[name]] <- transform_layout_object(
       layout[[name]], bounds, mirror_horizontal, vertical
+    )
+  }
+  if ("dice" %in% names(layout) && !is.null(layout$dice)) {
+    # Dice stay on the roller's physical right: screen-right for the near
+    # player and screen-left for the far player. Changing the near player
+    # therefore changes the dice field; mirroring point orientation does not.
+    result$dice <- transform_layout_object(
+      layout$dice, bounds, mirror_horizontal = vertical,
+      flip_vertical = vertical
     )
   }
   if ("information" %in% names(layout) && !is.null(layout$information)) {

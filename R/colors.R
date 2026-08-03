@@ -103,7 +103,7 @@ board_color_presets <- function() {
     cube_crosshair = "#D9653B",
 
     # Arrows and overlays
-    arrow_primary = "#D9653B",
+    arrow_primary = "#C94F2C",
     arrow_secondary = "#6E557A",
     on_roll_arrow = "#D9653B",
     arrow_hit = "#923B45",
@@ -112,6 +112,9 @@ board_color_presets <- function() {
     arrow_marker_border = "#1B1F2A",
     arrow_halo_light = "#F8F4ED",
     arrow_halo_dark = "#11182F",
+    movement_ghost_fill = "#D4D8DC",
+    movement_ghost_pattern = "#65707A",
+    movement_ghost_outline = "#27313B",
 
     # Text
     score_text = "#1B1F2A",
@@ -133,7 +136,7 @@ board_color_presets <- function() {
     point_number = "#111B35",
     white_checker_fill = "#F8EEDD",
     white_checker_ring = "#111B35",
-    white_checker_outer_ring = "#081126",
+    white_checker_outer_ring = "#111B35",
     white_checker_text = "#111B35",
     black_checker_fill = "#111B35",
     black_checker_ring = "#111B35",
@@ -151,7 +154,7 @@ board_color_presets <- function() {
     cube_border = "#111B35",
     cube_offered_border = "#111B35",
     cube_crosshair = "#D9653B",
-    arrow_primary = "#D9653B",
+    arrow_primary = "#C94F2C",
     arrow_secondary = "#6E557A",
     arrow_hit = "#923B45",
     arrow_order_label = "#111B35",
@@ -159,6 +162,9 @@ board_color_presets <- function() {
     arrow_marker_border = "#111B35",
     arrow_halo_light = "#FFFDF8",
     arrow_halo_dark = "#081126",
+    movement_ghost_fill = "#D4D8DC",
+    movement_ghost_pattern = "#65707A",
+    movement_ghost_outline = "#27313B",
     score_text = "#111B35",
     secondary_text = "#566078",
     status_text = "#111B35"

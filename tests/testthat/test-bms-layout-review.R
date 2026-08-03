@@ -130,6 +130,37 @@ test_that("dice remain on the roller's semantic right", {
 })
 
 
+test_that("rendered dice stay on the roller's physical right across display controls", {
+  xgids <- c(
+    player_1 = "XGID=-FDaA--------------a-Acbb-:0:0:1:42:0:0:0:0:10",
+    player_0 = "XGID=-b----E-C---eE---c-e----B-:0:0:-1:31:0:0:0:0:10"
+  )
+  center <- board_style()$board_width / 2
+
+  for (roller in names(xgids)) {
+    for (near in c("player_1", "player_0")) {
+      dice_x <- list()
+      for (mirror in c(FALSE, TRUE)) {
+        plot <- ggboard(
+          xgids[[roller]], decision = "checker_play",
+          perspective = near, mirror_horizontal = mirror
+        )
+        dice_x[[as.character(mirror)]] <-
+          attr(plot, "backgammon_prepared_layout")$dice$faces$x
+        expected_brand_side <- if (identical(roller, near)) "left" else "right"
+        expect_identical(attr(plot, "backgammon_brand_side"), expected_brand_side)
+      }
+      expect_equal(dice_x$`FALSE`, dice_x$`TRUE`)
+      if (identical(roller, near)) {
+        expect_gt(min(dice_x$`FALSE`), center)
+      } else {
+        expect_lt(max(dice_x$`FALSE`), center)
+      }
+    }
+  }
+})
+
+
 test_that("centered cubes and Crawford occupy the middle outside lane", {
   style <- board_style("bms")
   geometry <- backgammonboard:::board_geometry(style, perspective = "white")

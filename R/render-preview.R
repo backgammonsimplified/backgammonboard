@@ -312,7 +312,8 @@ render_board_preview <- function(
     guide_width = 0.60,
     guide_alpha = 0.80,
     moves = NULL,
-    alternative_moves = NULL
+    alternative_moves = NULL,
+    movement_style = NULL
 ) {
   point_1_side <- match.arg(point_1_side)
   score_format <- match.arg(score_format)
@@ -341,6 +342,7 @@ render_board_preview <- function(
   if (!inherits(style, "backgammon_board_style")) {
     stop("`style` must be created by board_style().", call. = FALSE)
   }
+  movement_style <- resolve_movement_overlay_style(movement_style, colors, style)
 
   position <- if (inherits(x, "backgammon_position")) {
     x
@@ -383,6 +385,7 @@ render_board_preview <- function(
       position = position,
       moves = selected_moves,
       style = style,
+      movement_style = movement_style,
       perspective = "white",
       point_1_side = "right",
       bottom_home_board_side = "right",
@@ -398,6 +401,7 @@ render_board_preview <- function(
       position = position,
       moves = alternative_moves,
       style = style,
+      movement_style = movement_style,
       perspective = "white",
       point_1_side = "right",
       bottom_home_board_side = "right",
@@ -411,8 +415,13 @@ render_board_preview <- function(
   } else {
     move_overlay_position_after(position, selected_overlay$applied_moves)
   }
+  # Movement overlays annotate the factual starting position. The applied
+  # result remains available as `display_position` for validation and public
+  # metadata, but it must not replace the checkers shown beneath arrows and
+  # destination ghosts.
+  visual_position <- position
   canonical_checkers <- checker_layout(
-    display_position,
+    visual_position,
     style,
     point_1_side = "right",
     perspective = "white",
@@ -420,14 +429,14 @@ render_board_preview <- function(
     point_labels_for = "white"
   )
   canonical_dice <- dice_layout(
-    position = display_position,
+    position = visual_position,
     geometry = canonical_geometry,
     style = style,
     perspective = "white"
   )
   canonical_cube <- if (isTRUE(show_cube)) {
     cube_layout(
-      position = display_position,
+      position = visual_position,
       geometry = canonical_geometry,
       style = style,
       cube_display = cube_display,
@@ -442,8 +451,8 @@ render_board_preview <- function(
   light_player <- normalize_board_perspective(light_player)
   colors <- colors_for_light_player(colors, light_player)
   canonical_crawford <- if (
-      identical(display_position$crawford_status, "crawford") ||
-      isTRUE(display_position$is_crawford)) {
+      identical(visual_position$crawford_status, "crawford") ||
+      isTRUE(visual_position$is_crawford)) {
     center <- cube_center(
       state = "centered", x_mode = "outside",
       geometry = canonical_geometry, style = style,
@@ -456,7 +465,7 @@ render_board_preview <- function(
   }
   canonical_information <- if (isTRUE(show_information)) {
     board_information_layout(
-      position = display_position,
+      position = visual_position,
       geometry = canonical_geometry,
       style = style,
       white_name = white_name,
@@ -558,7 +567,7 @@ render_board_preview <- function(
   plot <- add_off_checkers(plot, checkers$off, colors, style)
   plot <- add_dice_layers(
     plot = plot,
-    position = display_position,
+    position = visual_position,
     geometry = geometry,
     colors = colors,
     style = style,
@@ -569,7 +578,7 @@ render_board_preview <- function(
   if (isTRUE(show_cube) && isTRUE(cube_display$visible)) {
     plot <- add_cube_layers(
       plot = plot,
-      position = display_position,
+      position = visual_position,
       geometry = geometry,
       colors = colors,
       style = style,
@@ -585,7 +594,7 @@ render_board_preview <- function(
 
   plot <- add_crawford_marker(
     plot = plot,
-    position = display_position,
+    position = visual_position,
     geometry = geometry,
     colors = colors,
     style = style,
@@ -605,23 +614,10 @@ render_board_preview <- function(
     y_nudge = brand_y_nudge
   )
 
-  plot <- add_move_overlay_layers(
-    plot = plot,
-    overlay = alternative_overlay,
-    colors = colors,
-    style = style
-  )
-  plot <- add_move_overlay_layers(
-    plot = plot,
-    overlay = selected_overlay,
-    colors = colors,
-    style = style
-  )
-
   if (isTRUE(show_information)) {
     plot <- add_board_information(
       plot = plot,
-      position = display_position,
+      position = visual_position,
       geometry = geometry,
       colors = colors,
       style = style,
@@ -649,6 +645,49 @@ render_board_preview <- function(
     )
   }
 
+  # Keep movement overlays above the factual board. Destination ghosts are
+  # painted first, then arrows so every shaft and arrowhead remains visible.
+  movement_layer_start <- length(plot$layers) + 1L
+  plot <- add_move_ghost_layers(
+    plot = plot,
+    overlay = alternative_overlay,
+    style = style,
+    movement_style = movement_style
+  )
+  plot <- add_move_ghost_layers(
+    plot = plot,
+    overlay = selected_overlay,
+    style = style,
+    movement_style = movement_style
+  )
+  plot <- add_move_arrow_layers(
+    plot = plot,
+    overlay = alternative_overlay,
+    movement_style = movement_style
+  )
+  plot <- add_move_arrow_layers(
+    plot = plot,
+    overlay = selected_overlay,
+    movement_style = movement_style
+  )
+  # Coincident-path multipliers are the final paint layer so their on-roll
+  # typography remains legible above checkers, ghosts, arrows, dice and text.
+  plot <- add_move_multiplier_layers(
+    plot = plot,
+    overlay = alternative_overlay,
+    geometry = geometry,
+    colors = colors,
+    style = style,
+    family = information_family
+  )
+  plot <- add_move_multiplier_layers(
+    plot = plot,
+    overlay = selected_overlay,
+    geometry = geometry,
+    colors = colors,
+    style = style,
+    family = information_family
+  )
   y_limits <- if (isTRUE(show_information)) {
     c(
       -style$information_bottom_band_height,
@@ -689,6 +728,8 @@ render_board_preview <- function(
     selected = selected_overlay,
     alternative = alternative_overlay
   )
+  attr(plot, "backgammon_movement_style") <- movement_style
+  attr(plot, "backgammon_movement_layer_start") <- movement_layer_start
   attr(plot, "backgammon_display_position") <- display_position
   attr(plot, "backgammon_prepared_layout") <- prepared
   plot

@@ -92,10 +92,10 @@ board_style_presets <- function() {
     cube_crosshair_alpha = 0.80,
     cube_centered_y_nudge = 0,
     crawford_text_size = 4.2,
-    arrow_linewidth = 1.35,
-    arrow_halo_dark_ratio = 2.2,
-    arrow_halo_light_ratio = 1.6,
-    arrow_head_length_mm = 4.2,
+    arrow_linewidth = 1.15,
+    arrow_halo_dark_ratio = 1.45,
+    arrow_halo_light_ratio = 1.20,
+    arrow_head_length_mm = 3.4,
     arrow_endpoint_clearance = 0.40,
     arrow_curvature = 0.15,
     arrow_parallel_curvature_step = 0.12,
@@ -127,6 +127,7 @@ board_style_presets <- function() {
   bms <- default
   bms$checker_stack_step <- 0.78
   bms$checker_margin <- 0.025
+  bms$count_badge_size <- 6.0
   bms$point_border_width <- 0.38
   bms$die_scale <- 1.00
   bms$die_gap <- 0.30
@@ -139,6 +140,8 @@ board_style_presets <- function() {
   bms$cube_crosshair_length <- 0.42
   bms$cube_crosshair_linewidth <- 0.45
   bms$cube_crosshair_alpha <- 0.80
+  bms$arrow_linewidth <- 1.8
+  bms$arrow_head_length_mm <- 4.4
   bms$information_player_name_size <- 5.6
   bms$information_secondary_text_size <- 4.5
   bms$information_pip_text_size <- 5.0

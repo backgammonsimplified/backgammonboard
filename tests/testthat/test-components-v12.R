@@ -163,7 +163,6 @@ test_that("every prepared component uses the shared coordinate transforms", {
   paths <- list(
     c("geometry", "points"), c("geometry", "point_labels"),
     c("checkers", "points"), c("checkers", "bar"), c("checkers", "off"),
-    c("dice", "faces"), c("dice", "pips"),
     c("cube", "center"), c("cube", "outer"), c("cube", "inner"),
     c("cube", "number"), c("information", "top"),
     c("information", "bottom")
@@ -175,6 +174,14 @@ test_that("every prepared component uses the shared coordinate transforms", {
     flipped <- at_path(vertical, path)
     if ("x" %in% names(before)) expect_equal(before$x + mirrored$x, rep(width, nrow(before)))
     if ("y" %in% names(before)) expect_equal(before$y + flipped$y, rep(height, nrow(before)))
+  }
+  for (name in c("faces", "pips")) {
+    before <- canonical$dice[[name]]
+    mirrored <- horizontal$dice[[name]]
+    flipped <- vertical$dice[[name]]
+    expect_equal(mirrored$x, before$x)
+    expect_equal(before$x + flipped$x, rep(width, nrow(before)))
+    expect_equal(before$y + flipped$y, rep(height, nrow(before)))
   }
   expect_equal(
     canonical$information$sentence$y,
