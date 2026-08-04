@@ -65,6 +65,13 @@ moves <- board_moves(
 ggboard(xgid, moves = moves, after_xgid = optional_after_xgid)
 ```
 
+`backgammonboard` renders positions and supplied movement geometry. Rendering a
+movement does not certify that the complete play is legal for the position and
+dice. Structural input and application failures are rejected, while complete
+dice consumption, maximum-dice and higher-die rules, doubles multiplicity,
+complete bar-entry priority, combined-dice legality, complete legal-play
+enumeration, and agreement with external engines are outside this release.
+
 ## Presets
 
 Package defaults are neutral. Backgammon Made Simple styling is explicit:

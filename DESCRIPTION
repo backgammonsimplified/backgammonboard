@@ -8,8 +8,9 @@ Author: Marty Gale [aut, cre]
 Maintainer: Marty Gale <marty.gale@users.noreply.github.com>
 Description: Provides validated factual backgammon position objects from complete
     eXtreme Gammon identifiers (XGIDs), together with static board rendering
-    infrastructure. The package separates factual position state from display
-    context and does not evaluate strategy.
+    infrastructure and supplied movement geometry. The package separates factual
+    position state from display context, does not evaluate strategy, and does not
+    certify complete-play legality for rendered movements.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
