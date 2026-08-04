@@ -16,7 +16,7 @@ devtools::load_all(reset = TRUE, quiet = TRUE)
 
 # Edit this one block in RStudio to restyle every movement overlay in the
 # gallery. All panels below receive this same object through ggboard().
-movement_style <- movement_overlay_style(
+movement_style <- backgammonboard:::movement_overlay_style(
   ghost_fill = NA,
   ghost_fill_alpha = 0.20,
   ghost_outline = "#000000",
