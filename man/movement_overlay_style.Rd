@@ -91,11 +91,9 @@ edge. Positive values stop outside the marker; negative values move inside it.}
 \item{arrow_curve_length_cap}{Maximum midpoint displacement as a fraction
 of the direct source-to-destination length.}
 
-\item{arrow_chain_full_angle, arrow_chain_moderate_angle, }{arrow_chain_max_angle Turn-angle thresholds, in degrees, for chained-hop
-curvature scaling.}
+\item{arrow_chain_full_angle, arrow_chain_moderate_angle, arrow_chain_max_angle}{Turn-angle thresholds, in degrees, for chained-hop curvature scaling.}
 
-\item{arrow_chain_full_multiplier, arrow_chain_moderate_multiplier, }{arrow_chain_shallow_multiplier Curvature multipliers for the three chain
-angle bands.}
+\item{arrow_chain_full_multiplier, arrow_chain_moderate_multiplier, arrow_chain_shallow_multiplier}{Curvature multipliers for the three chain angle bands.}
 
 \item{arrow_chain_short_length_radii}{Segment length, in checker radii, at
 or below which the additional short-hop curvature cap applies.}
@@ -118,3 +116,4 @@ An object of class \code{backgammon_movement_overlay_style}.
 Creates an explicit movement-overlay style object for passing to \code{\link[=ggboard]{ggboard()}}.
 \code{ghost_fill = NA} leaves the destination marker interior unfilled.
 }
+\keyword{internal}

@@ -28,12 +28,10 @@
 #' @param arrow_curve_max Maximum absolute bend, in checker radii.
 #' @param arrow_curve_length_cap Maximum midpoint displacement as a fraction
 #'   of the direct source-to-destination length.
-#' @param arrow_chain_full_angle,arrow_chain_moderate_angle,
-#'   arrow_chain_max_angle Turn-angle thresholds, in degrees, for chained-hop
-#'   curvature scaling.
-#' @param arrow_chain_full_multiplier,arrow_chain_moderate_multiplier,
-#'   arrow_chain_shallow_multiplier Curvature multipliers for the three chain
-#'   angle bands.
+#' @param arrow_chain_full_angle,arrow_chain_moderate_angle,arrow_chain_max_angle
+#'   Turn-angle thresholds, in degrees, for chained-hop curvature scaling.
+#' @param arrow_chain_full_multiplier,arrow_chain_moderate_multiplier,arrow_chain_shallow_multiplier
+#'   Curvature multipliers for the three chain angle bands.
 #' @param arrow_chain_short_length_radii Segment length, in checker radii, at
 #'   or below which the additional short-hop curvature cap applies.
 #' @param arrow_chain_short_curve_max Maximum short-hop bow in checker radii.
