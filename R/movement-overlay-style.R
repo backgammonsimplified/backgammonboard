@@ -45,7 +45,7 @@
 #'   conflict group.
 #'
 #' @return An object of class `backgammon_movement_overlay_style`.
-#' @export
+#' @keywords internal
 movement_overlay_style <- function(
     ghost_fill = NA,
     ghost_fill_alpha = 0.20,

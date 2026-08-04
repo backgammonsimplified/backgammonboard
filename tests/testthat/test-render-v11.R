@@ -1,7 +1,7 @@
-test_that("the public API includes configurable movement overlays", {
+test_that("the public API is frozen to the contract-v1.2 functions", {
   expected <- c(
     "backgammon_position", "board_colors", "board_moves", "board_style",
-    "ggboard", "movement_overlay_style", "normalize_xgid", "validate_xgid"
+    "ggboard", "normalize_xgid", "validate_xgid"
   )
   expect_identical(sort(getNamespaceExports("backgammonboard")), sort(expected))
   expect_identical(

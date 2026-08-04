@@ -5,3 +5,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^task-work$
+^artifacts$
+^[.]agents$
+^[.]Rhistory$
+^[.][.]Rcheck$
