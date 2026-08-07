@@ -31,10 +31,8 @@
 #'
 #' @return An ordinary object inheriting from `ggplot`.
 #' @export
-#' @param match_id Optional 12-character GNU Match ID when `x` is a GNU Position ID.
 ggboard <- function(
     x,
-  match_id = NULL,
     colors = board_colors(),
     style = board_style(),
     moves = NULL,
@@ -48,7 +46,7 @@ ggboard <- function(
     point_1_side = NULL,
     player_name_style = c("neutral", "checker"),
     movement_style = NULL) {
-  x <- .resolve_ggboard_input(x, match_id = match_id)
+  x <- .resolve_ggboard_input(x)
 
   mirror_was_missing <- missing(mirror_horizontal)
   if (is.null(point_1_side)) {

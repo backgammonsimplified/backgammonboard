@@ -17,10 +17,6 @@ testthat::test_that("ggboard GNU input delegates to backgammoncalculator", {
     expected
   )
 
-  testthat::expect_identical(
-    .resolve_ggboard_input(position_id, match_id),
-    expected
-  )
 })
 
 testthat::test_that("release XGID path is unchanged", {
