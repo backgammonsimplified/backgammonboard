@@ -1,5 +1,9 @@
 testthat::test_that("ggboard GNU input delegates to backgammoncalculator", {
   testthat::skip_if_not_installed("backgammoncalculator")
+  testthat::expect_gte(
+    utils::packageVersion("backgammoncalculator"),
+    utils::package_version("0.2.0")
+  )
 
   position_id <- "4HPwATDgc/ABMA"
   match_id <- "8IhuACAACAAE"
