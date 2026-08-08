@@ -76,8 +76,8 @@ ggboard(
   xgid,
   decision = "take_pass",
   perspective = "decision_maker",
-  colors = board_colors("bms"),
-  style = board_style("bms")
+  colors = board_colors("bs"),
+  style = board_style("bs")
 )
 ```
 

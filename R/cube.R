@@ -141,7 +141,7 @@ cube_center <- function(
   white_is_bottom <- identical(perspective, "white")
 
   # Neutral and offered cubes share the midline. A non-neutral owned cube
-  # remains on its factual owner's side, as in the accepted BMS treatment.
+  # remains on its factual owner's side, as in the accepted BS treatment.
   y <- switch(
     state,
     centered = board_y_center + centered_y_nudge,

@@ -6,8 +6,8 @@
 render_xgid_batch <- function(
     xgids,
     output_dir = "dev/preview-output/xgid-batch",
-    colors = board_colors("bms"),
-    style = board_style("bms"),
+    colors = board_colors("bs"),
+    style = board_style("bs"),
     brand_text = "Backgammon\nSimplified",
     width = 12,
     height = 8,

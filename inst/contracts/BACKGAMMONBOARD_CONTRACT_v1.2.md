@@ -6,8 +6,8 @@
 **Primary output:** static `ggplot`  
 **Supported source identifier for this release:** complete XGID  
 **Factual player identities:** `player_0`, `player_1`  
-**Default BMS labels:** `player_0 = Foey`, `player_1 = Homey`  
-**Default BMS near player:** `player_1` / Homey  
+**Default BS labels:** `player_0 = Foey`, `player_1 = Homey`  
+**Default BS near player:** `player_1` / Homey  
 
 This contract supersedes version 1.1 wherever player mapping, Homey/Foey labels, perspective, horizontal mirroring, vertical flipping, point numbering, cube placement, dice placement, or text orientation differ.
 
@@ -76,7 +76,7 @@ player_1
 
 These are stable factual identities used by the project.
 
-### 3.3 BMS display labels
+### 3.3 Backgammon Simplified display labels
 
 ```text
 player_0 -> Foey
@@ -274,7 +274,7 @@ player_0 / Foey  -> far
 mirror_horizontal = false
 ```
 
-This is the default BMS layout.
+This is the default Backgammon Simplified layout.
 
 No vertical transform is needed for the default Homey-near view.
 
@@ -565,7 +565,7 @@ perspective = decision_maker -> near_player = resolved decision maker
 
 For `none`, `decision_maker` may fall back to the on-roll player.
 
-### 13.2 Default BMS view
+### 13.2 Default Backgammon Simplified view
 
 ```text
 perspective = player_1

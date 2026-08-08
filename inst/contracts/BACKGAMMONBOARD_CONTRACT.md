@@ -243,11 +243,11 @@ ggboard(
 
 The result is a normal `ggplot` compatible with `print()`, `ggsave()`, Quarto, R Markdown, and Shiny.
 
-Package defaults are neutral. BMS uses explicit presets:
+Package defaults are neutral. Backgammon Simplified uses explicit presets:
 
 ```r
-board_colors("bms")
-board_style("bms")
+board_colors("bs")
+board_style("bs")
 ```
 
 Preset constructors:
@@ -261,7 +261,7 @@ Required v1 preset IDs:
 
 ```text
 default
-bms
+bs
 ```
 
 Unknown presets and override keys error.
@@ -465,7 +465,7 @@ manual_render_review:
   date: YYYY-MM-DD
   package_commit: null
   contract_version: 1.0
-  bms_preset: {id: bms, version: 1.0}
+  bs_preset: {id: bs, version: 1.0}
   status: pass
   failed_fixtures: []
   approved_exceptions: []
@@ -522,4 +522,4 @@ Release requires:
 - passing package checks;
 - migrated-source provenance;
 - Marty manual review;
-- recorded package, contract, and BMS preset versions.
+- recorded package, contract, and BS preset versions.

@@ -368,8 +368,8 @@ cases <- list(
   )
 )
 
-colors <- board_colors("bms")
-style <- board_style("bms")
+colors <- board_colors("bs")
+style <- board_style("bs")
 cards <- character(length(cases))
 manifest <- vector("list", length(cases))
 

@@ -186,8 +186,8 @@ render_png <- function(plot, path, background) {
   print(plot)
 }
 
-colors <- board_colors("bms")
-board_style_values <- board_style("bms")
+colors <- board_colors("bs")
+board_style_values <- board_style("bs")
 manifest <- list()
 cards <- character()
 manifest_index <- 1L

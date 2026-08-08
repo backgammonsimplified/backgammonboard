@@ -322,8 +322,8 @@ make_plot <- function(scenario, perspective, mirror_horizontal, colors, style,
 }
 
 repository_commit <- trimws(system2("git", c("rev-parse", "HEAD"), stdout = TRUE))
-colors <- board_colors("bms")
-style <- board_style("bms")
+colors <- board_colors("bs")
+style <- board_style("bs")
 manifest <- list()
 scenario_cards <- list()
 source_files <- character()

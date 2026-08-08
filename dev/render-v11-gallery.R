@@ -21,7 +21,7 @@ cases <- data.frame(
     "cube-owned-player0", "cube-owned-player1", "money-game",
     "match-score", "crawford", "on-roll-view-invariance",
     "late-bearoff", "asymmetric-borne-off",
-    "bms-homey-on-roll", "pending-offer-player0", "pending-offer-player1",
+    "backgammon-simplified-homey-on-roll", "pending-offer-player0", "pending-offer-player1",
     "source-code-pro-single-line", "source-code-pro-two-line"
   ),
   title = c(
@@ -36,8 +36,8 @@ cases <- data.frame(
     "Cube owned by player_0 (historical case 13)",
     "Unlimited game", "Match score", "Crawford",
     "Same factual view as case 03", "Late bearoff", "Asymmetric borne-off",
-    "BMS review - Homey on roll", "BMS review - player_0 pending offer",
-    "BMS review - player_1 pending offer",
+    "Backgammon Simplified review - Homey on roll", "Backgammon Simplified review - player_0 pending offer",
+    "Backgammon Simplified review - player_1 pending offer",
     "Source Code Pro 700 - two lines",
     "Source Code Pro 700 - two lines"
   ),
@@ -91,9 +91,9 @@ render_svg <- function(plot, path, background) {
   grDevices::dev.off()
 }
 
-colors <- board_colors("bms")
-style <- board_style("bms")
-source_code_family <- "Source Code Pro BMS 700"
+colors <- board_colors("bs")
+style <- board_style("bs")
+source_code_family <- "Source Code Pro BS 700"
 source_code_font <- normalizePath(
   file.path("dev", "fonts", "SourceCodePro-Bold700.ttf"),
   winslash = "/", mustWork = TRUE
@@ -177,7 +177,7 @@ html <- c(
   '<!doctype html><html><head><meta charset="utf-8"><title>backgammonboard v1.1 gallery</title>',
   '<style>body{font:15px system-ui;background:#f4f1e8;color:#172039;margin:0}main{max-width:1200px;margin:auto;padding:24px}article{background:white;border:1px solid #ccd1d8;border-radius:10px;padding:16px;margin:20px 0}img{display:block;width:100%;height:auto}code{overflow-wrap:anywhere}dt{font-weight:700;margin-top:.5rem}</style>',
   '</head><body><main><h1>backgammonboard contract-v1.1 gallery</h1>',
-  '<p>Complete XGID is the only source input. All cases use explicit display context and the BMS preset.</p>',
+  '<p>Complete XGID is the only source input. All cases use explicit display context and the Backgammon Simplified preset.</p>',
   cards, '</main></body></html>'
 )
 writeLines(html, file.path(staging, "index.html"), useBytes = TRUE)

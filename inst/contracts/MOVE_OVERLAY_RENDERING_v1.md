@@ -15,7 +15,7 @@ only checker plays that pass the deterministic move-application layer.
 ## Board-scale resilience
 
 Point outlines use a fixed rendered line width rather than a board-coordinate
-polygon width. The BMS point outline is raised to a visible minimum of 0.38 mm
+polygon width. The Backgammon Simplified (BS) point outline is raised to a visible minimum of 0.38 mm
 for direct small-width exports.
 
 Reduced-size output must still be reviewed at:
@@ -50,7 +50,7 @@ colour        1.0w
 Arrowheads scale with the same layered hierarchy so the coloured arrowhead
 does not cover both halo arrowheads completely.
 
-The BMS semantic colours are:
+The BS semantic colours are:
 
 ```text
 selected      #D9653B

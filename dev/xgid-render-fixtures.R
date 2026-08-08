@@ -40,8 +40,8 @@ output_directory <- file.path(
 )
 dir.create(output_directory, recursive = TRUE, showWarnings = FALSE)
 
-colors <- board_colors("bms")
-style <- board_style("bms")
+colors <- board_colors("bs")
+style <- board_style("bs")
 manifest <- vector("list", length(specs))
 
 for (index in seq_along(specs)) {

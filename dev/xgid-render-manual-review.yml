@@ -3,8 +3,8 @@ manual_render_review:
   date: 2026-07-20
   package_commit: null
   contract_version: 1.0
-  bms_preset:
-    id: bms
+  bs_preset:
+    id: bs
     version: 1.0
   status: pass
   required_fixtures:

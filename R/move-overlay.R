@@ -937,7 +937,7 @@ move_overlay_duplicate_curvatures <- function(segments, style) {
 move_overlay_geometry <- function(
     position,
     moves,
-    style = board_style("bms"),
+    style = board_style("bs"),
     movement_style = movement_overlay_style(arrow_checker_gap = 0),
     perspective = "white",
     point_1_side = "right",

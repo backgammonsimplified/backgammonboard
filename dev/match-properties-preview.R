@@ -51,8 +51,8 @@ position <- backgammonboard::backgammon_position(selected_xgid)
 
 plot <- backgammonboard:::render_board_preview(
   x = position,
-  colors = backgammonboard::board_colors("bms"),
-  style = backgammonboard::board_style("bms"),
+  colors = backgammonboard::board_colors("bs"),
+  style = backgammonboard::board_style("bs"),
   point_1_side = "right",
   brand_text = if (isTRUE(SHOW_BRANDING)) {
     "Backgammon\nSimplified"
@@ -111,7 +111,7 @@ ggplot2::ggsave(
   height = 9.1,
   units = "in",
   dpi = 200,
-  bg = backgammonboard::board_colors("bms")$outside_fill
+  bg = backgammonboard::board_colors("bs")$outside_fill
 )
 
 output_file <- normalizePath(

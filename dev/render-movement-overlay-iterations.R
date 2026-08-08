@@ -46,8 +46,8 @@ for (name in names(variants)) {
   overlay_style <- do.call(movement_overlay_style, variants[[name]])
   plot <- ggboard(
     xgid,
-    colors = board_colors("bms"),
-    style = board_style("bms"),
+    colors = board_colors("bs"),
+    style = board_style("bs"),
     moves = moves,
     decision = "checker_play",
     perspective = "player_1",
