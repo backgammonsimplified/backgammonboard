@@ -1,6 +1,6 @@
 Package: backgammonboard
 Title: Represent and Render Backgammon Positions
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: person("Marty", "Gale",
     email = "justsendityew@gmail.com",
     role = c("aut", "cre"))
