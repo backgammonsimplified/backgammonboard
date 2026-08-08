@@ -59,8 +59,8 @@ Prefer \code{mirror_horizontal} in new code.}
 \item{player_name_style}{Name-badge treatment: neutral package text or
 checker-associated BS colors.}
 
-\item{movement_style}{Optional movement-overlay appearance created by
-\code{\link[=movement_overlay_style]{movement_overlay_style()}}. \code{NULL} preserves the board preset's overlay.}
+\item{movement_style}{Reserved internal movement-overlay override. Consumers
+should leave this as \code{NULL}; \code{NULL} preserves the board preset's overlay.}
 }
 \value{
 An ordinary object inheriting from \code{ggplot}.
