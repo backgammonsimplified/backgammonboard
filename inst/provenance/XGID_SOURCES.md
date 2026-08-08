@@ -30,8 +30,13 @@ B and R markers rejected as unsupported
 factual cube values above 64 rejected
 ```
 
-No Python runtime is used by the package or its tests. The static fixture corpus
-is generated during development and consumed as CSV by native R tests.
+No Python runtime is used by the package or its tests. Any static fixtures used
+during development are not an AnkiGammon runtime dependency.
+
+The upstream copyright and MIT terms are retained in
+`inst/licenses/AnkiGammon-MIT.txt` in the source repository and installed as
+`licenses/AnkiGammon-MIT.txt`. The package-level third-party summary is
+`inst/THIRD_PARTY_NOTICES.md`.
 
 Historical audit and contract notes used during development are repository-only
 evidence and are intentionally excluded from the installed package.
