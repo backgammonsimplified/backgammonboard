@@ -33,10 +33,5 @@ factual cube values above 64 rejected
 No Python runtime is used by the package or its tests. The static fixture corpus
 is generated during development and consumed as CSV by native R tests.
 
-See also:
-
-```text
-inst/NOTICE/AnkiGammon-xgid-parser.txt
-inst/contracts/XGID_AUDIT_ANKIGAMMON_v1.md
-inst/contracts/XGID_CUBE_RENDER_AMENDMENT_v1.md
-```
+Historical audit and contract notes used during development are repository-only
+evidence and are intentionally excluded from the installed package.
