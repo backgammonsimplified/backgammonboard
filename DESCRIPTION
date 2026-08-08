@@ -22,8 +22,8 @@ Config/roxygen2/version: 8.0.0
 Config/testthat/edition: 3
 Config/backgammonboard/contract-version: 1.2
 Imports:
-    ggforce,
-    ggplot2,
+    ggforce (>= 0.4.0),
+    ggplot2 (>= 3.4.0),
     grid
 Suggests:
     testthat (>= 3.0.0),
