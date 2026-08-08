@@ -9,7 +9,7 @@ install.packages("backgammonboard")
 ```
 
 XGID rendering works with `backgammonboard` alone. Complete GNUID input is an
-optional feature and additionally requires `backgammoncalculator` 0.1.0 or
+optional feature and additionally requires `backgammoncalculator` 0.2.0 or
 later, available from
 <https://github.com/backgammonsimplified/backgammoncalculator>.
 
