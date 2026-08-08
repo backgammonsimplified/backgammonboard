@@ -29,21 +29,21 @@ xg_exact <- identical(
 
 rows <- list(
   list(
-    title = "GNU → XG → GNU",
+    title = "GNUID → XGID → GNUID",
     pass = gnu_exact,
     stages = list(
-      list(label = "1. Original GNUID", id = original_gnuid),
-      list(label = "2. Converted XGID", id = gnu_to_xg),
-      list(label = "3. Round-tripped GNUID", id = xg_to_gnu)
+      list(role = "Original", kind = "GNUID", id = original_gnuid),
+      list(role = "Converted", kind = "XGID", id = gnu_to_xg),
+      list(role = "Round trip", kind = "GNUID", id = xg_to_gnu)
     )
   ),
   list(
-    title = "XG → GNU → XG",
+    title = "XGID → GNUID → XGID",
     pass = xg_exact,
     stages = list(
-      list(label = "1. Original XGID", id = original_xgid),
-      list(label = "2. Converted GNUID", id = xg_to_gnu_2),
-      list(label = "3. Round-tripped XGID", id = gnu_to_xg_2)
+      list(role = "Original", kind = "XGID", id = original_xgid),
+      list(role = "Converted", kind = "GNUID", id = xg_to_gnu_2),
+      list(role = "Round trip", kind = "XGID", id = gnu_to_xg_2)
     )
   )
 )
@@ -86,10 +86,19 @@ render_stage <- function(stage, row_index, col_index) {
   save_svg(plot, path)
 
   paste0(
-    "<article class='stage'>",
-    "<h3>", html_escape(stage$label), "</h3>",
-    read_svg(path),
-    "<p><code>", html_escape(stage$id), "</code></p>",
+    "<article class='stage kind-", tolower(stage$kind), "'>",
+    "<div class='stage-heading'>",
+    "<div>",
+    "<span class='step'>Stage ", col_index, "</span>",
+    "<h3>", html_escape(stage$role), "</h3>",
+    "</div>",
+    "<span class='kind-badge'>", html_escape(stage$kind), "</span>",
+    "</div>",
+    "<div class='board-frame'>", read_svg(path), "</div>",
+    "<div class='identifier'>",
+    "<span class='identifier-label'>", html_escape(stage$kind), "</span>",
+    "<code>", html_escape(stage$id), "</code>",
+    "</div>",
     "</article>"
   )
 }
@@ -102,12 +111,27 @@ render_row <- function(row, row_index) {
   )
 
   status <- if (row$pass) "IDENTICAL ID" else "NORMALIZED ID"
+  status_class <- if (row$pass) "pass" else "normalized"
+  status_note <- if (row$pass) {
+    "The round-trip identifier is byte-identical to the original."
+  } else {
+    paste0(
+      "The identifier changed during normalization. This is informational: ",
+      "compare the rendered factual state across all three boards."
+    )
+  }
 
   paste0(
     "<section class='trip'>",
-    "<header><h2>", html_escape(row$title), "</h2>",
-    "<strong class='", if (row$pass) "pass" else "normalized", "'>",
-    status, "</strong></header>",
+    "<header class='trip-heading'>",
+    "<div><span class='eyebrow'>Round trip ", row_index, "</span>",
+    "<h2>", html_escape(row$title), "</h2></div>",
+    "<div class='status-wrap'>",
+    "<strong class='status ", status_class, "'>", status, "</strong>",
+    "<span>", html_escape(status_note), "</span>",
+    "</div>",
+    "</header>",
+    "<div class='flow-labels'><span>source</span><span>conversion</span><span>result</span></div>",
     "<div class='stages'>", paste(stages, collapse = "\n"), "</div>",
     "</section>"
   )
@@ -123,22 +147,65 @@ doc <- paste0(
   "<meta name='viewport' content='width=device-width,initial-scale=1'>",
   "<title>GNUID / XGID round trips</title>",
   "<style>",
-  "body{font-family:system-ui,sans-serif;background:#f4f4f4;color:#222;margin:0}",
-  "main{max-width:1700px;margin:auto;padding:24px}",
-  ".trip{background:#fff;border:1px solid #ddd;border-radius:10px;padding:18px;margin-bottom:24px}",
-  ".trip header{display:flex;justify-content:space-between;align-items:center;gap:16px}",
+  ":root{",
+  "--page:#f3efe7;--paper:#fffdf8;--ink:#16251f;--muted:#68756f;",
+  "--line:#d8d4ca;--homey:#0f6b58;--homey-soft:#e3f2ed;",
+  "--foey:#b56f22;--foey-soft:#fbeddc;--xgid:#315e8a;--xgid-soft:#e8f0f7;",
+  "--normalized:#8b6514;--normalized-soft:#fff3cf;--shadow:0 10px 30px rgba(25,39,33,.08)",
+  "}",
+  "*{box-sizing:border-box}",
+  "body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--page);color:var(--ink);margin:0;line-height:1.45}",
+  "main{max-width:1780px;margin:auto;padding:34px 28px 56px}",
+  ".hero{background:linear-gradient(135deg,#173f36 0%,#0f6b58 62%,#315e8a 100%);color:#fff;border-radius:18px;padding:28px 32px;margin-bottom:24px;box-shadow:var(--shadow)}",
+  ".hero h1{font-size:clamp(28px,3vw,44px);letter-spacing:-.03em;margin:0 0 8px}",
+  ".hero p{max-width:1050px;margin:7px 0;color:rgba(255,255,255,.88);font-size:16px}",
+  ".hero code{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.16);border-radius:5px;padding:1px 5px;color:#fff}",
+  ".legend{display:flex;flex-wrap:wrap;gap:9px;margin-top:17px}",
+  ".legend span{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 10px;font-size:13px}",
+  ".dot{display:inline-block;width:9px;height:9px;border-radius:50%}",
+  ".dot.homey{background:#7bd6bd}.dot.foey{background:#f1b76f}.dot.xgid{background:#9cc6ee}",
+  ".trip{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:21px;margin-bottom:24px;box-shadow:var(--shadow)}",
+  ".trip-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;margin-bottom:15px}",
+  ".trip-heading h2{font-size:25px;letter-spacing:-.02em;margin:2px 0 0}",
+  ".eyebrow,.step{display:block;text-transform:uppercase;letter-spacing:.11em;font-size:11px;font-weight:800;color:var(--muted)}",
+  ".status-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:5px;max-width:520px;text-align:right;color:var(--muted);font-size:13px}",
+  ".status{display:inline-block;border-radius:999px;padding:6px 10px;font-size:12px;letter-spacing:.04em}",
+  ".status.pass{background:var(--homey-soft);color:var(--homey)}",
+  ".status.normalized{background:var(--normalized-soft);color:var(--normalized)}",
+  ".flow-labels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:0 0 6px}",
+  ".flow-labels span{text-align:center;text-transform:uppercase;letter-spacing:.12em;font-size:10px;font-weight:800;color:#89928e}",
   ".stages{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}",
-  ".stage{border:1px solid #ddd;border-radius:8px;padding:10px;min-width:0}",
+  ".stage{background:#fff;border:1px solid var(--line);border-top:5px solid var(--homey);border-radius:12px;padding:11px;min-width:0;overflow:hidden}",
+  ".stage.kind-xgid{border-top-color:var(--xgid)}",
+  ".stage.kind-gnuid{border-top-color:var(--foey)}",
+  ".stage-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:1px 2px 9px}",
+  ".stage-heading h3{font-size:19px;margin:1px 0 0}",
+  ".kind-badge{border-radius:999px;padding:5px 9px;font-size:11px;font-weight:800;letter-spacing:.05em}",
+  ".kind-xgid .kind-badge{background:var(--xgid-soft);color:var(--xgid)}",
+  ".kind-gnuid .kind-badge{background:var(--foey-soft);color:var(--foey)}",
+  ".board-frame{background:#f7f4ed;border:1px solid #e4e0d7;border-radius:9px;padding:5px;overflow:hidden}",
   ".stage svg{width:100%;height:auto;display:block}",
-  "code{overflow-wrap:anywhere}",
-  ".pass{background:#e8f5e9;padding:6px 10px;border-radius:6px}",
-  ".normalized{background:#fff3cd;padding:6px 10px;border-radius:6px}",
-  "@media(max-width:1000px){.stages{grid-template-columns:1fr}}",
+  ".identifier{margin-top:9px;background:#f7f5f0;border-radius:8px;padding:9px 10px}",
+  ".identifier-label{display:block;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-size:10px;font-weight:800;margin-bottom:3px}",
+  "code{font-family:'SFMono-Regular',Consolas,'Liberation Mono',monospace;overflow-wrap:anywhere;word-break:break-word}",
+  ".identifier code{font-size:12px;color:#26342f}",
+  ".footer-note{color:var(--muted);font-size:13px;margin:15px 3px 0}",
+  "@media(max-width:1050px){",
+  ".trip-heading{flex-direction:column}.status-wrap{align-items:flex-start;text-align:left}",
+  ".flow-labels{display:none}.stages{grid-template-columns:1fr}",
+  "}",
   "</style></head><body><main>",
-  "<h1>GNUID ↔ XGID round-trip visualization</h1>",
-  "<p>All panels use <code>perspective = \"player_1\"</code> and ",
-  "<code>mirror_horizontal = FALSE</code>. Display orientation is held constant.</p>",
+  "<section class='hero'>",
+  "<h1>GNUID ↔ XGID round-trip review</h1>",
+  "<p><strong>Visual gate:</strong> the three boards in each row should preserve the same renderable factual state. A GNUID can normalize information during conversion, so a changed identifier is not automatically a failure.</p>",
+  "<p>Every board uses <code>perspective = \"player_1\"</code> with Homey near and <code>mirror_horizontal = FALSE</code>. Display controls are held constant so conversion differences cannot hide behind viewpoint changes.</p>",
+  "<div class='legend'>",
+  "<span><i class='dot homey'></i>Homey / player_1 near</span>",
+  "<span><i class='dot foey'></i>GNUID stage</span>",
+  "<span><i class='dot xgid'></i>XGID stage</span>",
+  "</div></section>",
   body,
+  "<p class='footer-note'>Identifier status is informational. The release check is factual/render equivalence across each round trip.</p>",
   "</main></body></html>"
 )
 
