@@ -13,12 +13,31 @@
 }
 
 .require_backgammoncalculator <- function() {
+  minimum_version <- "0.2.0"
+
   if (!requireNamespace("backgammoncalculator", quietly = TRUE)) {
     stop(
-      "GNUID input requires package `backgammoncalculator`.",
+      paste0(
+        "GNUID input requires package `backgammoncalculator` >= ",
+        minimum_version, "."
+      ),
       call. = FALSE
     )
   }
+
+  installed_version <- as.character(
+    utils::packageVersion("backgammoncalculator")
+  )
+  if (utils::compareVersion(installed_version, minimum_version) < 0L) {
+    stop(
+      paste0(
+        "GNUID input requires package `backgammoncalculator` >= ",
+        minimum_version, "; installed version is ", installed_version, "."
+      ),
+      call. = FALSE
+    )
+  }
+
   invisible(TRUE)
 }
 
