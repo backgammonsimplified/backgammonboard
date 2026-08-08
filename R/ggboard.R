@@ -7,8 +7,8 @@
 #'   `backgammon_position`. GNUID input requires `backgammoncalculator`.
 #' @param colors A validated object created by [board_colors()].
 #' @param style A validated object created by [board_style()].
-#' @param movement_style Optional movement-overlay appearance created by
-#'   [movement_overlay_style()]. `NULL` preserves the board preset's overlay.
+#' @param movement_style Reserved internal movement-overlay override. Consumers
+#'   should leave this as `NULL`; `NULL` preserves the board preset's overlay.
 #' @param moves Optional structured movements created by [board_moves()].
 #' @param after_xgid Optional complete XGID used only to validate the applied
 #'   checker layout. It does not replace the displayed before-position.
