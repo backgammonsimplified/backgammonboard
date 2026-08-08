@@ -335,9 +335,9 @@ License by making exceptions from one or more of its conditions.
 Additional permissions that are applicable to the entire Program shall
 be treated as though they were included in this License, to the extent
 that they are valid under applicable law.  If additional permissions
-apply only to part of the Program, that part may be used separately,
-but the entire Program remains governed by this License without regard
-to the additional permissions.
+apply only to part of the Program, that part may be used separately
+under those permissions, but the entire Program remains governed by
+this License without regard to the additional permissions.
 
   When you convey a copy of a covered work, you may at your option
 remove any additional permissions from that copy, or from any part of
@@ -441,12 +441,12 @@ for enforcing compliance by third parties with this License.
   An "entity transaction" is a transaction transferring control of an
 organization, or substantially all assets of one, or subdividing an
 organization, or merging organizations.  If propagation of a covered
-work results from an entity transaction, each party to that transaction
-who receives a copy of the work also receives whatever licenses to the
-work the party's predecessor in interest had or could give under the
-previous paragraph, plus a right to possession of the Corresponding
-Source of the work from the predecessor in interest, if the predecessor
-has it or can get it with reasonable efforts.
+work results from an entity transaction, each party to that
+transaction who receives a copy of the work also receives whatever
+licenses to the work the party's predecessor in interest had or could
+give under the previous paragraph, plus a right to possession of the
+Corresponding Source of the work from the predecessor in interest, if
+the predecessor has it or can get it with reasonable efforts.
 
   You may not impose any further restrictions on the exercise of the
 rights granted or affirmed under this License.  For example, you may
@@ -480,9 +480,9 @@ propagate the contents of its contributor version.
   In the following three paragraphs, a "patent license" is any express
 agreement or commitment, however denominated, not to enforce a patent
 (such as an express permission to practice a patent or covenant not to
-sue for infringement).  To "grant" such a patent license to a party
-means to make such an agreement or commitment not to enforce a patent
-against the party.
+sue for patent infringement).  To "grant" such a patent license to a
+party means to make such an agreement or commitment not to enforce a
+patent against the party.
 
   If you convey a covered work, knowingly relying on a patent license,
 and the Corresponding Source of the work is not available for anyone
@@ -514,11 +514,11 @@ work if you are a party to an arrangement with a third party that is
 in the business of distributing software, under which you make payment
 to the third party based on the extent of your activity of conveying
 the work, and under which the third party grants, to any of the
-parties who would receive copies of the covered work from you, a
-discriminatory patent license (a) in connection with copies of the
-covered work conveyed by you (or copies made from those copies), or (b)
-primarily for and in connection with specific products or compilations
-that contain the covered work, unless you entered into that arrangement,
+parties who would receive the covered work from you, a discriminatory
+patent license (a) in connection with copies of the covered work
+conveyed by you (or copies made from those copies), or (b) primarily
+for and in connection with specific products or compilations that
+contain the covered work, unless you entered into that arrangement,
 or that patent license was granted, prior to 28 March 2007.
 
   Nothing in this License shall be construed as excluding or limiting
@@ -568,11 +568,11 @@ address new problems or concerns.
   Each version is given a distinguishing version number.  If the
 Program specifies that a certain numbered version of the GNU Affero General
 Public License "or any later version" applies to it, you have the
-option of following the terms and conditions either of that numbered version
-or of any later version published by the Free Software Foundation.  If the
-Program does not specify a version number of the GNU Affero General Public
-License, you may choose any version ever published by the Free Software
-Foundation.
+option of following the terms and conditions either of that numbered
+version or of any later version published by the Free Software
+Foundation.  If the Program does not specify a version number of the
+GNU Affero General Public License, you may choose any version ever published
+by the Free Software Foundation.
 
   If the Program specifies that a proxy can decide which future
 versions of the GNU Affero General Public License can be used, that proxy's
@@ -581,8 +581,8 @@ to choose that version for the Program.
 
   Later license versions may give you additional or different
 permissions.  However, no additional obligations are imposed on any
-author or copyright holder as a result of your choosing to follow the
-terms of a later version.
+author or copyright holder as a result of your choosing to follow a
+later version.
 
   15. Disclaimer of Warranty.
 
@@ -626,8 +626,8 @@ free software which everyone can redistribute and change under these terms.
 
   To do so, attach the following notices to the program.  It is safest
 to attach them to the start of each source file to most effectively
-state the exclusion of warranty; and each file should have at least the
-"copyright" line and a pointer to where the full notice is found.
+state the exclusion of warranty; and each file should have at least
+the "copyright" line and a pointer to where the full notice is found.
 
     <one line to give the program's name and a brief idea of what it does.>
     Copyright (C) <year>  <name of author>
