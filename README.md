@@ -1,5 +1,12 @@
 # backgammonboard
 
+[![R-CMD-check](https://github.com/backgammonsimplified/backgammonboard/actions/workflows/R-CMD-check.yaml/badge.svg?branch=master)](https://github.com/backgammonsimplified/backgammonboard/actions/workflows/R-CMD-check.yaml)
+[![GitHub release](https://img.shields.io/github/v/release/backgammonsimplified/backgammonboard)](https://github.com/backgammonsimplified/backgammonboard/releases/latest)
+[![GitHub downloads](https://img.shields.io/github/downloads/backgammonsimplified/backgammonboard/total)](https://github.com/backgammonsimplified/backgammonboard/releases)
+[![License](https://img.shields.io/github/license/backgammonsimplified/backgammonboard)](https://github.com/backgammonsimplified/backgammonboard)
+
+`backgammonboard` validates complete XGIDs and optional complete GNUIDs, constructs factual backgammon positions, and renders static `ggplot` boards with display and structured movement controls.
+
 ## Installation
 
 Install the released package from the public GitHub repository with:
