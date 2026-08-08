@@ -1,0 +1,22 @@
+# R session and user state
+.Rhistory
+.RData
+.Ruserdata
+
+# RStudio project metadata
+.Rproj.user/
+
+# Package build artifacts
+*.Rcheck/
+*.tar.gz
+*.zip
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+
+# Local preview output
+dev/preview-output/
+
+# Optional: if you later create release folders locally
+releases/

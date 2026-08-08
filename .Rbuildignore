@@ -1,0 +1,17 @@
+^.*[.]Rproj$
+^[.]Rproj[.]user$
+^IMPLEMENTATION_STATUS[.]md$
+^dev$
+^.*\.Rproj$
+^\.Rproj\.user$
+^task-work$
+^artifacts$
+^[.]agents$
+^[.]Rhistory$
+^[.][.]Rcheck$
+^\.Rlib$
+^cran-comments[.]md$
+^CRAN-SUBMISSION$
+^inst/contracts$
+^inst/brand$
+^LICENSE$
