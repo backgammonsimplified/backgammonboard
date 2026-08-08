@@ -280,8 +280,8 @@ add_board_guides <- function(plot,
 
 render_board_preview <- function(
     x,
-    colors = board_colors("bms"),
-    style = board_style("bms"),
+    colors = board_colors("bs"),
+    style = board_style("bs"),
     point_1_side = c("right", "left"),
     perspective = NULL,
     mirror_horizontal = NULL,

@@ -7,7 +7,7 @@
 board_colors(name = "default", overrides = NULL)
 }
 \arguments{
-\item{name}{Preset name. Supported values are \code{"default"} and \code{"bms"}.}
+\item{name}{Preset name. Supported values are \code{"default"} and \code{"bs"}.}
 
 \item{overrides}{Optional named list of color overrides.}
 }

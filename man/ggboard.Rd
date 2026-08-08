@@ -2,7 +2,7 @@
 % Please edit documentation in R/ggboard.R
 \name{ggboard}
 \alias{ggboard}
-\title{Render a factual backgammon board from a complete XGID}
+\title{Render a factual backgammon board from a complete XGID or GNUID}
 \usage{
 ggboard(
   x,
@@ -22,7 +22,8 @@ ggboard(
 )
 }
 \arguments{
-\item{x}{A complete XGID string or a factual \code{backgammon_position}.}
+\item{x}{A complete XGID string, complete GNUID string, or factual
+\code{backgammon_position}. GNUID input requires \code{backgammoncalculator}.}
 
 \item{colors}{A validated object created by \code{\link[=board_colors]{board_colors()}}.}
 
@@ -56,7 +57,7 @@ XGID decoding or factual ownership.}
 Prefer \code{mirror_horizontal} in new code.}
 
 \item{player_name_style}{Name-badge treatment: neutral package text or
-checker-associated BMS colors.}
+checker-associated BS colors.}
 
 \item{movement_style}{Optional movement-overlay appearance created by
 \code{\link[=movement_overlay_style]{movement_overlay_style()}}. \code{NULL} preserves the board preset's overlay.}

@@ -1,10 +1,11 @@
-# Minimal BMS Brand Compliance Note
+# Minimal BS Brand Compliance Note
 
 This checkpoint deliberately avoids a full palette-registry migration.
 
-The current `board_colors("bms")` values already match the supplied BMS board
-palette for the board, checkers, dice, cube, text, and primary/secondary move
-colours. The move-overlay tokens added here use the supplied guide values.
+The current `board_colors("bs")` values already match the supplied Backgammon
+Simplified board palette for the board, checkers, dice, cube, text, and
+primary/secondary move colours. The move-overlay tokens added here use the
+supplied guide values.
 
 The supplied generated brand export records:
 

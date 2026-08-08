@@ -1,5 +1,5 @@
 test_that("bar stacks begin beside the point tips and count after four", {
-  style <- board_style("bms")
+  style <- board_style("bs")
   position <- custom_position(
     player_1 = c(`6` = 5L),
     player_1_bar = 5L,
@@ -26,7 +26,7 @@ test_that("bar stacks begin beside the point tips and count after four", {
 
 
 test_that("outside checkers follow the 1-point side", {
-  style <- board_style("bms")
+  style <- board_style("bs")
   position <- backgammonboard:::as_render_position(custom_position(dice = integer()))
   right <- backgammonboard:::checker_layout(
     position, style, point_1_side = "right", perspective = "white"
@@ -41,10 +41,10 @@ test_that("outside checkers follow the 1-point side", {
 })
 
 
-test_that("information wording, side, arrows, and name palettes follow BMS review", {
+test_that("information wording, side, arrows, and name palettes follow BS review", {
   xgid <- "XGID=-b----E-C---eE---c-e----B-:0:0:1:00:4:2:0:7:10"
-  style <- board_style("bms")
-  colors <- board_colors("bms")
+  style <- board_style("bs")
+  colors <- board_colors("bs")
   position <- backgammonboard:::as_render_position(backgammon_position(xgid))
   geometry <- backgammonboard:::board_geometry(style, perspective = "white")
   right <- backgammonboard:::board_information_layout(
@@ -113,7 +113,7 @@ test_that("left setup mirrors information, outside cube, and point one", {
 
 
 test_that("dice remain on the roller's semantic right", {
-  style <- board_style("bms")
+  style <- board_style("bs")
   geometry <- backgammonboard:::board_geometry(style, perspective = "white")
   homey <- backgammonboard:::as_render_position(backgammon_position(
     "XGID=-b----E-C---eE---c-e----B-:0:0:1:42:0:0:0:0:10"
@@ -162,7 +162,7 @@ test_that("rendered dice stay on the roller's physical right across display cont
 
 
 test_that("centered cubes and Crawford occupy the middle outside lane", {
-  style <- board_style("bms")
+  style <- board_style("bs")
   geometry <- backgammonboard:::board_geometry(style, perspective = "white")
   render <- backgammonboard:::as_render_position(
     backgammon_position(fixture_xgid("centered_cube"))

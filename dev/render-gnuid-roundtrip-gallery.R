@@ -73,10 +73,14 @@ read_svg <- function(path) {
   sub("^\\s*<!DOCTYPE[^>]*>\\s*", "", x, perl = TRUE)
 }
 
-# Use the accepted BMS presentation explicitly. The gallery should review the
-# same colorful release presentation, not fall back to the neutral default.
-gallery_colors <- backgammonboard::board_colors("bms")
-gallery_style <- backgammonboard::board_style("bms")
+# Use the accepted Backgammon Simplified presentation explicitly. The gallery
+# should review the same colorful release presentation, not the neutral default.
+gallery_colors <- backgammonboard::board_colors("bs")
+gallery_style <- backgammonboard::board_style("bs")
+gallery_geometry <- backgammonboard:::board_geometry(
+  gallery_style,
+  perspective = "white"
+)
 
 render_stage <- function(stage, row_index, col_index) {
   plot <- backgammonboard::ggboard(
@@ -86,6 +90,14 @@ render_stage <- function(stage, row_index, col_index) {
     perspective = "player_1",
     mirror_horizontal = FALSE,
     player_name_style = "checker"
+  )
+
+  plot <- backgammonboard:::add_board_brand(
+    plot,
+    gallery_geometry,
+    "Backgammon\nSimplified",
+    side = attr(plot, "backgammon_brand_side"),
+    color = gallery_colors$brand_text
   )
 
   path <- file.path(
@@ -207,9 +219,9 @@ doc <- paste0(
   "<section class='hero'>",
   "<h1>GNUID ↔ XGID round-trip review</h1>",
   "<p><strong>Visual gate:</strong> all three boards in each round trip should preserve the same renderable factual state. GNU identifiers can normalize information during conversion, so a changed identifier is not automatically a failure.</p>",
-  "<p>Boards use the released <strong>BMS color/style presets</strong>, <code>perspective = \"player_1\"</code> with Homey near, and <code>mirror_horizontal = FALSE</code>. The display is held constant so conversion differences cannot hide behind viewpoint changes.</p>",
+  "<p>Boards use the released <strong>Backgammon Simplified (BS) color/style presets</strong>, <code>perspective = \"player_1\"</code> with Homey near, and <code>mirror_horizontal = FALSE</code>. The display is held constant so conversion differences cannot hide behind viewpoint changes.</p>",
   "<div class='legend'>",
-  "<span><i class='dot homey'></i>BMS / Homey near</span>",
+  "<span><i class='dot homey'></i>BS / Homey near</span>",
   "<span><i class='dot foey'></i>GNUID stage</span>",
   "<span><i class='dot xgid'></i>XGID stage</span>",
   "</div></section>",

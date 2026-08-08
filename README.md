@@ -1,7 +1,9 @@
 # backgammonboard
 
 `backgammonboard` validates complete XGIDs, constructs factual positions, and
-renders static `ggplot` boards. Contract version 1.2 has one release path:
+renders static `ggplot` boards. Complete GNUIDs are also accepted when
+`backgammoncalculator` is installed; GNUID input is converted to XGID and then
+uses the same rendering path.
 
 ```text
 complete XGID
@@ -12,6 +14,10 @@ complete XGID
 -> independent vertical and horizontal display transforms
 -> optional structured movements
 -> ggplot
+
+complete GNUID
+-> backgammoncalculator::gnuid_to_xgid()
+-> existing complete-XGID path
 ```
 
 ```r
@@ -20,6 +26,13 @@ library(backgammonboard)
 xgid <- "XGID=-b----E-C---eE---c-e----B-:0:0:1:52:0:0:0:0:10"
 plot <- ggboard(xgid)
 inherits(plot, "ggplot")
+```
+
+A complete GNUID can be passed through the same entry point:
+
+```r
+gnuid <- "4HPwATDgc/ABMA:8IhuACAACAAE"
+plot <- ggboard(gnuid)
 ```
 
 The fixed factual identities are `player_0` (XGID top player, Foey) and
@@ -31,10 +44,6 @@ light visual palette; set it to `"near_player"` to keep the bottom player light.
 Neutral centered and offered cubes remain on the board's vertical midline.
 When the cube exponent is non-zero, an owned cube remains outside on its
 factual owner's vertical side.
-
-Complete XGID, with or without the `XGID=` prefix, is the only release source
-identifier. GNU identifiers, Engine Kit/Node conversion, AnkiGammon, and
-RendererPosition are outside the package v1.2 boundary.
 
 ## Display context
 
@@ -74,10 +83,10 @@ enumeration, and agreement with external engines are outside this release.
 
 ## Presets
 
-Package defaults are neutral. Backgammon Made Simple styling is explicit:
+Package defaults are neutral. Backgammon Simplified styling is explicit:
 
 ```r
-ggboard(xgid, colors = board_colors("bms"), style = board_style("bms"))
+ggboard(xgid, colors = board_colors("bs"), style = board_style("bs"))
 ```
 
 ## Public API

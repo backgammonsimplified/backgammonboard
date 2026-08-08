@@ -36,7 +36,7 @@ test_that("text anchors transform while glyphs remain upright", {
 
 
 test_that("movement review overlays preserve sources and handle hits and off trays", {
-  style <- board_style("bms")
+  style <- board_style("bs")
   hit_position <- custom_position(
     on_roll = "player_1",
     player_1 = c(`13` = 1L),
@@ -347,8 +347,8 @@ test_that("movement review overlays preserve sources and handle hits and off tra
 
 
 test_that("ghosts use one neutral palette over both point colors", {
-  colors <- board_colors("bms")
-  style <- board_style("bms")
+  colors <- board_colors("bs")
+  style <- board_style("bs")
   position <- custom_position(
     on_roll = "player_1",
     player_1 = c(`13` = 1L, `6` = 1L),
@@ -432,7 +432,7 @@ test_that("custom movement styles control ghost, arrow, and edge gap", {
     arrowhead_width = 0.15,
     arrow_checker_gap = 0.07
   )
-  style <- board_style("bms")
+  style <- board_style("bs")
   position <- custom_position(
     on_roll = "player_1", player_1 = c(`13` = 1L), dice = c(3L, 1L)
   )

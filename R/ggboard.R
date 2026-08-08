@@ -1,9 +1,10 @@
-#' Render a factual backgammon board from a complete XGID
+#' Render a factual backgammon board from a complete XGID or GNUID
 #'
 #' `ggboard()` resolves one conservative display context, applies independent
 #' vertical and horizontal display transforms, and returns a static `ggplot`.
 #'
-#' @param x A complete XGID string or a factual `backgammon_position`.
+#' @param x A complete XGID string, complete GNUID string, or factual
+#'   `backgammon_position`. GNUID input requires `backgammoncalculator`.
 #' @param colors A validated object created by [board_colors()].
 #' @param style A validated object created by [board_style()].
 #' @param movement_style Optional movement-overlay appearance created by
@@ -27,7 +28,7 @@
 #' @param point_1_side Compatibility alias for the horizontal display control.
 #'   Prefer `mirror_horizontal` in new code.
 #' @param player_name_style Name-badge treatment: neutral package text or
-#'   checker-associated BMS colors.
+#'   checker-associated BS colors.
 #'
 #' @return An ordinary object inheriting from `ggplot`.
 #' @export

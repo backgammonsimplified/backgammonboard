@@ -1,6 +1,6 @@
 #' Construct a board style preset
 #'
-#' @param name Preset name. Supported values are `"default"` and `"bms"`.
+#' @param name Preset name. Supported values are `"default"` and `"bs"`.
 #' @param overrides Optional named list of style overrides.
 #'
 #' @return An object of class `backgammon_board_style`.
@@ -124,42 +124,42 @@ board_style_presets <- function() {
     information_sentence_x_nudge = 0.00
   )
 
-  bms <- default
-  bms$checker_stack_step <- 0.78
-  bms$checker_margin <- 0.025
-  bms$count_badge_size <- 6.0
-  bms$point_border_width <- 0.38
-  bms$die_scale <- 1.00
-  bms$die_gap <- 0.30
-  bms$die_border_width <- 0.80
-  bms$cube_scale <- 1.05
-  bms$cube_inner_scale <- 0.76
-  bms$cube_text_size <- 7.6
-  bms$cube_border_width <- 0.3
-  bms$cube_outside_gap <- 0.08
-  bms$cube_crosshair_length <- 0.42
-  bms$cube_crosshair_linewidth <- 0.45
-  bms$cube_crosshair_alpha <- 0.80
-  bms$arrow_linewidth <- 1.8
-  bms$arrow_head_length_mm <- 4.4
-  bms$information_player_name_size <- 5.6
-  bms$information_secondary_text_size <- 4.5
-  bms$information_pip_text_size <- 5.0
-  bms$information_sentence_text_size <- 4.7
-  bms$information_top_band_height <- 1.10
-  bms$information_bottom_band_height <- 1.62
-  bms$information_pip_offset <- 0.42
-  bms$information_top_player_name_offset <- 0.86
-  bms$information_top_secondary_offset <- 0.30
-  bms$information_bottom_secondary_offset <- 0.35
-  bms$information_bottom_player_name_offset <- 0.82
-  bms$information_sentence_offset <- 1.18
-  bms$information_on_roll_arrow_x_offset <- 1.55
-  bms$information_on_roll_arrow_size <- 6.4
-  bms$information_player_x_nudge <- -0.15
-  bms$information_sentence_x_nudge <- 0.00
+  bs <- default
+  bs$checker_stack_step <- 0.78
+  bs$checker_margin <- 0.025
+  bs$count_badge_size <- 6.0
+  bs$point_border_width <- 0.38
+  bs$die_scale <- 1.00
+  bs$die_gap <- 0.30
+  bs$die_border_width <- 0.80
+  bs$cube_scale <- 1.05
+  bs$cube_inner_scale <- 0.76
+  bs$cube_text_size <- 7.6
+  bs$cube_border_width <- 0.3
+  bs$cube_outside_gap <- 0.08
+  bs$cube_crosshair_length <- 0.42
+  bs$cube_crosshair_linewidth <- 0.45
+  bs$cube_crosshair_alpha <- 0.80
+  bs$arrow_linewidth <- 1.8
+  bs$arrow_head_length_mm <- 4.4
+  bs$information_player_name_size <- 5.6
+  bs$information_secondary_text_size <- 4.5
+  bs$information_pip_text_size <- 5.0
+  bs$information_sentence_text_size <- 4.7
+  bs$information_top_band_height <- 1.10
+  bs$information_bottom_band_height <- 1.62
+  bs$information_pip_offset <- 0.42
+  bs$information_top_player_name_offset <- 0.86
+  bs$information_top_secondary_offset <- 0.30
+  bs$information_bottom_secondary_offset <- 0.35
+  bs$information_bottom_player_name_offset <- 0.82
+  bs$information_sentence_offset <- 1.18
+  bs$information_on_roll_arrow_x_offset <- 1.55
+  bs$information_on_roll_arrow_size <- 6.4
+  bs$information_player_x_nudge <- -0.15
+  bs$information_sentence_x_nudge <- 0.00
 
-  list(default = default, bms = bms)
+  list(default = default, bs = bs)
 }
 
 validate_board_style <- function(values) {

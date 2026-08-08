@@ -1,8 +1,8 @@
-# Render the comprehensive Backgammon Made Simple XGID edge-case suite.
+# Render the comprehensive Backgammon Simplified XGID edge-case suite.
 #
 # Copy both downloaded files into dev/ before running:
-#   bms-xgid-edge-cases.csv
-#   run-bms-xgid-edge-cases.R
+#   backgammon-simplified-xgid-edge-cases.csv
+#   run_bs_xgid_edge_cases.R
 #
 # The development batch renderer must already exist at:
 #   dev/render-xgid-batch.R
@@ -10,8 +10,8 @@
 devtools::load_all(reset = TRUE)
 source("dev/render-xgid-batch.R")
 
-case_file <- "dev/bms-xgid-edge-cases.csv"
-output_dir <- "dev/preview-output/bms-xgid-edge-cases"
+case_file <- "dev/backgammon-simplified-xgid-edge-cases.csv"
+output_dir <- "dev/preview-output/backgammon-simplified-xgid-edge-cases"
 
 cases <- utils::read.csv(
   case_file,
@@ -136,8 +136,8 @@ render_input <- cases[
 manifest <- render_xgid_batch(
   render_input,
   output_dir = output_dir,
-  colors = board_colors("bms"),
-  style = board_style("bms"),
+  colors = board_colors("bs"),
+  style = board_style("bs"),
   brand_text = "Backgammon\nSimplified"
 )
 

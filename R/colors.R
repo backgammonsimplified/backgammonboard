@@ -1,6 +1,6 @@
 #' Construct a board color preset
 #'
-#' @param name Preset name. Supported values are `"default"` and `"bms"`.
+#' @param name Preset name. Supported values are `"default"` and `"bs"`.
 #' @param overrides Optional named list of color overrides.
 #'
 #' @return An object of class `backgammon_board_colors`.
@@ -123,8 +123,8 @@ board_color_presets <- function() {
     brand_text = "#CEC2B0"
   )
 
-  bms <- default
-  bms_overrides <- list(
+  bs <- default
+  bs_overrides <- list(
     frame_fill = "#D8C5A5",
     frame_border = "#0B1328",
     side_panel_fill = "#FFFFFF",
@@ -169,9 +169,9 @@ board_color_presets <- function() {
     secondary_text = "#566078",
     status_text = "#111B35"
   )
-  bms[names(bms_overrides)] <- bms_overrides
+  bs[names(bs_overrides)] <- bs_overrides
 
-  list(default = default, bms = bms)
+  list(default = default, bs = bs)
 }
 
 validate_named_overrides <- function(overrides) {

@@ -1,8 +1,8 @@
 coincident_stack_plot <- function() {
   ggboard(
     "XGID=--------E----I----------b-:0:0:1:55:0:0:0:0:10",
-    colors = board_colors("bms"),
-    style = board_style("bms"),
+    colors = board_colors("bs"),
+    style = board_style("bs"),
     movement_style = movement_overlay_style(
       ghost_grid_inset = 0.04,
       arrowhead_length = 0.08,
@@ -49,8 +49,8 @@ test_that("distinct stack paths retain every arrow", {
 
 test_that("multiplier uses on-roll typography and is the top layer", {
   plot <- coincident_stack_plot()
-  style <- board_style("bms")
-  colors <- board_colors("bms")
+  style <- board_style("bs")
+  colors <- board_colors("bs")
   final_layer <- tail(plot$layers, 1L)[[1L]]
 
   expect_s3_class(final_layer$geom, "GeomText")

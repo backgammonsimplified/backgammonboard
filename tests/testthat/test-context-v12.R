@@ -50,7 +50,7 @@ test_that("light-player selection is independent of XGID facts", {
 
 
 test_that("light-player palette swaps checker, die, and badge colors together", {
-  colors <- board_colors("bms")
+  colors <- board_colors("bs")
   swapped <- backgammonboard:::colors_for_light_player(colors, "black")
 
   expect_identical(swapped$black_checker_fill, colors$white_checker_fill)

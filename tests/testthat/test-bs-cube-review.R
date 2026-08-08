@@ -6,11 +6,11 @@ review_xgids <- c(
 
 
 review_offer_layout <- function(xgid) {
-  style <- board_style("bms")
+  style <- board_style("bs")
   geometry <- backgammonboard:::board_geometry(style, perspective = "white")
   plot <- ggboard(
     xgid,
-    colors = board_colors("bms"),
+    colors = board_colors("bs"),
     style = style,
     decision = "take_pass",
     perspective = "player_0",
@@ -31,11 +31,11 @@ review_offer_layout <- function(xgid) {
 }
 
 
-test_that("BMS labels and player_1 white styling preserve factual identity", {
+test_that("BS labels and player_1 white styling preserve factual identity", {
   plot <- ggboard(
     review_xgids[["opening"]],
-    colors = board_colors("bms"),
-    style = board_style("bms"),
+    colors = board_colors("bs"),
+    style = board_style("bs"),
     decision = "checker_play",
     perspective = "player_0",
     player_labels = c(player_0 = "Foey", player_1 = "Homey")
@@ -44,12 +44,12 @@ test_that("BMS labels and player_1 white styling preserve factual identity", {
   context <- attr(plot, "backgammon_context")
   render <- backgammonboard:::as_render_position(factual, context$player_labels)
   geometry <- backgammonboard:::board_geometry(
-    board_style("bms"), perspective = "white"
+    board_style("bs"), perspective = "white"
   )
   information <- backgammonboard:::board_information_layout(
     render,
     geometry,
-    board_style("bms"),
+    board_style("bs"),
     white_name = "Homey",
     black_name = "Foey",
     perspective = "white"
@@ -65,12 +65,12 @@ test_that("BMS labels and player_1 white styling preserve factual identity", {
   expect_identical(information$bottom$name, "Homey")
   expect_identical(information$top$player, "black")
   expect_identical(information$top$name, "Foey")
-  expect_identical(board_colors("bms")$white_checker_fill, "#F8EEDD")
+  expect_identical(board_colors("bs")$white_checker_fill, "#F8EEDD")
 })
 
 
 test_that("Homey dice are screen-right and clear of information text", {
-  style <- board_style("bms")
+  style <- board_style("bs")
   geometry <- backgammonboard:::board_geometry(style, perspective = "white")
   factual <- backgammon_position(review_xgids[["opening"]])
   render <- backgammonboard:::as_render_position(factual)
@@ -103,8 +103,8 @@ test_that("Homey dice are screen-right and clear of information text", {
 
 
 test_that("caller decoration reuses the dice and cube fields while ggboard stays neutral", {
-  style <- board_style("bms")
-  colors <- board_colors("bms")
+  style <- board_style("bs")
+  colors <- board_colors("bs")
   geometry <- backgammonboard:::board_geometry(style, perspective = "white")
   neutral <- ggboard(
     review_xgids[["opening"]],
@@ -129,7 +129,7 @@ test_that("caller decoration reuses the dice and cube fields while ggboard stays
   )
   source_code <- backgammonboard:::add_board_brand(
     neutral, geometry, single_text, side = "left",
-    color = colors$brand_text, family = "Source Code Pro BMS 700",
+    color = colors$brand_text, family = "Source Code Pro BS 700",
     fontface = "plain"
   )
   layer_labels <- function(plot) {
@@ -155,7 +155,7 @@ test_that("caller decoration reuses the dice and cube fields while ggboard stays
   expect_identical(tail(single$layers, 1L)[[1L]]$aes_params$family, "Source Sans 3")
   expect_identical(tail(single$layers, 1L)[[1L]]$aes_params$colour, colors$brand_text)
   expect_identical(tail(single$layers, 1L)[[1L]]$aes_params$fontface, "bold")
-  expect_identical(tail(source_code$layers, 1L)[[1L]]$aes_params$family, "Source Code Pro BMS 700")
+  expect_identical(tail(source_code$layers, 1L)[[1L]]$aes_params$family, "Source Code Pro BS 700")
   expect_identical(tail(source_code$layers, 1L)[[1L]]$aes_params$fontface, "plain")
   expect_identical(colors$brand_text, colors$bar_fill)
   expect_identical(attr(neutral, "backgammon_brand_side"), "right")

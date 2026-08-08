@@ -1,14 +1,14 @@
 test_that("board color presets are complete and validated", {
   default <- board_colors("default")
-  bms <- board_colors("bms")
+  bs <- board_colors("bs")
   
   expect_s3_class(default, "backgammon_board_colors")
-  expect_s3_class(bms, "backgammon_board_colors")
+  expect_s3_class(bs, "backgammon_board_colors")
   
   expect_identical(attr(default, "preset_id"), "default")
-  expect_identical(attr(bms, "preset_id"), "bms")
+  expect_identical(attr(bs, "preset_id"), "bs")
   
-  expect_identical(names(default), names(bms))
+  expect_identical(names(default), names(bs))
   expect_gt(length(default), 0L)
   
   valid_default_values <- vapply(
@@ -22,8 +22,8 @@ test_that("board color presets are complete and validated", {
     logical(1)
   )
   
-  valid_bms_values <- vapply(
-    bms,
+  valid_bs_values <- vapply(
+    bs,
     function(value) {
       is.character(value) &&
         length(value) == 1L &&
@@ -34,23 +34,23 @@ test_that("board color presets are complete and validated", {
   )
   
   expect_true(all(valid_default_values))
-  expect_true(all(valid_bms_values))
+  expect_true(all(valid_bs_values))
 })
 
 test_that("board color overrides are explicit", {
   colors <- board_colors(
-    "bms",
+    "bs",
     overrides = list(
       cube_face = "white"
     )
   )
   
   expect_identical(colors$cube_face, "white")
-  expect_identical(attr(colors, "preset_id"), "bms")
+  expect_identical(attr(colors, "preset_id"), "bs")
   
   expect_error(
     board_colors(
-      "bms",
+      "bs",
       overrides = list(
         not_a_key = "white"
       )
@@ -60,7 +60,7 @@ test_that("board color overrides are explicit", {
   
   expect_error(
     board_colors(
-      "bms",
+      "bs",
       overrides = list(
         cube_face = "not-a-real-color"
       )
@@ -70,7 +70,7 @@ test_that("board color overrides are explicit", {
   
   expect_error(
     board_colors(
-      "bms",
+      "bs",
       overrides = list("white")
     ),
     "must be a named list"
@@ -84,7 +84,7 @@ test_that("board color preset names are validated", {
   )
   
   expect_error(
-    board_colors(c("default", "bms")),
+    board_colors(c("default", "bs")),
     "length-1 character"
   )
   
@@ -101,22 +101,22 @@ test_that("board color preset names are validated", {
 
 test_that("board style presets are complete and validated", {
   default <- board_style("default")
-  bms <- board_style("bms")
+  bs <- board_style("bs")
   
   expect_s3_class(default, "backgammon_board_style")
-  expect_s3_class(bms, "backgammon_board_style")
+  expect_s3_class(bs, "backgammon_board_style")
   
   expect_identical(attr(default, "preset_id"), "default")
-  expect_identical(attr(bms, "preset_id"), "bms")
+  expect_identical(attr(bs, "preset_id"), "bs")
   
-  expect_identical(names(default), names(bms))
+  expect_identical(names(default), names(bs))
   expect_gt(length(default), 0L)
   expect_identical(default$count_badge_size, 3.0)
-  expect_identical(bms$count_badge_size, 6.0)
+  expect_identical(bs$count_badge_size, 6.0)
   expect_identical(default$arrow_linewidth, 1.15)
   expect_identical(default$arrow_head_length_mm, 3.4)
-  expect_identical(bms$arrow_linewidth, 1.8)
-  expect_identical(bms$arrow_head_length_mm, 4.4)
+  expect_identical(bs$arrow_linewidth, 1.8)
+  expect_identical(bs$arrow_head_length_mm, 4.4)
   
   expect_true(
     all(
@@ -135,7 +135,7 @@ test_that("board style presets are complete and validated", {
   expect_true(
     all(
       vapply(
-        bms,
+        bs,
         function(value) {
           is.numeric(value) &&
             length(value) == 1L &&
@@ -149,18 +149,18 @@ test_that("board style presets are complete and validated", {
 
 test_that("board style overrides are explicit", {
   style <- board_style(
-    "bms",
+    "bs",
     overrides = list(
       checker_margin = 0.05
     )
   )
   
   expect_identical(style$checker_margin, 0.05)
-  expect_identical(attr(style, "preset_id"), "bms")
+  expect_identical(attr(style, "preset_id"), "bs")
   
   expect_error(
     board_style(
-      "bms",
+      "bs",
       overrides = list(
         not_a_key = 1
       )
@@ -170,7 +170,7 @@ test_that("board style overrides are explicit", {
   
   expect_error(
     board_style(
-      "bms",
+      "bs",
       overrides = list(
         checker_margin = 0
       )
@@ -180,7 +180,7 @@ test_that("board style overrides are explicit", {
   
   expect_error(
     board_style(
-      "bms",
+      "bs",
       overrides = list(
         max_stack_visible = 2.5
       )
@@ -190,7 +190,7 @@ test_that("board style overrides are explicit", {
   
   expect_error(
     board_style(
-      "bms",
+      "bs",
       overrides = list(
         arrow_curvature = 2
       )
@@ -200,7 +200,7 @@ test_that("board style overrides are explicit", {
   
   expect_error(
     board_style(
-      "bms",
+      "bs",
       overrides = list(0.05)
     ),
     "must be a named list"
@@ -214,7 +214,7 @@ test_that("board style preset names are validated", {
   )
   
   expect_error(
-    board_style(c("default", "bms")),
+    board_style(c("default", "bs")),
     "length-1 character"
   )
   
@@ -229,9 +229,9 @@ test_that("board style preset names are validated", {
   )
 })
 
-test_that("BMS preset uses the approved checker and board values", {
-  style <- board_style("bms")
-  colors <- board_colors("bms")
+test_that("BS preset uses the approved checker and board values", {
+  style <- board_style("bs")
+  colors <- board_colors("bs")
   
   expect_identical(style$checker_outer_radius, 0.37)
   expect_identical(style$checker_face_radius, 0.31)
@@ -249,9 +249,9 @@ test_that("BMS preset uses the approved checker and board values", {
   expect_identical(colors$frame_fill, "#D8C5A5")
 })
 
-test_that("BMS move-overlay tokens match the accepted guide", {
-  colors <- board_colors("bms")
-  style <- board_style("bms")
+test_that("BS move-overlay tokens match the accepted guide", {
+  colors <- board_colors("bs")
+  style <- board_style("bs")
 
   expect_identical(colors$arrow_primary, "#C94F2C")
   expect_identical(colors$arrow_secondary, "#6E557A")
@@ -271,8 +271,8 @@ test_that("BMS move-overlay tokens match the accepted guide", {
   expect_gt(style$arrow_halo_light_ratio, 1)
 })
 
-test_that("BMS point outlines retain a direct-render minimum", {
-  style <- board_style("bms")
+test_that("BS point outlines retain a direct-render minimum", {
+  style <- board_style("bs")
 
   expect_true(style$point_border_width >= 0.38)
 })

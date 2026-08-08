@@ -59,7 +59,7 @@ test_that("ordinary render inputs reject deferred compatibility objects", {
 })
 
 test_that("prepared cube geometry preserves centered, owned, and offered states", {
-  style <- board_style("bms")
+  style <- board_style("bs")
   geometry <- backgammonboard:::board_geometry(style, perspective = "white")
   centered_position <- backgammonboard:::as_render_position(
     backgammon_position(fixture_xgid("centered_cube"))

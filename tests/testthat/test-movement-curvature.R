@@ -14,12 +14,10 @@ same_line_style <- function(...) {
   do.call(movement_overlay_style, arguments)
 }
 
-
 movement_segments <- function(position, moves, movement_style = same_line_style()) {
   plot <- ggboard(position, moves = moves, movement_style = movement_style)
   attr(plot, "backgammon_prepared_layout")$selected_overlay$segments
 }
-
 
 cubic_midpoint <- function(segment) {
   c(
@@ -29,7 +27,6 @@ cubic_midpoint <- function(segment) {
       0.375 * segment$control2_y + 0.125 * segment$yend
   )
 }
-
 
 test_that("isolated crossings and non-overlapping paths stay straight", {
   position <- custom_position(
@@ -41,22 +38,17 @@ test_that("isolated crossings and non-overlapping paths stay straight", {
     position,
     board_moves(c(14, 15), c(10, 11), die = c(4, 4))
   )
-
   expect_equal(segments$curve_level, c(0, 0))
   expect_equal(segments$curve_offset, c(0, 0))
 })
-
 
 test_that("overlapping chained movement lines curve only later segments", {
   position <- backgammon_position(
     "XGID=---------AA-------------b-:0:0:1:33:0:0:0:0:10"
   )
-  moves <- board_moves(
-    c(10, 9, 7, 6), c(7, 6, 4, 3), die = rep(3, 4)
-  )
+  moves <- board_moves(c(10, 9, 7, 6), c(7, 6, 4, 3), die = rep(3, 4))
   first <- movement_segments(position, moves)
   second <- movement_segments(position, moves)
-
   expect_equal(first$curve_level, c(0, 1, 2, 3))
   expect_equal(first$curve_offset, c(0, 0.22, 0.40, 0.58))
   expect_identical(first$curve_level, second$curve_level)
@@ -65,7 +57,6 @@ test_that("overlapping chained movement lines curve only later segments", {
   expect_equal(first$control2_x, second$control2_x)
   expect_equal(first$control2_y, second$control2_y)
 })
-
 
 test_that("same-line bows point inward in both board halves", {
   top <- movement_segments(
@@ -84,16 +75,11 @@ test_that("same-line bows point inward in both board halves", {
     ),
     board_moves(c(10, 11), c(7, 8), die = c(3, 3))
   )
-
   top_midpoint <- cubic_midpoint(top[2, , drop = FALSE])
   bottom_midpoint <- cubic_midpoint(bottom[2, , drop = FALSE])
   expect_lt(top_midpoint[["y"]], mean(c(top$y[[2]], top$yend[[2]])))
-  expect_gt(
-    bottom_midpoint[["y"]],
-    mean(c(bottom$y[[2]], bottom$yend[[2]]))
-  )
+  expect_gt(bottom_midpoint[["y"]], mean(c(bottom$y[[2]], bottom$yend[[2]])))
 })
-
 
 test_that("near-vertical overlap bows toward the horizontal centre", {
   segments <- movement_segments(
@@ -107,11 +93,9 @@ test_that("near-vertical overlap bows toward the horizontal centre", {
   curved <- segments[2, , drop = FALSE]
   midpoint <- cubic_midpoint(curved)
   direct_midpoint_x <- mean(c(curved$x, curved$xend))
-
   expect_equal(segments$curve_level, c(0, 1))
   expect_gt(midpoint[["x"]], direct_midpoint_x)
 })
-
 
 test_that("curvature respects checker-radius and arrow-length caps", {
   movement_style <- same_line_style(
@@ -128,17 +112,15 @@ test_that("curvature respects checker-radius and arrow-length caps", {
     board_moves(c(17, 18), c(14, 15), die = c(3, 3)),
     movement_style
   )
-  radius <- board_style("bms")$checker_outer_radius
+  radius <- board_style("bs")$checker_outer_radius
   curved <- segments[2, , drop = FALSE]
   direct_length <- sqrt(
     (curved$destination_x - curved$source_x)^2 +
       (curved$destination_y - curved$source_y)^2
   )
-
   expect_lte(curved$curve_offset, 0.15)
   expect_lte(curved$curve_offset * radius, direct_length * 0.08)
 })
-
 
 test_that("cubic paths trim to checker edges and heads use final tangents", {
   gap <- 0.04
@@ -156,10 +138,9 @@ test_that("cubic paths trim to checker edges and heads use final tangents", {
     board_moves(c(17, 18), c(14, 15), die = c(3, 3)),
     movement_style
   )
-  style <- board_style("bms")
+  style <- board_style("bs")
   expected_clearance <- style$checker_outer_radius +
     style$checker_outer_ring_width + gap
-
   expect_equal(
     sqrt((segments$x - segments$source_x)^2 +
       (segments$y - segments$source_y)^2),
@@ -170,7 +151,6 @@ test_that("cubic paths trim to checker edges and heads use final tangents", {
       (segments$yend - segments$destination_y)^2),
     rep(expected_clearance, 2L)
   )
-
   for (index in seq_len(nrow(segments))) {
     parts <- backgammonboard:::move_arrow_parts(
       segments[index, , drop = FALSE], movement_style
@@ -191,7 +171,6 @@ test_that("cubic paths trim to checker edges and heads use final tangents", {
   }
 })
 
-
 test_that("adjacent collinear chain hops curve despite zero overlap", {
   segments <- movement_segments(
     custom_position(
@@ -199,7 +178,6 @@ test_that("adjacent collinear chain hops curve despite zero overlap", {
     ),
     board_moves(c(12, 11), c(11, 10), die = c(1, 1))
   )
-
   expect_equal(
     backgammonboard:::move_overlay_projected_overlap(
       segments[1, , drop = FALSE], segments[2, , drop = FALSE]
@@ -209,7 +187,6 @@ test_that("adjacent collinear chain hops curve despite zero overlap", {
   expect_true(all(segments$same_line_chain))
   expect_true(all(segments$curve_offset > 0))
 })
-
 
 test_that("three and four consecutive doubles hops each retain a curve", {
   position <- custom_position(
@@ -223,14 +200,12 @@ test_that("three and four consecutive doubles hops each retain a curve", {
     position,
     board_moves(c(12, 11, 10, 9), c(11, 10, 9, 8), die = rep(1, 4))
   )
-
   expect_true(all(three$same_line_chain))
   expect_true(all(three$curve_offset > 0))
   expect_true(all(four$same_line_chain))
   expect_true(all(four$curve_offset > 0))
   expect_equal(length(unique(four$destination_id)), 4L)
 })
-
 
 test_that("same-line chain bows point inward by board half", {
   top <- movement_segments(
@@ -245,7 +220,6 @@ test_that("same-line chain bows point inward by board half", {
     ),
     board_moves(c(12, 11), c(11, 10), die = c(1, 1))
   )
-
   for (index in seq_len(nrow(top))) {
     expect_lt(
       cubic_midpoint(top[index, , drop = FALSE])[["y"]],
@@ -260,7 +234,6 @@ test_that("same-line chain bows point inward by board half", {
   }
 })
 
-
 test_that("non-collinear consecutive moves remain straight", {
   segments <- movement_segments(
     custom_position(
@@ -268,11 +241,9 @@ test_that("non-collinear consecutive moves remain straight", {
     ),
     board_moves(c(13, 10), c(10, 9), die = c(3, 1))
   )
-
   expect_false(any(segments$same_line_chain))
   expect_equal(segments$curve_offset, c(0, 0))
 })
-
 
 test_that("ordinary separated and shared-destination cases stay straight", {
   separated <- movement_segments(
@@ -291,16 +262,14 @@ test_that("ordinary separated and shared-destination cases stay straight", {
     ),
     board_moves(rep(13, 4), rep(10, 4), die = rep(3, 4))
   )
-
   expect_equal(separated$curve_offset, c(0, 0))
   expect_false(any(separated$same_line_chain))
   expect_equal(stacked$curve_offset, rep(0, 4L))
   expect_false(any(stacked$same_line_chain))
 })
 
-
 test_that("chain turn-angle bands scale curvature deterministically", {
-  geometry <- board_geometry(board_style("bms"))
+  geometry <- board_geometry(board_style("bs"))
   movement_style <- same_line_style()
   make_segment <- function(
       step_id, source_id, destination_id, source, destination
@@ -333,7 +302,6 @@ test_that("chain turn-angle bands scale curvature deterministically", {
     2L, "B", "C", c(10, 0),
     c(10 + 10 * cos(30 * pi / 180), 10 * sin(30 * pi / 180))
   )
-
   expect_equal(
     backgammonboard:::move_overlay_chain_pair(
       first, moderate, movement_style, geometry
@@ -354,7 +322,6 @@ test_that("chain turn-angle bands scale curvature deterministically", {
   )
 })
 
-
 test_that("short chained hops obey the independent short-curve cap", {
   movement_style <- same_line_style(
     arrow_curve_offset = 2,
@@ -365,18 +332,14 @@ test_that("short chained hops obey the independent short-curve cap", {
     custom_position(
       on_roll = "player_1", player_1 = c(`12` = 1L), dice = c(1L, 1L)
     ),
-    style = board_style("bms"),
+    style = board_style("bs"),
     moves = board_moves(c(12, 11), c(11, 10), die = c(1, 1)),
     movement_style = movement_style
   )
-  segments <- attr(
-    plot, "backgammon_prepared_layout"
-  )$selected_overlay$segments
-
+  segments <- attr(plot, "backgammon_prepared_layout")$selected_overlay$segments
   expect_true(all(segments$same_line_chain))
   expect_lte(max(segments$curve_offset), 0.15)
 })
-
 
 test_that("the long-diagonal then 8/7 review chain stays straight", {
   position <- custom_position(
@@ -386,8 +349,8 @@ test_that("the long-diagonal then 8/7 review chain stays straight", {
   )
   plot <- ggboard(
     position,
-    colors = board_colors("bms"),
-    style = board_style("bms"),
+    colors = board_colors("bs"),
+    style = board_style("bs"),
     moves = board_moves(c(13, 8), c(8, 7), die = c(5, 1)),
     movement_style = same_line_style(
       arrow_curve_offset = 2,
@@ -395,16 +358,12 @@ test_that("the long-diagonal then 8/7 review chain stays straight", {
       arrow_curve_length_cap = 0.40
     )
   )
-  segments <- attr(
-    plot, "backgammon_prepared_layout"
-  )$selected_overlay$segments
-
+  segments <- attr(plot, "backgammon_prepared_layout")$selected_overlay$segments
   expect_true(all(segments$ordered_chain))
   expect_gt(segments$chain_turn_angle[[2L]], 20)
   expect_equal(segments$chain_curve_multiplier, c(0, 0))
   expect_equal(segments$curve_offset, c(0, 0))
 })
-
 
 test_that("stack-level turns do not curve merely collinear point centres", {
   position <- backgammon_position(
@@ -412,8 +371,8 @@ test_that("stack-level turns do not curve merely collinear point centres", {
   )
   plot <- ggboard(
     position,
-    colors = board_colors("bms"),
-    style = board_style("bms"),
+    colors = board_colors("bs"),
+    style = board_style("bs"),
     moves = board_moves(c(24, 18), c(18, 13), die = c(6, 5)),
     movement_style = same_line_style(
       arrow_curve_offset = 2,
@@ -421,10 +380,7 @@ test_that("stack-level turns do not curve merely collinear point centres", {
       arrow_curve_length_cap = 0.40
     )
   )
-  segments <- attr(
-    plot, "backgammon_prepared_layout"
-  )$selected_overlay$segments
-
+  segments <- attr(plot, "backgammon_prepared_layout")$selected_overlay$segments
   expect_true(all(segments$ordered_chain))
   expect_gt(segments$chain_turn_angle[[2L]], 20)
   expect_equal(segments$chain_curve_multiplier, c(0, 0))

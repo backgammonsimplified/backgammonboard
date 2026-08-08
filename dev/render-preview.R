@@ -33,7 +33,7 @@ ggplot2::ggsave(
   height = 7.5,
   units = "in",
   dpi = 180,
-  bg = board_colors("bms")$outside_fill,
+  bg = board_colors("bs")$outside_fill,
   limitsize = FALSE
 )
 
