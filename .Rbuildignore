@@ -9,3 +9,4 @@
 ^[.]agents$
 ^[.]Rhistory$
 ^[.][.]Rcheck$
+^\.Rlib$
