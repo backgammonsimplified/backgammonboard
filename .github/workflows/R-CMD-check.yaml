@@ -42,6 +42,7 @@ jobs:
             any::testthat
             url::https://github.com/backgammonsimplified/backgammoncalculator/archive/refs/tags/v0.2.0.tar.gz
           needs: check
+          install-pandoc: false
 
       - uses: r-lib/actions/check-r-package@v2
         with:
