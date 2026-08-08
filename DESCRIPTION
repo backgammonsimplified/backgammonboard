@@ -27,4 +27,4 @@ Imports:
     grid
 Suggests:
     testthat (>= 3.0.0),
-    backgammoncalculator (>= 0.1.0)
+    backgammoncalculator (>= 0.2.0)
