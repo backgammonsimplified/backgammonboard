@@ -33,7 +33,7 @@ Still to complete before submission:
 
 ## Check NOTE
 
-The local `--as-cran` check reports:
+The local `--as-cran` check reports one incoming-feasibility NOTE containing:
 
 - new submission
 - `backgammoncalculator` in `Suggests` is not in a mainstream repository
