@@ -22,10 +22,15 @@ The complete package tests run from the source checkout with released
 `backgammoncalculator` 0.2.0 installed also passed: 1096 PASS, 0 FAIL,
 0 WARN, 0 SKIP.
 
+Clean installed-artifact smoke testing with released `backgammoncalculator`
+0.2.0 present also passed. The smoke test installed the built
+`backgammonboard_0.1.0.tar.gz` into a separate library, verified that the board
+package was loaded from that clean artifact library, verified calculator
+version 0.2.0, and confirmed identical rendered `ggplot2` build data for the
+same factual position supplied as complete GNUID and converted XGID.
+
 Still to complete before submission:
 
-- clean installation from the built source tarball with released
-  `backgammoncalculator` 0.2.0 present
 - clean installation and XGID smoke test with `backgammoncalculator` absent
 - Winbuilder using current R-devel
 - independent Codex terminal release-candidate audit
