@@ -2,16 +2,20 @@ Package: backgammonboard
 Title: Represent and Render Backgammon Positions
 Version: 0.1.0
 Authors@R: person("Marty", "Gale",
-    email = "marty.gale@users.noreply.github.com",
+    email = "justsendityew@gmail.com",
     role = c("aut", "cre"))
-Author: Marty Gale [aut, cre]
-Maintainer: Marty Gale <marty.gale@users.noreply.github.com>
-Description: Provides validated factual backgammon position objects from complete
-    eXtreme Gammon identifiers (XGIDs), together with static board rendering
-    infrastructure and supplied movement geometry. The package separates factual
-    position state from display context, does not evaluate strategy, and does not
-    certify complete-play legality for rendered movements.
+Description: Creates validated factual backgammon position objects from complete
+    'eXtreme Gammon' identifiers (XGIDs) and, when the optional
+    'backgammoncalculator' package is installed, complete 'GNU Backgammon'
+    identifiers (GNUIDs). Provides static 'ggplot2' board rendering, display
+    transforms, cube, dice, score, and checker-movement rendering. Factual
+    position state is kept separate from display context; the package does not
+    evaluate strategy or certify complete-play legality. The optional
+    'backgammoncalculator' package is available from
+    <https://github.com/backgammonsimplified/backgammoncalculator>.
 License: MIT + file LICENSE
+URL: https://github.com/backgammonsimplified/backgammonboard
+BugReports: https://github.com/backgammonsimplified/backgammonboard/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Config/roxygen2/version: 8.0.0
@@ -23,4 +27,4 @@ Imports:
     grid
 Suggests:
     testthat (>= 3.0.0),
-    backgammoncalculator
+    backgammoncalculator (>= 0.1.0)

@@ -1,5 +1,18 @@
 # backgammonboard
 
+## Installation
+
+Install the released package from CRAN with:
+
+```r
+install.packages("backgammonboard")
+```
+
+XGID rendering works with `backgammonboard` alone. Complete GNUID input is an
+optional feature and additionally requires `backgammoncalculator` 0.1.0 or
+later, available from
+<https://github.com/backgammonsimplified/backgammoncalculator>.
+
 `backgammonboard` validates complete XGIDs, constructs factual positions, and
 renders static `ggplot` boards. Complete GNUIDs are also accepted when
 `backgammoncalculator` is installed; GNUID input is converted to XGID and then

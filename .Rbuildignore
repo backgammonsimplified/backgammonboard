@@ -10,3 +10,7 @@
 ^[.]Rhistory$
 ^[.][.]Rcheck$
 ^\.Rlib$
+^cran-comments[.]md$
+^CRAN-SUBMISSION$
+^inst/contracts$
+^inst/brand$
