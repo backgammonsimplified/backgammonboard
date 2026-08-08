@@ -4,6 +4,7 @@ Version: 0.1.0
 Authors@R: person("Marty", "Gale",
     email = "justsendityew@gmail.com",
     role = c("aut", "cre"))
+Copyright: 2026 Marty Gale
 Description: Creates validated factual backgammon position objects from complete
     'eXtreme Gammon' identifiers (XGIDs) and, when the optional
     'backgammoncalculator' package is installed, complete 'GNU Backgammon'
@@ -13,7 +14,7 @@ Description: Creates validated factual backgammon position objects from complete
     evaluate strategy or certify complete-play legality. The optional
     'backgammoncalculator' package is available from
     <https://github.com/backgammonsimplified/backgammoncalculator>.
-License: MIT + file LICENSE
+License: AGPL-3
 URL: https://github.com/backgammonsimplified/backgammonboard
 BugReports: https://github.com/backgammonsimplified/backgammonboard/issues
 Encoding: UTF-8
