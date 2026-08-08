@@ -1,5 +1,5 @@
 if (!requireNamespace("backgammoncalculator", quietly = TRUE)) {
-  stop("Install local `backgammoncalculator` before running this gallery.")
+  stop("Install `backgammoncalculator` before running this gallery.")
 }
 
 if (!requireNamespace("backgammonboard", quietly = TRUE)) {
@@ -61,7 +61,8 @@ html_escape <- function(x) {
 }
 
 save_svg <- function(plot, path) {
-  grDevices::svg(path, width = 10, height = 7, onefile = TRUE)
+  # Match the board's native 17:12 aspect ratio and give board text enough room.
+  grDevices::svg(path, width = 12.75, height = 9, onefile = TRUE)
   print(plot)
   grDevices::dev.off()
 }
@@ -72,11 +73,19 @@ read_svg <- function(path) {
   sub("^\\s*<!DOCTYPE[^>]*>\\s*", "", x, perl = TRUE)
 }
 
+# Use the accepted BMS presentation explicitly. The gallery should review the
+# same colorful release presentation, not fall back to the neutral default.
+gallery_colors <- backgammonboard::board_colors("bms")
+gallery_style <- backgammonboard::board_style("bms")
+
 render_stage <- function(stage, row_index, col_index) {
   plot <- backgammonboard::ggboard(
     stage$id,
+    colors = gallery_colors,
+    style = gallery_style,
     perspective = "player_1",
-    mirror_horizontal = FALSE
+    mirror_horizontal = FALSE,
+    player_name_style = "checker"
   )
 
   path <- file.path(
@@ -87,13 +96,13 @@ render_stage <- function(stage, row_index, col_index) {
 
   paste0(
     "<article class='stage kind-", tolower(stage$kind), "'>",
-    "<div class='stage-heading'>",
-    "<div>",
+    "<header class='stage-heading'>",
+    "<div class='stage-title'>",
     "<span class='step'>Stage ", col_index, "</span>",
     "<h3>", html_escape(stage$role), "</h3>",
     "</div>",
     "<span class='kind-badge'>", html_escape(stage$kind), "</span>",
-    "</div>",
+    "</header>",
     "<div class='board-frame'>", read_svg(path), "</div>",
     "<div class='identifier'>",
     "<span class='identifier-label'>", html_escape(stage$kind), "</span>",
@@ -116,23 +125,24 @@ render_row <- function(row, row_index) {
     "The round-trip identifier is byte-identical to the original."
   } else {
     paste0(
-      "The identifier changed during normalization. This is informational: ",
-      "compare the rendered factual state across all three boards."
+      "The identifier changed during normalization. This is informational. ",
+      "Use the boards to review factual/render equivalence."
     )
   }
 
   paste0(
     "<section class='trip'>",
     "<header class='trip-heading'>",
-    "<div><span class='eyebrow'>Round trip ", row_index, "</span>",
-    "<h2>", html_escape(row$title), "</h2></div>",
-    "<div class='status-wrap'>",
+    "<span class='eyebrow'>Round trip ", row_index, "</span>",
+    "<h2>", html_escape(row$title), "</h2>",
+    "<div class='status-line'>",
     "<strong class='status ", status_class, "'>", status, "</strong>",
     "<span>", html_escape(status_note), "</span>",
     "</div>",
     "</header>",
-    "<div class='flow-labels'><span>source</span><span>conversion</span><span>result</span></div>",
-    "<div class='stages'>", paste(stages, collapse = "\n"), "</div>",
+    "<div class='stage-scroller'><div class='stages'>",
+    paste(stages, collapse = "\n"),
+    "</div></div>",
     "</section>"
   )
 }
@@ -148,59 +158,58 @@ doc <- paste0(
   "<title>GNUID / XGID round trips</title>",
   "<style>",
   ":root{",
-  "--page:#f3efe7;--paper:#fffdf8;--ink:#16251f;--muted:#68756f;",
-  "--line:#d8d4ca;--homey:#0f6b58;--homey-soft:#e3f2ed;",
-  "--foey:#b56f22;--foey-soft:#fbeddc;--xgid:#315e8a;--xgid-soft:#e8f0f7;",
-  "--normalized:#8b6514;--normalized-soft:#fff3cf;--shadow:0 10px 30px rgba(25,39,33,.08)",
+  "--page:#eee7dc;--paper:#fffdf9;--ink:#111b35;--muted:#5f6877;",
+  "--line:#d8c5a5;--navy:#111b35;--cream:#f6ebdd;--tan:#c29a6b;",
+  "--blue:#9eb2d2;--xgid:#315e8a;--xgid-soft:#e8f0f7;",
+  "--gnu:#a66520;--gnu-soft:#fbeddc;--ok:#0f6b58;--ok-soft:#e3f2ed;",
+  "--normalized:#8b6514;--normalized-soft:#fff3cf;",
+  "--shadow:0 12px 30px rgba(17,27,53,.09)",
   "}",
   "*{box-sizing:border-box}",
+  "html{background:var(--page)}",
   "body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--page);color:var(--ink);margin:0;line-height:1.45}",
-  "main{max-width:1780px;margin:auto;padding:34px 28px 56px}",
-  ".hero{background:linear-gradient(135deg,#173f36 0%,#0f6b58 62%,#315e8a 100%);color:#fff;border-radius:18px;padding:28px 32px;margin-bottom:24px;box-shadow:var(--shadow)}",
-  ".hero h1{font-size:clamp(28px,3vw,44px);letter-spacing:-.03em;margin:0 0 8px}",
-  ".hero p{max-width:1050px;margin:7px 0;color:rgba(255,255,255,.88);font-size:16px}",
-  ".hero code{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.16);border-radius:5px;padding:1px 5px;color:#fff}",
-  ".legend{display:flex;flex-wrap:wrap;gap:9px;margin-top:17px}",
-  ".legend span{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 10px;font-size:13px}",
-  ".dot{display:inline-block;width:9px;height:9px;border-radius:50%}",
-  ".dot.homey{background:#7bd6bd}.dot.foey{background:#f1b76f}.dot.xgid{background:#9cc6ee}",
-  ".trip{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:21px;margin-bottom:24px;box-shadow:var(--shadow)}",
-  ".trip-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;margin-bottom:15px}",
-  ".trip-heading h2{font-size:25px;letter-spacing:-.02em;margin:2px 0 0}",
+  "main{max-width:1900px;margin:0 auto;padding:30px 28px 56px}",
+  ".hero{background:var(--navy);color:#fff;border:6px solid var(--tan);border-radius:18px;padding:28px 32px;margin-bottom:26px;box-shadow:var(--shadow)}",
+  ".hero h1{font-size:clamp(30px,3vw,46px);letter-spacing:-.035em;margin:0 0 10px;line-height:1.08}",
+  ".hero p{max-width:1200px;margin:7px 0;color:#f8eedd;font-size:16px}",
+  ".hero code{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:5px;padding:1px 5px;color:#fff}",
+  ".legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}",
+  ".legend span{display:inline-flex;align-items:center;gap:7px;background:#f8eedd;color:var(--navy);border-radius:999px;padding:7px 11px;font-size:13px;font-weight:700}",
+  ".dot{display:inline-block;width:10px;height:10px;border-radius:50%}",
+  ".dot.homey{background:var(--blue)}.dot.foey{background:var(--tan)}.dot.xgid{background:var(--xgid)}",
+  ".trip{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:26px;box-shadow:var(--shadow)}",
+  ".trip-heading{margin-bottom:16px}",
+  ".trip-heading h2{font-size:27px;letter-spacing:-.02em;line-height:1.15;margin:3px 0 10px}",
   ".eyebrow,.step{display:block;text-transform:uppercase;letter-spacing:.11em;font-size:11px;font-weight:800;color:var(--muted)}",
-  ".status-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:5px;max-width:520px;text-align:right;color:var(--muted);font-size:13px}",
-  ".status{display:inline-block;border-radius:999px;padding:6px 10px;font-size:12px;letter-spacing:.04em}",
-  ".status.pass{background:var(--homey-soft);color:var(--homey)}",
+  ".status-line{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:13px}",
+  ".status{display:inline-block;white-space:nowrap;border-radius:999px;padding:6px 10px;font-size:12px;letter-spacing:.04em}",
+  ".status.pass{background:var(--ok-soft);color:var(--ok)}",
   ".status.normalized{background:var(--normalized-soft);color:var(--normalized)}",
-  ".flow-labels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:0 0 6px}",
-  ".flow-labels span{text-align:center;text-transform:uppercase;letter-spacing:.12em;font-size:10px;font-weight:800;color:#89928e}",
-  ".stages{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}",
-  ".stage{background:#fff;border:1px solid var(--line);border-top:5px solid var(--homey);border-radius:12px;padding:11px;min-width:0;overflow:hidden}",
+  ".stage-scroller{width:100%;overflow-x:auto;padding:1px 1px 10px}",
+  ".stages{display:grid;grid-template-columns:repeat(3,minmax(460px,1fr));gap:16px;min-width:1420px}",
+  ".stage{background:#fff;border:1px solid var(--line);border-top:6px solid var(--gnu);border-radius:12px;padding:12px;min-width:0;overflow:hidden}",
   ".stage.kind-xgid{border-top-color:var(--xgid)}",
-  ".stage.kind-gnuid{border-top-color:var(--foey)}",
-  ".stage-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:1px 2px 9px}",
-  ".stage-heading h3{font-size:19px;margin:1px 0 0}",
-  ".kind-badge{border-radius:999px;padding:5px 9px;font-size:11px;font-weight:800;letter-spacing:.05em}",
+  ".stage-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:2px 2px 10px;min-height:58px}",
+  ".stage-title{min-width:0}",
+  ".stage-heading h3{font-size:20px;line-height:1.1;margin:2px 0 0}",
+  ".kind-badge{flex:0 0 auto;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:800;letter-spacing:.05em}",
   ".kind-xgid .kind-badge{background:var(--xgid-soft);color:var(--xgid)}",
-  ".kind-gnuid .kind-badge{background:var(--foey-soft);color:var(--foey)}",
-  ".board-frame{background:#f7f4ed;border:1px solid #e4e0d7;border-radius:9px;padding:5px;overflow:hidden}",
-  ".stage svg{width:100%;height:auto;display:block}",
-  ".identifier{margin-top:9px;background:#f7f5f0;border-radius:8px;padding:9px 10px}",
-  ".identifier-label{display:block;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-size:10px;font-weight:800;margin-bottom:3px}",
-  "code{font-family:'SFMono-Regular',Consolas,'Liberation Mono',monospace;overflow-wrap:anywhere;word-break:break-word}",
-  ".identifier code{font-size:12px;color:#26342f}",
-  ".footer-note{color:var(--muted);font-size:13px;margin:15px 3px 0}",
-  "@media(max-width:1050px){",
-  ".trip-heading{flex-direction:column}.status-wrap{align-items:flex-start;text-align:left}",
-  ".flow-labels{display:none}.stages{grid-template-columns:1fr}",
-  "}",
+  ".kind-gnuid .kind-badge{background:var(--gnu-soft);color:var(--gnu)}",
+  ".board-frame{background:var(--cream);border:1px solid var(--line);border-radius:9px;padding:7px;overflow:hidden}",
+  ".stage svg{display:block;width:100%;height:auto;max-width:100%}",
+  ".identifier{margin-top:10px;background:#f7f5f0;border-radius:8px;padding:10px 11px;min-height:66px;overflow:hidden}",
+  ".identifier-label{display:block;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-size:10px;font-weight:800;margin-bottom:4px}",
+  "code{font-family:'SFMono-Regular',Consolas,'Liberation Mono',monospace}",
+  ".identifier code{display:block;font-size:12px;line-height:1.45;color:#26342f;white-space:normal;overflow-wrap:anywhere;word-break:break-word}",
+  ".footer-note{color:var(--muted);font-size:13px;margin:16px 3px 0}",
+  "@media(max-width:900px){main{padding:18px 12px 40px}.hero{padding:22px 20px}.trip{padding:16px}.stages{display:block;min-width:0}.stage{margin-bottom:16px}.stage-scroller{overflow:visible}}",
   "</style></head><body><main>",
   "<section class='hero'>",
   "<h1>GNUID ↔ XGID round-trip review</h1>",
-  "<p><strong>Visual gate:</strong> the three boards in each row should preserve the same renderable factual state. A GNUID can normalize information during conversion, so a changed identifier is not automatically a failure.</p>",
-  "<p>Every board uses <code>perspective = \"player_1\"</code> with Homey near and <code>mirror_horizontal = FALSE</code>. Display controls are held constant so conversion differences cannot hide behind viewpoint changes.</p>",
+  "<p><strong>Visual gate:</strong> all three boards in each round trip should preserve the same renderable factual state. GNU identifiers can normalize information during conversion, so a changed identifier is not automatically a failure.</p>",
+  "<p>Boards use the released <strong>BMS color/style presets</strong>, <code>perspective = \"player_1\"</code> with Homey near, and <code>mirror_horizontal = FALSE</code>. The display is held constant so conversion differences cannot hide behind viewpoint changes.</p>",
   "<div class='legend'>",
-  "<span><i class='dot homey'></i>Homey / player_1 near</span>",
+  "<span><i class='dot homey'></i>BMS / Homey near</span>",
   "<span><i class='dot foey'></i>GNUID stage</span>",
   "<span><i class='dot xgid'></i>XGID stage</span>",
   "</div></section>",
