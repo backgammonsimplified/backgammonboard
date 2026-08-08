@@ -3,7 +3,7 @@
 * Adds factual backgammon position parsing and static `ggplot2` rendering from
   complete XGIDs.
 * Accepts complete GNUIDs through the same `ggboard()` entry point when the
-  optional `backgammoncalculator` package is installed.
+  optional `backgammoncalculator` package version 0.2.0 or later is installed.
 * Separates factual player state from display perspective, horizontal mirroring,
   checker palette assignment, labels, dice, cube, score, and status rendering.
 * Adds structured checker-movement rendering with arrows, destination ghosts,
