@@ -29,9 +29,14 @@ package was loaded from that clean artifact library, verified calculator
 version 0.2.0, and confirmed identical rendered `ggplot2` build data for the
 same factual position supplied as complete GNUID and converted XGID.
 
+Clean installed-artifact smoke testing with `backgammoncalculator` absent also
+passed. The built package was installed into a separate library containing only
+its CRAN runtime dependencies. XGID rendering succeeded, no calculator package
+was visible on the library path, and complete GNUID input failed with the
+expected message requiring `backgammoncalculator >= 0.2.0`.
+
 Still to complete before submission:
 
-- clean installation and XGID smoke test with `backgammoncalculator` absent
 - Winbuilder using current R-devel
 - independent Codex terminal release-candidate audit
 - final Codex pull-request review after any audit findings are resolved
