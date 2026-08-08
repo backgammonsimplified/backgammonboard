@@ -2,11 +2,16 @@
 
 ## Installation
 
-Install the released package from CRAN with:
+Install the released package from the public GitHub repository with:
 
 ```r
-install.packages("backgammonboard")
+remotes::install_github(
+  "backgammonsimplified/backgammonboard"
+)
 ```
+
+A local source checkout can instead be installed with `R CMD INSTALL` or an R
+package installation tool of your choice.
 
 XGID rendering works with `backgammonboard` alone. Complete GNUID input is an
 optional feature and additionally requires `backgammoncalculator` 0.2.0 or
@@ -113,3 +118,20 @@ board_colors()
 board_style()
 board_moves()
 ```
+
+## License and attribution
+
+`backgammonboard` is Copyright (C) 2026 Marty Gale and is licensed under the
+GNU Affero General Public License, version 3.
+
+Selected XGID decoding behavior was informed by the MIT-licensed AnkiGammon
+project. The package contains an independently authored native R implementation;
+AnkiGammon source code is not bundled and AnkiGammon is not a runtime
+dependency. Third-party notices and retained upstream license text are in
+[`THIRD_PARTY_NOTICES.md`](inst/THIRD_PARTY_NOTICES.md),
+[`XGID_SOURCES.md`](inst/provenance/XGID_SOURCES.md), and
+[`AnkiGammon-MIT.txt`](inst/licenses/AnkiGammon-MIT.txt).
+
+The software license does not grant rights to use the Backgammon Simplified
+name, logo, or branding in a way that suggests an unofficial fork is the
+official project.
