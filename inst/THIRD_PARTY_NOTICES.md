@@ -1,5 +1,21 @@
 # Third-party notices
 
+## bglab
+
+Copyright (c) 2023 backgammon authors
+
+The board-rendering implementation was informed by the MIT-licensed `bglab`
+project maintained at `lassehjorthmadsen/bglab`, in particular its
+`R/ggboard.R` implementation and board-layout approach.
+
+The released `backgammonboard` renderer has been substantially reworked and
+extended in native R with package-specific geometry, validation, display
+contexts, perspectives, checker movement overlays, dice, cube, score, branding,
+and accessibility metadata. `bglab` is not a runtime dependency and its source
+is not bundled as a package dependency.
+
+See `licenses/bglab-MIT.txt` for the retained upstream MIT license text.
+
 ## AnkiGammon
 
 Copyright (c) 2025 AnkiGammon
