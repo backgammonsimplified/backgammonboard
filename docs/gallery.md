@@ -12,7 +12,105 @@ library(backgammonboard)
 xgid <- "XGID=-b----E-C---eE---c-e----B-:0:0:1:52:0:0:0:0:10"
 ```
 
-## Default board
+The package also ships the factual XGID fixtures used by its release checks.
+They make useful reproducible gallery positions:
+
+```r
+fixture_file <- system.file(
+  "fixtures",
+  "xgid-factual-fixtures.csv",
+  package = "backgammonboard"
+)
+
+fixtures <- utils::read.csv(
+  fixture_file,
+  stringsAsFactors = FALSE
+)
+
+xgid_for <- function(id) {
+  fixtures$xgid[match(id, fixtures$fixture_id)]
+}
+```
+
+## Position showcase
+
+### Opening position
+
+```r
+ggboard(
+  xgid_for("opening_white_roll"),
+  colors = board_colors("bs"),
+  style = board_style("bs")
+)
+```
+
+### Checker on the bar
+
+```r
+ggboard(
+  xgid_for("white_bar"),
+  colors = board_colors("bs"),
+  style = board_style("bs")
+)
+```
+
+### Borne-off checkers
+
+```r
+ggboard(
+  xgid_for("borne_off"),
+  colors = board_colors("bs"),
+  style = board_style("bs")
+)
+```
+
+### Owned doubling cube
+
+```r
+ggboard(
+  xgid_for("black_owned_cube"),
+  colors = board_colors("bs"),
+  style = board_style("bs")
+)
+```
+
+### Offered doubling cube
+
+Cube questions are explicit display decisions.
+
+```r
+ggboard(
+  xgid_for("offer_to_black"),
+  decision = "take_pass",
+  colors = board_colors("bs"),
+  style = board_style("bs")
+)
+```
+
+### Match score and Crawford state
+
+```r
+ggboard(
+  xgid_for("crawford"),
+  score_format = "both",
+  colors = board_colors("bs"),
+  style = board_style("bs")
+)
+```
+
+### High cube value
+
+```r
+ggboard(
+  xgid_for("cube_64"),
+  colors = board_colors("bs"),
+  style = board_style("bs")
+)
+```
+
+## Display controls
+
+### Default board
 
 The default call renders the factual position with the package's neutral
 presentation.
@@ -21,7 +119,7 @@ presentation.
 ggboard(xgid)
 ```
 
-## Backgammon Simplified preset
+### Backgammon Simplified preset
 
 Use the explicit Backgammon Simplified color and style presets when the board
 is being shown as part of the Backgammon Simplified project.
@@ -34,45 +132,45 @@ ggboard(
 )
 ```
 
-## Change perspective
+### Change perspective
 
 Perspective changes which factual player is shown near the viewer. It does not
 change checker ownership or the factual position.
 
 ```r
 ggboard(
-  xgid,
+  xgid_for("asymmetric_white_roll"),
   perspective = "player_0"
 )
 ```
 
-## Mirror the board horizontally
+### Mirror the board horizontally
 
 Horizontal mirroring is independent of player perspective. This is useful when
 matching a teaching diagram, stream layout, or analysis convention.
 
 ```r
 ggboard(
-  xgid,
+  xgid_for("asymmetric_white_roll"),
   perspective = "player_0",
   mirror_horizontal = TRUE
 )
 ```
 
-## Keep the near player light
+### Keep the near player light
 
 The visual checker palette can follow the near player while factual player
 identity remains unchanged.
 
 ```r
 ggboard(
-  xgid,
+  xgid_for("asymmetric_white_roll"),
   perspective = "player_0",
   light_player = "near_player"
 )
 ```
 
-## Use player names
+### Use player names
 
 Player labels are display-only metadata and can be changed without altering the
 position.
