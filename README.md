@@ -53,6 +53,13 @@ plot <- ggboard(xgid)
 inherits(plot, "ggplot")
 ```
 
+## Gallery
+
+See the [rendering gallery](docs/gallery.md) for copy-pasteable examples of the
+default board, Backgammon Simplified styling, perspective and mirroring,
+near-player palette control, player labels, GNUID input, structured movement
+overlays, `ggplot2` composition, and image export.
+
 A complete GNUID can be passed through the same entry point:
 
 ```r
@@ -131,12 +138,19 @@ board_moves()
 `backgammonboard` is Copyright (C) 2026 Marty Gale and is licensed under the
 GNU Affero General Public License, version 3.
 
+Board-rendering work was informed by the MIT-licensed `bglab` project,
+particularly its `R/ggboard.R` implementation. The current renderer has been
+substantially extended and reworked for package-specific factual state,
+display transforms, cube and dice handling, information display, and structured
+movement overlays.
+
 Selected XGID decoding behavior was informed by the MIT-licensed AnkiGammon
-project. The package contains an independently authored native R implementation;
-AnkiGammon source code is not bundled and AnkiGammon is not a runtime
-dependency. Third-party notices and retained upstream license text are in
+project. The package contains a native R implementation; AnkiGammon source code
+is not bundled and AnkiGammon is not a runtime dependency. Third-party notices
+and retained upstream license texts are in
 [`THIRD_PARTY_NOTICES.md`](inst/THIRD_PARTY_NOTICES.md),
-[`XGID_SOURCES.md`](inst/provenance/XGID_SOURCES.md), and
+[`XGID_SOURCES.md`](inst/provenance/XGID_SOURCES.md),
+[`bglab-MIT.txt`](inst/licenses/bglab-MIT.txt), and
 [`AnkiGammon-MIT.txt`](inst/licenses/AnkiGammon-MIT.txt).
 
 The software license does not grant rights to use the Backgammon Simplified
