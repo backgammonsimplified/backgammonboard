@@ -7,9 +7,20 @@
 
 `backgammonboard` validates complete XGIDs and optional complete GNUIDs, constructs factual backgammon positions, and renders static `ggplot` boards with display and structured movement controls.
 
+## Documentation
+
+The browser documentation is built from the package source with pkgdown and is
+included in the main Backgammon Simplified Quarto website at:
+
+<https://backgammonsimplified.github.io/about/backgammonboard/>
+
+The documentation homepage comes from this README, the function reference is
+generated from the package help topics, and the rendering gallery is rebuilt
+from the factual fixtures shipped with the current package.
+
 ## Gallery
 
-See the [rendering gallery](docs/gallery.md) for curated examples covering opening positions, bar and borne-off states, cube ownership and offers, match and Crawford displays, perspective and mirroring, structured movements, GNUID input, and export.
+See the [generated rendering gallery](https://backgammonsimplified.github.io/about/backgammonboard/articles/gallery.html) for live examples covering opening positions, bar and borne-off states, cube ownership and offers, match and Crawford displays, perspective and mirroring, structured movements, GNUID input, and export.
 
 ## Installation
 
