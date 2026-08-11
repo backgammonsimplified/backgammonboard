@@ -15,3 +15,5 @@
 ^inst/contracts$
 ^inst/brand$
 ^LICENSE$
+^[.]github$
+^docs$
