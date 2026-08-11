@@ -11,6 +11,9 @@
 *.tar.gz
 *.zip
 
+# Generated pkgdown site
+docs/
+
 # OS/editor noise
 .DS_Store
 Thumbs.db
