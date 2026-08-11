@@ -15,13 +15,14 @@ Description: Creates validated factual backgammon position objects from complete
     'backgammoncalculator' package is available from
     <https://github.com/backgammonsimplified/backgammoncalculator>.
 License: AGPL-3
-URL: https://github.com/backgammonsimplified/backgammonboard
+URL: https://backgammonsimplified.github.io/about/backgammonboard/, https://github.com/backgammonsimplified/backgammonboard
 BugReports: https://github.com/backgammonsimplified/backgammonboard/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Config/roxygen2/version: 8.0.0
 Config/testthat/edition: 3
 Config/backgammonboard/contract-version: 1.2
+Config/Needs/website: pkgdown, rmarkdown
 Imports:
     ggforce (>= 0.4.0),
     ggplot2 (>= 3.4.0),
