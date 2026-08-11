@@ -18,4 +18,5 @@
 ^[.]github$
 ^docs$
 ^_pkgdown[.]yml$
+^pkgdown$
 ^vignettes/articles$
